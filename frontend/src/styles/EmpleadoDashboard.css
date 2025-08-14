@@ -1,0 +1,152 @@
+/* Para que el html y body ocupen toda la pantalla */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body.empleado-page {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, #1d3557, #457b9d);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#empleado-dashboard {
+  height: calc(100vh - 100px);
+  width: 95vw;
+  max-height: none; /* Para que no limite */
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+  padding: 24px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow-y: auto;
+}
+
+
+#empleado-form-container {
+  width: 95%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#empleado-form-container h2 {
+  margin-bottom: 20px;
+  text-align: center;
+  color: #0f4c81;
+}
+
+#empleado-form-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex-grow: 1;
+}
+
+#empleado-form-container label {
+  font-weight: 600;
+  color: #333;
+}
+
+/* Estilo profesional para inputs y textarea */
+#empleado-form-container input,
+#empleado-form-container textarea {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #333;
+  background-color: #f9f9f9;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.1);
+  resize: vertical;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#empleado-form-container input::placeholder,
+#empleado-form-container textarea::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+#empleado-form-container input:focus,
+#empleado-form-container textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  background-color: #fff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+#empleado-form-container button {
+  margin-top: 10px;
+  padding: 14px 20px;
+  font-weight: 700;
+  font-size: 1.15rem;
+  background: linear-gradient(90deg, #1976d2, #0d47a1);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 6px 10px rgba(0, 123, 255, 0.4);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+  width: auto;             /* tamaño natural */
+  align-self: center;      /* centrado horizontal */
+}
+
+
+#empleado-form-container button:hover {
+  background: linear-gradient(90deg, #0d47a1, #1976d2);
+  box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
+}
+
+.error {
+  color: #d93025;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+}
+
+.success {
+  color: #188038;
+  font-weight: 600;
+  margin-top: 8px;
+  text-align: center;
+}
+
+
+#empleado-form-container input[type="date"] {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #ffffff; /* texto negro */
+  background-color: #3a3a3a;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  appearance: none;       /* para ocultar ícono nativo en algunos navegadores */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* Para que el cursor muestre que es clickeable */
+#empleado-form-container input[type="date"]:focus {
+  border-color: #1d3557;
+  outline: none;
+  box-shadow: 0 0 5px rgba(29, 53, 87, 0.5);
+}

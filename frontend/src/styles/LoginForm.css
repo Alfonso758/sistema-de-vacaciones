@@ -1,0 +1,103 @@
+/* styles/LoginForm.css */
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1d3557, #457b9d);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  background-color: #ffffffdd;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form h2 {
+  text-align: center;
+  color: #1d3557;
+  margin-bottom: 1.5rem;
+}
+
+.login-form input {
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.login-form button {
+  padding: 0.75rem;
+  background: linear-gradient(90deg, #1976d2, #0d47a1);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+  background: linear-gradient(90deg, #0d47a1, #1976d2);
+  box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
+}
+
+.error {
+  color: #e63946;
+  text-align: center;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+
+.login-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-header h1 {
+  font-size: 24px;
+  color: #333;
+}
+
+.login-header p {
+  font-size: 14px;
+  color: #666;
+}
+
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center; /* centra verticalmente el contenido del wrapper */
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px; /* deja espacio suficiente para el ícono */
+  box-sizing: border-box; /* para que el padding no aumente el ancho total */
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px; /* distancia desde el borde derecho */
+  top: 50%; /* posiciona en la mitad vertical */
+  transform: translateY(-80%); /* ajusta para centrar el ícono exactamente */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  filter: drop-shadow(0 0 1px rgba(0,0,0,0.7));
+}
