@@ -44,7 +44,7 @@ function RegisterForm() {
     return (
         <div className="form-wrapper">
             <form onSubmit={handleSubmit} className="register-form">
-                <h2>Registro</h2>
+                <h2>Crear cuenta </h2>
 
                 <input
                     type="text"

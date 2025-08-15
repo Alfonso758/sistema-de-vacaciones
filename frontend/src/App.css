@@ -6,8 +6,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background: linear-gradient(to right, #dcdbdbdd, #0045b4ff);
+  padding: 0px 20px;
+  background: linear-gradient(to right, #dcdbdb, #0045b4ff);
   position: fixed;
   top: 0;
   left: 0;
@@ -91,6 +91,61 @@
 .dashboard-container {
   margin-top: 100px;
 }
+
+.user-menu {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.menu-toggle {
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff; /* ajusta según tu header */
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 50px; /* debajo del botón */
+  right: 0;
+  background-color: #222;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  list-style: none;
+  padding: 1px 0;
+  margin: 0;
+  box-shadow: 0 4px 12px rgba(246, 13, 13, 0.15);
+  min-width: 140px;
+  z-index: 2000;
+}
+
+.menu-dropdown li {
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.menu-dropdown li:hover {
+  border-radius: 8px;
+  background-color: #454545;
+}
+
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #3b3b3b; /* mismo azul de tu header */
+  color: white;
+  text-align: center;
+  padding: 8px 0;
+  font-size: 0.9rem;
+}
+
+
 
 /* RESPONSIVE */
 @media (max-width: 600px) {

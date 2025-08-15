@@ -1,152 +1,209 @@
-/* Para que el html y body ocupen toda la pantalla */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
+/* body {
+  background: #f4f6f8;
+} */
 
-body.empleado-page {
-  height: 100vh;
+.dashboard-container.full-screen {
+  display: flex;
+  height: 86vh; 
   width: 100vw;
-  margin: 0;
+  overflow: hidden; /* evita que se desplace */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transform: translateY(-40px);
+}
+
+/* Sidebar moderno */
+.sidebar {
+  width: 280px;
+  background: #1d3557;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  padding: 40px 20px;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+}
+
+.sidebar h2 {
+  margin: 0 0 50px 0;
+  font-size: 1.8rem;
+  letter-spacing: 1px;
+}
+
+.sidebar nav ul {
+  list-style: none;
   padding: 0;
-  background: linear-gradient(135deg, #1d3557, #457b9d);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-#empleado-dashboard {
-  height: calc(100vh - 100px);
-  width: 95vw;
-  max-height: none; /* Para que no limite */
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-  padding: 24px;
-  box-sizing: border-box;
-
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  overflow-y: auto;
+  gap: 20px;
 }
 
-
-#empleado-form-container {
-  width: 95%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-#empleado-form-container h2 {
-  margin-bottom: 20px;
-  text-align: center;
-  color: #0f4c81;
-}
-
-#empleado-form-container form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  flex-grow: 1;
-}
-
-#empleado-form-container label {
-  font-weight: 600;
-  color: #333;
-}
-
-/* Estilo profesional para inputs y textarea */
-#empleado-form-container input,
-#empleado-form-container textarea {
-  width: 100%;
-  padding: 12px 16px;
-  font-size: 1rem;
-  font-weight: 400;
-  color: #333;
-  background-color: #f9f9f9;
-  border: 2px solid #ddd;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: inset 0 1px 3px rgb(0 0 0 / 0.1);
-  resize: vertical;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-#empleado-form-container input::placeholder,
-#empleado-form-container textarea::placeholder {
-  color: #999;
-  font-style: italic;
-}
-
-#empleado-form-container input:focus,
-#empleado-form-container textarea:focus {
-  outline: none;
-  border-color: #007bff;
-  background-color: #fff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-
-#empleado-form-container button {
-  margin-top: 10px;
-  padding: 14px 20px;
-  font-weight: 700;
-  font-size: 1.15rem;
-  background: linear-gradient(90deg, #1976d2, #0d47a1);
-  color: white;
-  border: none;
-  border-radius: 12px;
+.sidebar nav ul li {
   cursor: pointer;
-  box-shadow: 0 6px 10px rgba(0, 123, 255, 0.4);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-
-  width: auto;             /* tamaño natural */
-  align-self: center;      /* centrado horizontal */
+  padding: 12px 16px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
 }
 
-
-#empleado-form-container button:hover {
-  background: linear-gradient(90deg, #0d47a1, #1976d2);
-  box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
+.sidebar nav ul li:hover,
+.sidebar nav ul li.active {
+  background: #457b9d;
 }
 
-.error {
-  color: #d93025;
-  font-weight: 600;
-  margin-top: 8px;
+/* Main content */
+.main-content {
+  flex-grow: 1;
+  padding: 40px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+/* Header */
+.user-header {
+  margin-bottom: 30px;
+}
+
+.user-header h1 {
+  font-size: 2rem;
+  color: #0d47a1;
+}
+
+/* Sección resumen superior */
+.summary-section {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  flex: 1;
+  background: linear-gradient(135deg, #d3e5f9, #58b4ff);
+  border-radius: 15px;
+  padding: 20px;
   text-align: center;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease;
 }
 
-.success {
-  color: #188038;
-  font-weight: 600;
-  margin-top: 8px;
-  text-align: center;
+.summary-card:hover {
+  transform: translateY(-5px);
 }
 
+.summary-card h4 {
+  margin-bottom: 10px;
+  color: #1976d2;
+}
 
-#empleado-form-container input[type="date"] {
-  padding: 0.75rem;
-  margin-bottom: 1rem;
+/* Formulario central */
+.form-section {
+  display: flex;
+  justify-content: center;
+}
+
+.form-card {
+  background: linear-gradient(145deg, #d3e5f9, #58b4ff);
+  border-radius: 16px;
+  padding: 30px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.form-card h3 {
+  margin-bottom: 20px;
+  color: #0d47a1;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+form label {
+  font-weight: 500;
+  color: #333;
+}
+
+form input[type="date"] {
+  padding: 12px;
+  border-radius: 12px;
   border: 1px solid #ccc;
-  border-radius: 8px;
   font-size: 1rem;
-  color: #ffffff; /* texto negro */
-  background-color: #3a3a3a;
-  box-sizing: border-box;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  appearance: none;       /* para ocultar ícono nativo en algunos navegadores */
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  width: auto;
 }
 
-/* Para que el cursor muestre que es clickeable */
-#empleado-form-container input[type="date"]:focus {
-  border-color: #1d3557;
+form input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 10px rgba(25,118,210,0.3);
   outline: none;
-  box-shadow: 0 0 5px rgba(29, 53, 87, 0.5);
+}
+
+form button {
+  padding: 14px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: auto;        /* ancho fijo */
+  display: block;    /* necesario para que margin funcione */
+  margin: 0 auto;    /* centra horizontalmente */
+}
+
+
+form button:hover {
+  background: #0d47a1;
+  transform: translateY(-2px);
+}
+
+/* Mensajes */
+.error { color: #d32f2f; font-weight: 600; }
+.success { color: #388e3c; font-weight: 600; }
+
+/* Listas y calendario */
+.list-card, .calendar-card, .notification-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease;
+}
+
+.list-card:hover, .calendar-card:hover, .notification-card:hover {
+  transform: translateY(-5px);
+}
+
+.list-card h3, .calendar-card h3, .notification-card h3 {
+  color: #0d47a1;
+  margin-bottom: 20px;
+}
+
+
+/* Agrupa label e input para que label quede arriba */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px; /* espacio entre label e input */
+  margin-bottom: 16px;
+}
+
+.input-group label {
+  font-weight: 500;
+  color: #333;
+  font-size: 1rem;
+}
+
+.input-group input {
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  background-color: #414040;
+}
+
+.input-group input:focus {
+  outline: none;
+  border-color: #1976d2;
+  box-shadow: 0 0 8px rgba(25,118,210,0.3);
 }

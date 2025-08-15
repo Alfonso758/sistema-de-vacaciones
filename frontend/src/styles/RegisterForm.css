@@ -1,11 +1,12 @@
-
-
 /* Contenedor centrado */
 .form-wrapper {
+  width: 200%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: calc(100vh - 60px); /* Después del header */
+  height: calc(100vh - 60px);
+  transform: translateX(-130px);
+  /* Después del header */
 }
 
 /* Formulario */
@@ -27,8 +28,8 @@
 /* Inputs */
 .register-form input {
   width: 95%;
-  padding: 12px;
-  margin-bottom: 14px;
+  padding: 10px;
+  margin-bottom: 10px;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 1rem;

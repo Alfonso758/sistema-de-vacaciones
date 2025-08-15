@@ -6,6 +6,7 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
   const [fechaFin, setFechaFin] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [selectedTab, setSelectedTab] = useState(activeTab || 'Nueva solicitud');
 
   useEffect(() => {
     document.body.classList.add("empleado-page");
@@ -16,7 +17,6 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
     e.preventDefault();
     setError('');
     setSuccess('');
-
     if (!fechaInicio || !fechaFin) {
       setError('Por favor completa todos los campos.');
       return;
@@ -25,76 +25,89 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
       setError('La fecha de fin no puede ser anterior a la fecha de inicio.');
       return;
     }
-
     setSuccess('Solicitud de vacaciones enviada correctamente.');
     setFechaInicio('');
     setFechaFin('');
-    setMotivo('');
   };
 
-  // Función para renderizar contenido según la pestaña activa
   const renderContent = () => {
-    switch (activeTab) {
+    switch (selectedTab) {
       case 'Nueva solicitud':
         return (
-          <div id="empleado-form-container">
-            <h2>Información del empleado</h2>
-            <label>Nombre: {userName + " " + userSurname}</label>
-            <label>Días disponibles:</label>
+          <>
+            <div className="summary-section">
+              <div className="summary-card days-card">
+                <h4>Bienvenido</h4>
+                <p>{userName} {userSurname}</p>
+              </div>
+              <div className="summary-card upcoming-card">
+                <h4>Días Disponibles</h4>
+                <p>15</p>
+              </div>
+              <div className="summary-card status-card">
+                <h4>Próximas Vacaciones</h4>
+                <p>12 - 16 Ago 2025</p>
+              </div>
+            </div>
 
-            <h2>Nueva solicitud</h2>
-            <form onSubmit={handleSubmit}>
-              <label>
-                Fecha de Inicio:
-                <input
-                  type="date"
-                  value={fechaInicio}
-                  onChange={(e) => setFechaInicio(e.target.value)}
-                  required
-                />
-              </label>
+            <div className="form-section">
+              <div className="form-card form-card-wide">
+                <h3>Nueva solicitud</h3>
+                <form onSubmit={handleSubmit}>
+                  <div className="input-group">
+                    <label>Fecha de Inicio</label>
+                    <input
+                      type="date"
+                      value={fechaInicio}
+                      onChange={(e) => setFechaInicio(e.target.value)}
+                    />
+                  </div>
 
-              <label>
-                Fecha de Fin:
-                <input
-                  type="date"
-                  value={fechaFin}
-                  onChange={(e) => setFechaFin(e.target.value)}
-                  required
-                />
-              </label>
+                  <div className="input-group">
+                    <label>Fecha de Fin</label>
+                    <input
+                      type="date"
+                      value={fechaFin}
+                      onChange={(e) => setFechaFin(e.target.value)}
+                    />
+                  </div>
 
-              <button type="submit">
-                Enviar Solicitud
-              </button>
-
-              {error && <p className="error">{error}</p>}
-              {success && <p className="success">{success}</p>}
-            </form>
-          </div>
+                  <button type="submit">Enviar Solicitud</button>
+                  {error && <p className="error">{error}</p>}
+                  {success && <p className="success">{success}</p>}
+                </form>
+              </div>
+            </div>
+          </>
         );
 
       case 'Solicitudes':
         return (
-          <div id="empleado-form-container">
-            <h2>Lista de solicitudes</h2>
-            <label>Aquí se mostrarían las solicitudes enviadas por el empleado.</label>
+          <div className="list-section">
+            <div className="list-card">
+              <h3>Solicitudes Enviadas</h3>
+              <p>Aquí se mostrarían las solicitudes del empleado con estados y fechas.</p>
+            </div>
           </div>
         );
 
       case 'Calendario':
         return (
-          <div id="empleado-form-container">
-            <h2>Calendario de vacaciones</h2>
-            <label>Aquí se mostraría un calendario con los días de vacaciones.</label>
+          <div className="calendar-section">
+            <div className="calendar-card">
+              <h3>Calendario de Vacaciones</h3>
+              <p>Aquí se mostraría un calendario interactivo.</p>
+            </div>
           </div>
         );
 
       case 'Notificaciones':
         return (
-          <div id="empleado-form-container">
-            <h2>Notificaciones</h2>
-            <label>Aquí se mostrarían las notificaciones para el empleado.</label>
+          <div className="notification-section">
+            <div className="notification-card">
+              <h3>Notificaciones</h3>
+              <p>Aquí se mostrarían las notificaciones del empleado.</p>
+            </div>
           </div>
         );
 
@@ -104,8 +117,26 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
   };
 
   return (
-    <div id="empleado-dashboard">
-      {renderContent()}
+    <div className="dashboard-container full-screen">
+      <aside className="sidebar">
+        <h2>Panel</h2>
+        <nav>
+          <ul>
+            {['Nueva solicitud', 'Solicitudes', 'Calendario', 'Notificaciones'].map(tab => (
+              <li
+                key={tab}
+                className={selectedTab === tab ? 'active' : ''}
+                onClick={() => setSelectedTab(tab)}
+              >
+                {tab}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </aside>
+      <main className="main-content">
+        {renderContent()}
+      </main>
     </div>
   );
 }
