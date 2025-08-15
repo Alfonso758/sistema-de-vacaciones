@@ -77,7 +77,7 @@
   flex: 1;
   background: linear-gradient(135deg, #d3e5f9, #58b4ff);
   border-radius: 15px;
-  padding: 20px;
+  padding: 10px;
   text-align: center;
   box-shadow: 0 8px 20px rgba(0,0,0,0.08);
   transition: transform 0.3s ease;
@@ -101,7 +101,7 @@
 .form-card {
   background: linear-gradient(145deg, #d3e5f9, #58b4ff);
   border-radius: 16px;
-  padding: 30px;
+  padding: 20px;
   width: 100%;
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
