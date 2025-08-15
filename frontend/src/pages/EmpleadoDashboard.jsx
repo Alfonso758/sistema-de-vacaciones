@@ -76,25 +76,25 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
 
       case 'Solicitudes':
         return (
-          <div>
+          <div id="empleado-form-container">
             <h2>Lista de solicitudes</h2>
-            <p>Aquí se mostrarían las solicitudes enviadas por el empleado.</p>
+            <label>Aquí se mostrarían las solicitudes enviadas por el empleado.</label>
           </div>
         );
 
       case 'Calendario':
         return (
-          <div>
+          <div id="empleado-form-container">
             <h2>Calendario de vacaciones</h2>
-            <p>Aquí se mostraría un calendario con los días de vacaciones.</p>
+            <label>Aquí se mostraría un calendario con los días de vacaciones.</label>
           </div>
         );
 
       case 'Notificaciones':
         return (
-          <div>
+          <div id="empleado-form-container">
             <h2>Notificaciones</h2>
-            <p>Aquí se mostrarían las notificaciones para el empleado.</p>
+            <label>Aquí se mostrarían las notificaciones para el empleado.</label>
           </div>
         );
 

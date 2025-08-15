@@ -7,6 +7,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
 function App() {
+  // Estado del usuario
   const [user, setUser] = useState(() => {
     const storedUser = localStorage.getItem('user');
     return storedUser ? JSON.parse(storedUser) : null;
@@ -18,9 +19,15 @@ function App() {
   // Cambia pestaña inicial al iniciar sesión
   useEffect(() => {
     if (!user) return;
+
+    // Inicializa la pestaña según el rol
     if (user.rol_id === 1 || user.rol_id === 2) setSelectedNav('Nueva solicitud');
     if (user.rol_id === 3) setSelectedNav('Solicitudes');
-  }, [user]);
+
+    // Para prueba: fuerza rol_id = 0
+    // Esto simula un usuario sin acceso
+    //setUser((prev) => ({ ...prev, rol_id: 0 }));
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
@@ -28,6 +35,7 @@ function App() {
     setSelectedNav('');
   };
 
+  // Mostrar login o registro si no hay usuario
   if (!user) {
     return showRegister ? (
       <>
@@ -48,6 +56,7 @@ function App() {
     );
   }
 
+  // Tabs según rol
   const rolTabs = {
     1: ['Nueva solicitud', 'Solicitudes', 'Calendario', 'Notificaciones'],
     2: ['Nueva solicitud', 'Solicitudes', 'Calendario', 'Reportes', 'Notificaciones'],
@@ -63,7 +72,7 @@ function App() {
         </div>
 
         <nav className="nav-bar">
-          {rolTabs[user.rol_id].map((btn) => (
+          {rolTabs[user.rol_id]?.map((btn) => (
             <button
               key={btn}
               onClick={() => setSelectedNav(btn)}
@@ -92,11 +101,15 @@ function App() {
       {/* DASHBOARD */}
       <div className="dashboard-container">
         {user.rol_id === 1 && (
-          <EmpleadoDashboard userName={user.nombre} userSurname={user.apellidos} activeTab={selectedNav} />
+          <EmpleadoDashboard
+            userName={user.nombre}
+            userSurname={user.apellidos}
+            activeTab={selectedNav}
+          />
         )}
         {user.rol_id === 2 && <SupervisorDashboard activeTab={selectedNav} />}
         {user.rol_id === 3 && <AdminDashboard activeTab={selectedNav} />}
-        {!([1, 2, 3].includes(user.rol_id)) && <p>No tienes acceso al sistema.</p>}
+        {!([1, 2, 3].includes(user.rol_id)) && <label>No tienes acceso al sistema.</label>}
       </div>
     </>
   );
