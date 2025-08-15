@@ -4,9 +4,10 @@
 
 .dashboard-container.full-screen {
   display: flex;
-  height: 86vh; 
+  height: 86vh;
   width: 100vw;
-  overflow: hidden; /* evita que se desplace */
+  overflow: hidden;
+  /* evita que se desplace */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transform: translateY(-40px);
 }
@@ -18,8 +19,30 @@
   color: #fff;
   display: flex;
   flex-direction: column;
-  padding: 40px 20px;
-  box-shadow: 2px 0 12px rgba(0,0,0,0.1);
+  padding: 20px;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collapse-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.sidebar ul li .icon {
+  font-size: 1.2rem;
 }
 
 .sidebar h2 {
@@ -37,10 +60,20 @@
 }
 
 .sidebar nav ul li {
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   padding: 12px 16px;
   border-radius: 10px;
   transition: all 0.3s ease;
+}
+
+.sidebar.collapsed nav ul li {
+  justify-content: center;
+}
+
+.sidebar.collapsed nav ul li .text {
+  display: none;
 }
 
 .sidebar nav ul li:hover,
@@ -79,7 +112,7 @@
   border-radius: 15px;
   padding: 10px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
 }
 
@@ -103,7 +136,7 @@
   border-radius: 16px;
   padding: 20px;
   width: 100%;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 .form-card h3 {
@@ -132,7 +165,7 @@ form input[type="date"] {
 
 form input:focus {
   border-color: #1976d2;
-  box-shadow: 0 0 10px rgba(25,118,210,0.3);
+  box-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
   outline: none;
 }
 
@@ -146,9 +179,12 @@ form button {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: auto;        /* ancho fijo */
-  display: block;    /* necesario para que margin funcione */
-  margin: 0 auto;    /* centra horizontalmente */
+  width: auto;
+  /* ancho fijo */
+  display: block;
+  /* necesario para que margin funcione */
+  margin: 0 auto;
+  /* centra horizontalmente */
 }
 
 
@@ -158,23 +194,36 @@ form button:hover {
 }
 
 /* Mensajes */
-.error { color: #d32f2f; font-weight: 600; }
-.success { color: #388e3c; font-weight: 600; }
+.error {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+.success {
+  color: #388e3c;
+  font-weight: 600;
+}
 
 /* Listas y calendario */
-.list-card, .calendar-card, .notification-card {
+.list-card,
+.calendar-card,
+.notification-card {
   background: #fff;
   border-radius: 16px;
   padding: 30px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   transition: transform 0.3s ease;
 }
 
-.list-card:hover, .calendar-card:hover, .notification-card:hover {
+.list-card:hover,
+.calendar-card:hover,
+.notification-card:hover {
   transform: translateY(-5px);
 }
 
-.list-card h3, .calendar-card h3, .notification-card h3 {
+.list-card h3,
+.calendar-card h3,
+.notification-card h3 {
   color: #0d47a1;
   margin-bottom: 20px;
 }
@@ -184,7 +233,8 @@ form button:hover {
 .input-group {
   display: flex;
   flex-direction: column;
-  gap: 6px; /* espacio entre label e input */
+  gap: 6px;
+  /* espacio entre label e input */
   margin-bottom: 16px;
 }
 
@@ -205,5 +255,5 @@ form button:hover {
 .input-group input:focus {
   outline: none;
   border-color: #1976d2;
-  box-shadow: 0 0 8px rgba(25,118,210,0.3);
+  box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
 }

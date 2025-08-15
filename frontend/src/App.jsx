@@ -77,8 +77,8 @@ function App() {
 
       <div className="dashboard-container">
         {user.rol_id === 1 && <EmpleadoDashboard userName={user.nombre} userSurname={user.apellidos} />}
-        {user.rol_id === 2 && <SupervisorDashboard />}
-        {user.rol_id === 3 && <AdminDashboard />}
+        {user.rol_id === 2 && <SupervisorDashboard userName={user.nombre} userSurname={user.apellidos} />}
+        {user.rol_id === 3 && <AdminDashboard userName={user.nombre} userSurname={user.apellidos} />}
         {!([1, 2, 3].includes(user.rol_id)) && <label>No tienes acceso al sistema.</label>}
       </div>
 

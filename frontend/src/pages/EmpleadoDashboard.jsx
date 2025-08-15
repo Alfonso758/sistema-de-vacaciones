@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../styles/EmpleadoDashboard.css';
+import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
 
 export default function EmpleadoDashboard({ userName, userSurname, activeTab }) {
   const [fechaInicio, setFechaInicio] = useState('');
@@ -7,6 +8,7 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [selectedTab, setSelectedTab] = useState(activeTab || 'Nueva solicitud');
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
     document.body.classList.add("empleado-page");
@@ -76,7 +78,6 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
                   {error && <p className="error">{error}</p>}
                   {success && <p className="success">{success}</p>}
                 </form>
-                <br></br><br></br><br></br>
               </div>
             </div>
           </>
@@ -119,17 +120,31 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
 
   return (
     <div className="dashboard-container full-screen">
-      <aside className="sidebar">
-        <h2>Panel</h2>
+      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+        <div className="sidebar-header">
+          <h2>{!isCollapsed && 'Panel'}</h2>
+          <button
+            className="collapse-btn"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            <FaBars />
+          </button>
+        </div>
         <nav>
           <ul>
-            {['Nueva solicitud', 'Solicitudes', 'Calendario', 'Notificaciones'].map(tab => (
+            {[
+              { name: 'Nueva solicitud', icon: <FaPlusCircle /> },
+              { name: 'Solicitudes', icon: <FaListAlt /> },
+              { name: 'Calendario', icon: <FaCalendarAlt /> },
+              { name: 'Notificaciones', icon: <FaBell /> }
+            ].map(({ name, icon }) => (
               <li
-                key={tab}
-                className={selectedTab === tab ? 'active' : ''}
-                onClick={() => setSelectedTab(tab)}
+                key={name}
+                className={selectedTab === name ? 'active' : ''}
+                onClick={() => setSelectedTab(name)}
               >
-                {tab}
+                <span className="icon">{icon}</span>
+                {!isCollapsed && <span className="text">{name}</span>}
               </li>
             ))}
           </ul>
