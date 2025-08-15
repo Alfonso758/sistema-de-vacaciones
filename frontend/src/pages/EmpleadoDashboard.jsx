@@ -76,6 +76,7 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
                   {error && <p className="error">{error}</p>}
                   {success && <p className="success">{success}</p>}
                 </form>
+                <br></br><br></br><br></br><br></br><br></br>
               </div>
             </div>
           </>
