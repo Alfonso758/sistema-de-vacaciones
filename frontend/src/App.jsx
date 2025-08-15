@@ -27,7 +27,7 @@ function App() {
     // Para prueba: fuerza rol_id = 0
     // Esto simula un usuario sin acceso
     //setUser((prev) => ({ ...prev, rol_id: 0 }));
-  }, []);
+  }, [user]);
 
   const handleLogout = () => {
     localStorage.removeItem('user');
