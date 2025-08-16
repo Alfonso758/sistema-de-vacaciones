@@ -38,19 +38,33 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
         return (
           <>
             <div className="summary-section">
+
+              {/* Tarjeta de bienvenida */}
               <div className="summary-card days-card">
-                <h4>Bienvenido</h4>
-                <p>{userName} {userSurname}</p>
+                <h4>Empleado</h4>
+                <p><strong>{userName} {userSurname}</strong></p>
+                <p>Puesto: Analista de Software</p>
+                <p>Área: Desarrollo</p>
               </div>
+
+              {/* Tarjeta de vacaciones */}
               <div className="summary-card upcoming-card">
-                <h4>Días Disponibles</h4>
-                <p>15</p>
+                <h4>Vacaciones</h4>
+                <p><strong>Días disponibles:</strong> 15</p>
+                <p><strong>Última solicitud:</strong> 05 Julio 2025</p>
+                <p><strong>Próxima renovación:</strong> 16 Agosto 2025</p>
               </div>
+
+              {/* Tarjeta de antigüedad y estado */}
               <div className="summary-card status-card">
-                <h4>Próximas Vacaciones</h4>
-                <p>12 - 16 Ago 2025</p>
+                <h4>Perfil laboral</h4>
+                <p><strong>Tiempo en la empresa:</strong> 6 años</p>
+                <p><strong>Estado:</strong> Activo</p>
+                <p><strong>Jefe directo:</strong> Laura Martínez</p>
               </div>
+
             </div>
+
 
             <div className="form-section">
               <div className="form-card form-card-wide">

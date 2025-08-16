@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import '../styles/EmpleadoDashboard.css';
-import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
+import {FaFileAlt , FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
 
 export default function AdminDashboard({ userName, userSurname, activeTab }) {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [selectedTab, setSelectedTab] = useState(activeTab || 'Nueva solicitud');
+  const [selectedTab, setSelectedTab] = useState(activeTab || 'Solicitudes');
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -133,9 +133,9 @@ export default function AdminDashboard({ userName, userSurname, activeTab }) {
         <nav>
           <ul>
             {[
-              { name: 'Nueva solicitud', icon: <FaPlusCircle /> },
               { name: 'Solicitudes', icon: <FaListAlt /> },
               { name: 'Calendario', icon: <FaCalendarAlt /> },
+              { name: 'Reportes', icon: <FaFileAlt   /> },
               { name: 'Notificaciones', icon: <FaBell /> }
             ].map(({ name, icon }) => (
               <li
