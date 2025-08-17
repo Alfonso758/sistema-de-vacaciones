@@ -52,6 +52,7 @@
 }
 
 .sidebar nav ul {
+  cursor: pointer;
   list-style: none;
   padding: 0;
   display: flex;
@@ -175,22 +176,19 @@ form button {
   border-radius: 12px;
   font-weight: 600;
   font-size: 1rem;
-  background: #1976d2;
+  background: linear-gradient(90deg, #1976d2, #0d47a1);
   color: #fff;
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
   width: auto;
-  /* ancho fijo */
   display: block;
-  /* necesario para que margin funcione */
   margin: 0 auto;
-  /* centra horizontalmente */
 }
 
-
 form button:hover {
-  background: #0d47a1;
+  background: linear-gradient(90deg, #0d47a1, #1976d2);
+  box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
   transform: translateY(-2px);
 }
 
