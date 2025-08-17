@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
 
-export default function EmpleadoDashboard({ userName, userSurname, activeTab }) {
+export default function EmpleadoDashboard({userID, userName, userSurname, activeTab }) {
   const [fechaInicio, setFechaInicio] = useState('');
   const [fechaFin, setFechaFin] = useState('');
   const [error, setError] = useState('');
@@ -15,22 +15,45 @@ export default function EmpleadoDashboard({ userName, userSurname, activeTab }) 
     return () => document.body.classList.remove("empleado-page");
   }, []);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
+
     if (!fechaInicio || !fechaFin) {
       setError('Por favor completa todos los campos.');
       return;
     }
+
     if (fechaFin < fechaInicio) {
       setError('La fecha de fin no puede ser anterior a la fecha de inicio.');
       return;
     }
-    setSuccess('Solicitud de vacaciones enviada correctamente.');
-    setFechaInicio('');
-    setFechaFin('');
+
+    try {
+      const response = await fetch('http://localhost:8000/api/solicitudes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}` // si usas token
+        },
+        body: JSON.stringify({
+          usuario_id: userID,
+          fecha_inicio: fechaInicio,
+          fecha_fin: fechaFin
+        })
+      });
+
+      if (!response.ok) throw new Error('Error al registrar la solicitud');
+
+      setSuccess('Solicitud de vacaciones enviada correctamente.');
+      setFechaInicio('');
+      setFechaFin('');
+    } catch (err) {
+      setError(err.message);
+    }
   };
+
 
   const renderContent = () => {
     switch (selectedTab) {

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->date('fecha_solicitud')->after('fecha_fin');
             $table->string('estado')->after('fecha_solicitud');
             $table->text('comentario')->nullable()->after('estado');
-            $table->date('fecha_respuesta')->after('comentario');
+            $table->date('fecha_respuesta')->nullable()->after('comentario');
             $table->unsignedBigInteger('revisado_por')->nullable()->after('fecha_respuesta');
 
             // Llaves foráneas
