@@ -83,7 +83,7 @@ function App() {
       </div>
 
       <footer className="app-footer">
-        <p>© {new Date().getFullYear()} Todos los derechos reservados</p>
+        <p>© {new Date().getFullYear()} sokolabs. Todos los derechos reservados</p>
       </footer>
     </>
   );
