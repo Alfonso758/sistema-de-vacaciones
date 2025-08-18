@@ -1,57 +1,64 @@
-/* body {
-  background: #f4f6f8;
-} */
-
-.dashboard-container.full-screen {
+/* Contenedor principal */
+.contenedor-dashboard.pantalla-completa {
   display: flex;
   height: 86vh;
-  width: 100vw;
+  width: 99vw;
   overflow: hidden;
-  /* evita que se desplace */
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f1f1f1;
   transform: translateY(-40px);
 }
 
-/* Sidebar moderno */
-.sidebar {
-  width: 280px;
-  background: #1d3557;
-  color: #fff;
+/* Barra lateral moderna */
+.barra-lateral {
+  width: 200px;
+  height: 100vw;
+  background: #f1f1f1;
+  color: #717171;
   display: flex;
   flex-direction: column;
   padding: 20px;
   transition: width 0.3s ease;
+  box-shadow: 0 0 8px #0000004d;
 }
 
-.sidebar.collapsed {
+.titulo1 {
+color:#0d47a1;
+}
+
+.barra-lateral.colapsada {
   width: 80px;
 }
 
-.sidebar-header {
+.encabezado-barra {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.collapse-btn {
+.boton-colapsar {
   background: none;
   border: none;
-  color: white;
+  color: #717171;
   font-size: 1.2rem;
-  cursor: pointer;
+  outline: none;
 }
 
-.sidebar ul li .icon {
+.boton-colapsar:focus {
+  outline: none; 
+}
+
+.barra-lateral ul li .icono {
   font-size: 1.2rem;
 }
 
-.sidebar h2 {
+.barra-lateral h3 {
   margin: 0 0 50px 0;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   letter-spacing: 1px;
 }
 
-.sidebar nav ul {
+.barra-lateral nav ul {
   cursor: pointer;
   list-style: none;
   padding: 0;
@@ -60,7 +67,7 @@
   gap: 20px;
 }
 
-.sidebar nav ul li {
+.barra-lateral nav ul li {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -69,111 +76,103 @@
   transition: all 0.3s ease;
 }
 
-.sidebar.collapsed nav ul li {
+.barra-lateral.colapsada nav ul li {
   justify-content: center;
 }
 
-.sidebar.collapsed nav ul li .text {
+.barra-lateral.colapsada nav ul li .texto {
   display: none;
 }
 
-.sidebar nav ul li:hover,
-.sidebar nav ul li.active {
-  background: #457b9d;
+.barra-lateral nav ul li:hover,
+.barra-lateral nav ul li.activo {
+  color: #2daeff;
+  cursor: pointer; /* 👈 para la manita */
 }
 
-/* Main content */
-.main-content {
+/* Contenido principal */
+.contenido-principal {
   flex-grow: 1;
   padding: 40px;
   overflow-y: auto;
   height: 100%;
 }
 
-/* Header */
-.user-header {
-  margin-bottom: 30px;
-}
-
-.user-header h1 {
-  font-size: 2rem;
-  color: #0d47a1;
-}
-
-/* Sección resumen superior */
-.summary-section {
-  display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.summary-card {
-  flex: 1;
-  background: linear-gradient(135deg, #d3e5f9, #58b4ff);
-  border-radius: 15px;
-  padding: 0px;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease;
-  line-height: 0.7;
-}
-
-.summary-card:hover {
-  transform: translateY(-5px);
-}
-
-.summary-card h4 {
-  margin-bottom: 10px;
-  color: #1976d2;
-}
-
 /* Formulario central */
-.form-section {
+.seccion-formulario {
   display: flex;
   justify-content: center;
 }
 
-.form-card {
-  background: linear-gradient(145deg, #d3e5f9, #58b4ff);
-  border-radius: 16px;
+.tarjeta-formulario {
+  background: #ffffff;
+  color: #000000;
+  border-radius: 8px;
   padding: 20px;
   width: 100%;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
-.form-card h3 {
-  margin-bottom: 20px;
-  color: #0d47a1;
+.disponibles {
+  color: #717171;
 }
 
+.labels-linea {
+  display: flex;
+  align-items: center; 
+  gap: 8px;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  color: #000000;
+}
+
+.labels-linea label {
+  line-height: 1;    
+  vertical-align: middle; 
+  margin: 0;      
+}
+
+
+/* Contenedor del formulario */
 form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* dos columnas iguales */
+  gap: 20px; /* espacio entre columnas y filas */
+  position: relative; /* necesario para colocar el botón */
+}
+
+/* Cada grupo de input mantiene su estilo */
+.grupo-input {
   display: flex;
   flex-direction: column;
-  gap: 18px;
 }
 
-form label {
+.grupo-input label {
   font-weight: 500;
   color: #333;
+  margin-bottom: 5px;
 }
 
-form input[type="date"] {
+.grupo-input input[type="date"] {
   padding: 12px;
-  border-radius: 12px;
+  background-color: #e0efff;
+  color: #000000;
+  border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 1rem;
-  width: auto;
 }
 
-form input:focus {
+.grupo-input input:focus {
   border-color: #1976d2;
   box-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
   outline: none;
 }
 
+/* Botón en la esquina inferior derecha */
 form button {
+  grid-column: 2; /* ocupa la segunda columna */
+  justify-self: end; /* alinea al final de la columna */
   padding: 14px 20px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 1rem;
   background: linear-gradient(90deg, #1976d2, #0d47a1);
@@ -181,9 +180,6 @@ form button {
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
-  width: auto;
-  display: block;
-  margin: 0 auto;
 }
 
 form button:hover {
@@ -193,20 +189,20 @@ form button:hover {
 }
 
 /* Mensajes */
-.error {
+.mensaje-error {
   color: #d32f2f;
   font-weight: 600;
 }
 
-.success {
+.mensaje-exito {
   color: #388e3c;
   font-weight: 600;
 }
 
-/* Listas y calendario */
-.list-card,
-.calendar-card,
-.notification-card {
+/* Listas, calendario y notificaciones */
+.tarjeta-lista,
+.tarjeta-calendario,
+.tarjeta-notificaciones {
   background: #fff;
   border-radius: 16px;
   padding: 30px;
@@ -214,36 +210,28 @@ form button:hover {
   transition: transform 0.3s ease;
 }
 
-.list-card:hover,
-.calendar-card:hover,
-.notification-card:hover {
-  transform: translateY(-5px);
-}
-
-.list-card h3,
-.calendar-card h3,
-.notification-card h3 {
+.tarjeta-lista h3,
+.tarjeta-calendario h3,
+.tarjeta-notificaciones h3 {
   color: #0d47a1;
   margin-bottom: 20px;
 }
 
-
-/* Agrupa label e input para que label quede arriba */
-.input-group {
+/* Inputs agrupados */
+.grupo-input {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  /* espacio entre label e input */
   margin-bottom: 16px;
 }
 
-.input-group label {
+.grupo-input label {
   font-weight: 500;
   color: #333;
   font-size: 1rem;
 }
 
-.input-group input {
+.grupo-input input {
   padding: 12px;
   border-radius: 10px;
   border: 1px solid #ccc;
@@ -251,7 +239,7 @@ form button:hover {
   background-color: #414040;
 }
 
-.input-group input:focus {
+.grupo-input input:focus {
   outline: none;
   border-color: #1976d2;
   box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);

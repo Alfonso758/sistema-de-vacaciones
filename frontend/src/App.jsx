@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { FaUser, FaCog, FaQuestionCircle, FaSignOutAlt } from 'react-icons/fa';
+import { useState, useEffect, useRef } from 'react';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import EmpleadoDashboard from './pages/EmpleadoDashboard';
@@ -7,39 +8,53 @@ import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(() => {
-    const storedUser = localStorage.getItem('user');
-    return storedUser ? JSON.parse(storedUser) : null;
+  const [usuario, setUsuario] = useState(() => {
+    const usuarioGuardado = localStorage.getItem('usuario');
+    return usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
   });
 
-  const [showRegister, setShowRegister] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mostrarRegistro, setMostrarRegistro] = useState(false);
+  const [menuAbierto, setMenuAbierto] = useState(false);
+  const menuRef = useRef(null); // ref para detectar clicks afuera
 
   // Cierra el menú al cambiar de usuario
   useEffect(() => {
-    setMenuOpen(false);
-  }, [user]);
+    setMenuAbierto(false);
+  }, [usuario]);
 
-  const handleLogout = () => {
-    localStorage.removeItem('user');
-    setUser(null);
+  // Cierra el menú si se hace click fuera
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuAbierto(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const manejarLogout = () => {
+    localStorage.removeItem('usuario');
+    setUsuario(null);
   };
 
-  if (!user) {
-    return showRegister ? (
+  if (!usuario) {
+    return mostrarRegistro ? (
       <>
-        <RegisterForm onRegisterSuccess={setUser} />
-        <p className="center-text">
+        <RegisterForm onRegisterSuccess={setUsuario} />
+        <p className="texto-centrado">
           ¿Ya tienes una cuenta?{' '}
-          <button onClick={() => setShowRegister(false)}>Inicia sesión</button>
+          <button onClick={() => setMostrarRegistro(false)}>Inicia sesión</button>
         </p>
       </>
     ) : (
       <>
-        <LoginForm onLoginSuccess={setUser} />
-        <p className="center-text">
+        <LoginForm onLoginSuccess={setUsuario} />
+        <p className="texto-centrado">
           ¿No tienes cuenta?{' '}
-          <button onClick={() => setShowRegister(true)}>Regístrate</button>
+          <button onClick={() => setMostrarRegistro(true)}>Regístrate</button>
         </p>
       </>
     );
@@ -47,43 +62,71 @@ function App() {
 
   return (
     <>
-      <header className="app-header">
-        <div className="logo-container">
+      <header className="encabezado-app">
+        <div className="contenedor-logo">
           <img src="http://localhost:8000/images/soko.png" alt="Logo" className="logo" />
         </div>
 
-        <div className="user-info">
-          <span className="user-name">{user.nombre || user.name || 'Usuario'}</span>
+        <div className="info-usuario" ref={menuRef}>
+          <span className="nombre-usuario">{usuario.nombre || usuario.name || 'Usuario'}</span>
           <img
-            src={user.avatarUrl || 'http://localhost:8000/images/user.jpg'}
+            src={usuario.avatarUrl || 'http://localhost:8000/images/user.jpg'}
             alt="Foto de perfil"
-            className="profile-pic"
+            className="foto-perfil"
           />
-          <div className="user-menu">
-            <button className="menu-toggle" onClick={() => setMenuOpen((prev) => !prev)}>
+          <div className="menu-usuario">
+            <button
+              className="boton-menu"
+              onClick={() => setMenuAbierto((prev) => !prev)}
+              style={{ outline: 'none' }} // quita la línea negra al hacer click
+            >
               &#9776;
             </button>
-            {menuOpen && (
-              <ul className="menu-dropdown">
-                <li onClick={() => alert('Ir a perfil')}>Perfil</li>
-                <li onClick={() => alert('Configuración')}>Configuración</li>
-                <li onClick={() => alert('Ayuda')}>Ayuda</li>
-                <li onClick={handleLogout}>Cerrar sesión</li>
+            {menuAbierto && (
+              <ul className="menu-desplegable">
+                <li onClick={() => alert('Ir a perfil')}>
+                  <FaUser style={{ marginRight: '8px' }} /> Perfil
+                </li>
+                <li onClick={() => alert('Configuración')}>
+                  <FaCog style={{ marginRight: '8px' }} /> Configuración
+                </li>
+                <li onClick={() => alert('Ayuda')}>
+                  <FaQuestionCircle style={{ marginRight: '8px' }} /> Ayuda
+                </li>
+                <li onClick={manejarLogout}>
+                  <FaSignOutAlt style={{ marginRight: '8px' }} /> Cerrar sesión
+                </li>
               </ul>
             )}
           </div>
         </div>
       </header>
 
-      <div className="dashboard-container">
-        {user.rol_id === 1 && <EmpleadoDashboard userID={user.usuarioID} userName={user.nombre} userSurname={user.apellidos} />}
-        {user.rol_id === 2 && <SupervisorDashboard userName={user.nombre} userSurname={user.apellidos} />}
-        {user.rol_id === 3 && <AdminDashboard userName={user.nombre} userSurname={user.apellidos} />}
-        {!([1, 2, 3].includes(user.rol_id)) && <label>No tienes acceso al sistema.</label>}
+      <div className="contenedor-dashboard">
+        {usuario.rol_id === 1 && (
+          <EmpleadoDashboard
+            userID={usuario.usuarioID}
+            userName={usuario.nombre}
+            userSurname={usuario.apellidos}
+          />
+        )}
+        {usuario.rol_id === 2 && (
+          <SupervisorDashboard
+            userName={usuario.nombre}
+            userSurname={usuario.apellidos}
+          />
+        )}
+        {usuario.rol_id === 3 && (
+          <AdminDashboard
+            userName={usuario.nombre}
+            userSurname={usuario.apellidos}
+          />
+        )}
+        {!([1, 2, 3].includes(usuario.rol_id)) && <label>No tienes acceso al sistema.</label>}
       </div>
 
-      <footer className="app-footer">
-        <p>© {new Date().getFullYear()} sokolabs. Todos los derechos reservados</p>
+      <footer className="pie-app">
+        <p>© {new Date().getFullYear()} Soko Labs. Todos los derechos reservados</p>
       </footer>
     </>
   );

@@ -22,7 +22,7 @@ function LoginForm({ onLoginSuccess }) {
 
       console.log('Usuario recibido del backend:', user);  // <-- aquí
 
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('usuario', JSON.stringify(user));
       localStorage.setItem('token', token);
       onLoginSuccess(user);
     } catch (err) {

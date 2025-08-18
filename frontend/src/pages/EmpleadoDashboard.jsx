@@ -2,118 +2,94 @@ import { useState, useEffect } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
 
-export default function EmpleadoDashboard({userID, userName, userSurname, activeTab }) {
-  const [fechaInicio, setFechaInicio] = useState('');
-  const [fechaFin, setFechaFin] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [selectedTab, setSelectedTab] = useState(activeTab || 'Nueva solicitud');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export default function EmpleadoDashboard({ userID, userName, userSurname, pestañaActiva }) {
+  const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
+  const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');
+  const [mensajeError, setMensajeError] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
+  const [pestañaSeleccionada, setPestañaSeleccionada] = useState(pestañaActiva || 'Nueva solicitud');
+  const [menuColapsado, setMenuColapsado] = useState(false);
 
   useEffect(() => {
-    document.body.classList.add("empleado-page");
-    return () => document.body.classList.remove("empleado-page");
+    document.body.classList.add("pagina-empleado");
+    return () => document.body.classList.remove("pagina-empleado");
   }, []);
 
-  const handleSubmit = async (e) => {
+  const enviarSolicitud = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
+    setMensajeError('');
+    setMensajeExito('');
 
-    if (!fechaInicio || !fechaFin) {
-      setError('Por favor completa todos los campos.');
+    if (!fechaInicioVacaciones || !fechaFinVacaciones) {
+      setMensajeError('Por favor completa todos los campos.');
       return;
     }
 
-    if (fechaFin < fechaInicio) {
-      setError('La fecha de fin no puede ser anterior a la fecha de inicio.');
+    if (fechaFinVacaciones < fechaInicioVacaciones) {
+      setMensajeError('La fecha de fin no puede ser anterior a la fecha de inicio.');
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:8000/api/solicitudes', {
+      const respuesta = await fetch('http://localhost:8000/api/solicitudes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}` // si usas token
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
         body: JSON.stringify({
           usuario_id: userID,
-          fecha_inicio: fechaInicio,
-          fecha_fin: fechaFin
+          fecha_inicio: fechaInicioVacaciones,
+          fecha_fin: fechaFinVacaciones
         })
       });
 
-      if (!response.ok) throw new Error('Error al registrar la solicitud');
+      if (!respuesta.ok) throw new Error('Error al registrar la solicitud');
 
-      setSuccess('Solicitud de vacaciones enviada correctamente.');
-      setFechaInicio('');
-      setFechaFin('');
+      setMensajeExito('Solicitud de vacaciones enviada correctamente.');
+      setFechaInicioVacaciones('');
+      setFechaFinVacaciones('');
     } catch (err) {
-      setError(err.message);
+      setMensajeError(err.message);
     }
   };
 
-
-  const renderContent = () => {
-    switch (selectedTab) {
+  const mostrarContenido = () => {
+    switch (pestañaSeleccionada) {
       case 'Nueva solicitud':
         return (
           <>
-            <div className="summary-section">
-
-              {/* Tarjeta de bienvenida */}
-              <div className="summary-card days-card">
-                <h4>Empleado</h4>
-                <p><strong>{userName} {userSurname}</strong></p>
-                <p>Puesto: Analista de Software</p>
-                <p>Área: Desarrollo</p>
-              </div>
-
-              {/* Tarjeta de vacaciones */}
-              <div className="summary-card upcoming-card">
-                <h4>Vacaciones</h4>
-                <p><strong>Días disponibles:</strong> 15</p>
-                <p><strong>Última solicitud:</strong> 05 Julio 2025</p>
-                <p><strong>Próxima renovación:</strong> 16 Agosto 2025</p>
-              </div>
-
-              {/* Tarjeta de antigüedad y estado */}
-              <div className="summary-card status-card">
-                <h4>Perfil laboral</h4>
-                <p><strong>Tiempo en la empresa:</strong> 6 años</p>
-                <p><strong>Estado:</strong> Activo</p>
-                <p><strong>Jefe directo:</strong> Laura Martínez</p>
-              </div>
-
+          <h2 className='titulo1'>Nueva solicitud</h2>
+            <div className="labels-linea">
+              <label >15</label>
+              <label className="disponibles">Días de vacaciones disponibles hasta el</label>
+              <label>16 de agosto 2025</label>
             </div>
-
-
-            <div className="form-section">
-              <div className="form-card form-card-wide">
-                <h3>Nueva solicitud</h3>
-                <form onSubmit={handleSubmit}>
-                  <div className="input-group">
+            <div className="seccion-formulario">
+              <div className="tarjeta-formulario tarjeta-formulario-grande">
+                <br></br>
+                <form onSubmit={enviarSolicitud}>
+                  <div className="grupo-input">
                     <label>Fecha de Inicio</label>
                     <input
                       type="date"
-                      value={fechaInicio}
-                      onChange={(e) => setFechaInicio(e.target.value)}
+                      value={fechaInicioVacaciones}
+                      onChange={(e) => setFechaInicioVacaciones(e.target.value)}
                     />
                   </div>
 
-                  <div className="input-group">
+                  <div className="grupo-input">
                     <label>Fecha de Fin</label>
                     <input
                       type="date"
-                      value={fechaFin}
-                      onChange={(e) => setFechaFin(e.target.value)}
+                      value={fechaFinVacaciones}
+                      onChange={(e) => setFechaFinVacaciones(e.target.value)}
                     />
                   </div>
 
                   <button type="submit">Enviar Solicitud</button>
-                  {error && <p className="error">{error}</p>}
-                  {success && <p className="success">{success}</p>}
+                  {mensajeError && <p className="mensaje-error">{mensajeError}</p>}
+                  {mensajeExito && <p className="mensaje-exito">{mensajeExito}</p>}
                 </form>
               </div>
             </div>
@@ -122,8 +98,8 @@ export default function EmpleadoDashboard({userID, userName, userSurname, active
 
       case 'Solicitudes':
         return (
-          <div className="list-section">
-            <div className="list-card">
+          <div className="seccion-lista">
+            <div className="tarjeta-lista">
               <h3>Solicitudes Enviadas</h3>
               <p>Aquí se mostrarían las solicitudes del empleado con estados y fechas.</p>
             </div>
@@ -132,8 +108,8 @@ export default function EmpleadoDashboard({userID, userName, userSurname, active
 
       case 'Calendario':
         return (
-          <div className="calendar-section">
-            <div className="calendar-card">
+          <div className="seccion-calendario">
+            <div className="tarjeta-calendario">
               <h3>Calendario de Vacaciones</h3>
               <p>Aquí se mostraría un calendario interactivo.</p>
             </div>
@@ -142,8 +118,8 @@ export default function EmpleadoDashboard({userID, userName, userSurname, active
 
       case 'Notificaciones':
         return (
-          <div className="notification-section">
-            <div className="notification-card">
+          <div className="seccion-notificaciones">
+            <div className="tarjeta-notificaciones">
               <h3>Notificaciones</h3>
               <p>Aquí se mostrarían las notificaciones del empleado.</p>
             </div>
@@ -156,13 +132,13 @@ export default function EmpleadoDashboard({userID, userName, userSurname, active
   };
 
   return (
-    <div className="dashboard-container full-screen">
-      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
-          <h2>{!isCollapsed && 'Panel'}</h2>
+    <div className="contenedor-dashboard pantalla-completa">
+      <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
+        <div className="encabezado-barra">
+          <h3>{!menuColapsado && 'Panel'}</h3>
           <button
-            className="collapse-btn"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="boton-colapsar"
+            onClick={() => setMenuColapsado(!menuColapsado)}
           >
             <FaBars />
           </button>
@@ -170,25 +146,25 @@ export default function EmpleadoDashboard({userID, userName, userSurname, active
         <nav>
           <ul>
             {[
-              { name: 'Nueva solicitud', icon: <FaPlusCircle /> },
-              { name: 'Solicitudes', icon: <FaListAlt /> },
-              { name: 'Calendario', icon: <FaCalendarAlt /> },
-              { name: 'Notificaciones', icon: <FaBell /> }
-            ].map(({ name, icon }) => (
+              { nombre: 'Nueva solicitud', icono: <FaPlusCircle /> },
+              { nombre: 'Solicitudes', icono: <FaListAlt /> },
+              { nombre: 'Calendario', icono: <FaCalendarAlt /> },
+              { nombre: 'Notificaciones', icono: <FaBell /> }
+            ].map(({ nombre, icono }) => (
               <li
-                key={name}
-                className={selectedTab === name ? 'active' : ''}
-                onClick={() => setSelectedTab(name)}
+                key={nombre}
+                className={pestañaSeleccionada === nombre ? 'activo' : ''}
+                onClick={() => setPestañaSeleccionada(nombre)}
               >
-                <span className="icon">{icon}</span>
-                {!isCollapsed && <span className="text">{name}</span>}
+                <span className="icono">{icono}</span>
+                {!menuColapsado && <span className="texto">{nombre}</span>}
               </li>
             ))}
           </ul>
         </nav>
       </aside>
-      <main className="main-content">
-        {renderContent()}
+      <main className="contenido-principal">
+        {mostrarContenido()}
       </main>
     </div>
   );
