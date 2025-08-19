@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../styles/EmpleadoDashboard.css';
+import Solicitudes from '../components/Solicitudes';
 import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
 
 export default function EmpleadoDashboard({ userID, userName, userSurname, pestañaActiva }) {
@@ -59,7 +60,7 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
       case 'Nueva solicitud':
         return (
           <>
-          <h2 className='titulo1'>Nueva solicitud</h2>
+            <h2 className='titulo1'>Nueva solicitud</h2>
             <div className="labels-linea">
               <label >15</label>
               <label className="disponibles">Días de vacaciones disponibles hasta el</label>
@@ -97,14 +98,7 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
         );
 
       case 'Solicitudes':
-        return (
-          <div className="seccion-lista">
-            <div className="tarjeta-lista">
-              <h3>Solicitudes Enviadas</h3>
-              <p>Aquí se mostrarían las solicitudes del empleado con estados y fechas.</p>
-            </div>
-          </div>
-        );
+        return <Solicitudes userID={userID} />;
 
       case 'Calendario':
         return (
