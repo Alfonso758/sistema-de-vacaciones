@@ -1,8 +1,15 @@
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 /* Contenedor principal */
 .contenedor-dashboard.pantalla-completa {
   display: flex;
   height: 86vh;
-  width: 99vw;
+  width: 100vw;
+  flex: 1 1 auto; /* permite crecer y encoger */
   overflow: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f1f1f1;

@@ -1,144 +1,183 @@
-
-h2{
-  color: #0d47a1;
+h2 {
+    color: #0d47a1;
 }
 
+.seccion-lista {
+    margin-bottom: 150px;
+}
 
 .lista-solicitudes {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.lista-solicitudes label {
+  font-weight: 600;
 }
 
 .tarjeta-solicitud {
-  background: #fff;
-  border-radius: 5px;
-  padding: 16px 20px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    background: #fff;
+    border-radius: 5px;
+    padding: 16px 20px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Cabecera */
 .cabecera-solicitud {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
 }
 
 .numero {
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: #0d47a1;
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #000000;
 }
 
 .fecha-estado {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
 }
 
 .fecha.gris {
-  color: #717171;
-  font-size: 0.85rem;
+    color: #717171;
+    font-size: 0.85rem;
 }
 
 /* Colores de los estados */
 .estado {
-  font-weight: bold;
-  font-size: 0.9rem;
-  color: #333;
-  display: flex;
-  align-items: center;
-  gap: 5px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .estado-indicador {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
 }
 
 /* Colores por estado */
-.estado-indicador.pendiente { background-color: #f0ad4e; }
-.estado-indicador.aprobada  { background-color: #5cb85c; }
-.estado-indicador.rechazada { background-color: #d9534f; }
-.estado-indicador.cancelada { background-color: #777; } /* Gris para cancelada */
+.estado-indicador.pendiente {
+    background-color: #f0ad4e;
+}
+
+.estado-indicador.aprobada {
+    background-color: #5cb85c;
+}
+
+.estado-indicador.rechazada {
+    background-color: #d9534f;
+}
+
+.estado-indicador.cancelada {
+    background-color: #777;
+}
+
 
 
 /* Fechas de inicio y fin */
 .fechas-solicitud {
-  display: flex;
-  gap: 24px;
-  color: #000000;
-  font-size: 0.95rem;
-  font-weight: 500;
+    display: flex;
+    gap: 24px;
+    color: #000000;
+    font-size: 0.95rem;
+    font-weight: 500;
 }
 
 /* Revisión y respuesta */
 .revision-respuesta {
-  display: flex;
-  justify-content: space-between;
-  background-color: #f1f5f9;
-  padding: 6px 12px;
-  border-radius: 10px;
-  font-size: 0.85rem;
-  color: #333;
+    display: flex;
+    justify-content: space-between;
+    background-color: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    color: #333;
 }
 
 .fecha-respuesta {
-  font-weight: bold;
-  color: #0d47a1;
+    font-weight: bold;
+    color: #0d47a1;
 }
 
 /* Comentario */
+.comentario-contenedor {
+    max-width: 60vw;
+}
+
+.comentario-contenedor label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
 .comentario {
-  background-color: #f1f5f9;
-  padding: 6px 12px;
-  border-radius: 10px;
-  color: #333;
-  font-size: 0.85rem;
+    background-color: #f1f5f9;
+    padding: 6px 12px;
+    border-radius: 10px;
+    color: #333;
+    font-size: 0.85rem;
+    display: inline-block;
+    word-wrap: break-word;
+    white-space: normal;
 }
 
 /* Botones */
 .acciones-solicitud {
-  display: flex;
-  gap: 8px;
-  justify-content: flex-end;
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
 }
 
 .btn {
-  border: none;
-  padding: 6px 14px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.85rem;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
 }
 
 .btn.editar {
-  background-color: #0d47a1;
-  color: #fff;
+    background-color: #0d47a1;
+    color: #fff;
 }
 
 .btn.editar:hover {
-  background-color: #1565c0;
+    background-color: #1565c0;
 }
 
 .btn.eliminar {
-  background-color: #e53935;
-  color: #fff;
+    background-color: #e53935;
+    color: #fff;
 }
 
 .btn.eliminar:hover {
-  background-color: #c62828;
+    background-color: #c62828;
 }
 
-label{
+label {
+    color: #000000;
+}
+
+.tarjeta-solicitud.cancelada {
+    opacity: 0.5;
+}
+
+p {
     color: #000000;
 }

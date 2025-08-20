@@ -19,7 +19,7 @@ class NuevaSolicitudController  extends Controller
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,
             'fecha_solicitud' => now(),
-            'estado' => 1
+            'estado_solicitud' => 1
         ]);
 
         return response()->json(['message' => 'Solicitud registrada', 'solicitud' => $solicitud], 201);
