@@ -4,15 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 
 class MostrarSolicitudes extends Model
 {
     use HasFactory;
 
-    // Nombre de la tabla en tu BD
     protected $table = 'solicitudes_vacaciones';
 
-    // Campos que se pueden asignar masivamente
     protected $fillable = [
         'usuario_id',
         'fecha_inicio',
@@ -23,6 +22,17 @@ class MostrarSolicitudes extends Model
         'fecha_respuesta',
     ];
 
-    // Si no usas timestamps automáticos, desactívalos
     public $timestamps = true;
+
+    // Relación con el usuario que solicitó vacaciones
+    public function usuario()
+    {
+        return $this->belongsTo(User::class, 'usuario_id');
+    }
+
+    // Relación con el usuario que revisó la solicitud
+    public function revisor()
+    {
+        return $this->belongsTo(User::class, 'revisado_por');
+    }
 }

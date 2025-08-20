@@ -116,21 +116,25 @@ export default function Solicitudes({ userID }) {
                         </div>
 
                         {/* Revisión y respuesta */}
-                        {(solicitud.revisado_por || solicitud.fecha_respuesta) && (
+                        {(solicitud.revisor || solicitud.fecha_respuesta) && (
                             <>
                                 <label>Revisado por: </label>
                                 <div className="revision-respuesta">
-                                    {solicitud.revisado_por && (
+                                    {solicitud.revisor && (
                                         <span>
-                                            <FaUser style={{ marginRight: '5px' }} /> {solicitud.revisado_por}
+                                            <FaUser style={{ marginRight: '5px' }} />
+                                            {solicitud.revisor.name} {solicitud.revisor.surnames}
                                         </span>
                                     )}
                                     {solicitud.fecha_respuesta && (
-                                        <span className="fecha-respuesta">{formatDate(solicitud.fecha_respuesta)}</span>
+                                        <span className="fecha-respuesta">
+                                            {formatDate(solicitud.fecha_respuesta)}
+                                        </span>
                                     )}
                                 </div>
                             </>
                         )}
+
 
                         {/* Comentario */}
                         {solicitud.comentario && (
