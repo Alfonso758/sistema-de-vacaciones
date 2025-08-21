@@ -129,7 +129,9 @@ function App() {
         {!([1, 2, 3].includes(usuario.rol_id)) && <label>No tienes acceso al sistema.</label>}
       </div>
 
-
+      <footer className="pie-app">
+        <p>© {new Date().getFullYear()} Soko Labs. Todos los derechos reservados</p>
+      </footer>
     </>
   );
 }
