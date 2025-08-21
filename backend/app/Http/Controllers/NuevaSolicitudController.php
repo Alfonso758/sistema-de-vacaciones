@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Solicitud;
+use App\Models\NuevaSolicitud;
 
 class NuevaSolicitudController  extends Controller
 {
@@ -14,7 +14,7 @@ class NuevaSolicitudController  extends Controller
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
         ]);
 
-        $solicitud = Solicitud::create([
+        $solicitud = NuevaSolicitud::create([
             'usuario_id' => $request->usuario_id,
             'fecha_inicio' => $request->fecha_inicio,
             'fecha_fin' => $request->fecha_fin,

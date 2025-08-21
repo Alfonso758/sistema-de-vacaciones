@@ -27,12 +27,12 @@ class MostrarSolicitudes extends Model
     // Relación con el usuario que solicitó vacaciones
     public function usuario()
     {
-        return $this->belongsTo(User::class, 'usuario_id');
+        return $this->belongsTo(Usuario::class, 'usuario_id');
     }
 
     // Relación con el usuario que revisó la solicitud
     public function revisor()
     {
-        return $this->belongsTo(User::class, 'revisado_por');
+        return $this->belongsTo(Usuario::class, 'revisado_por');
     }
 }

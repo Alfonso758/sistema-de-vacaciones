@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../styles/RegisterForm.css';
 
@@ -10,18 +10,28 @@ function RegisterForm() {
         password: '',
         password_confirmation: '',
         rol_id: '',
-        activo: true
+        activo: true,
+        fecha_ingreso: '',
+        jefe_directo: ''
     });
 
+    const [jefes, setJefes] = useState([]);
     const [message, setMessage] = useState('');
     const [errors, setErrors] = useState({});
 
+    // Cargar jefes desde el backend
+    useEffect(() => {
+        axios.get('http://localhost:8000/api/jefes')
+            .then(res => setJefes(res.data))
+            .catch(() => console.error("Error cargando jefes"));
+    }, []);
+
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
-        setForm({
-            ...form,
+        setForm(prev => ({
+            ...prev,
             [name]: type === 'checkbox' ? checked : value
-        });
+        }));
     };
 
     const handleSubmit = async (e) => {
@@ -31,10 +41,24 @@ function RegisterForm() {
 
         try {
             const response = await axios.post('http://localhost:8000/api/register', form);
-            setMessage(response.data.message);
+            setMessage(response.data.message || 'Usuario registrado');
+
+            // 🔹 Reiniciar formulario después del registro exitoso
+            setForm({
+                name: '',
+                surnames: '',
+                email: '',
+                password: '',
+                password_confirmation: '',
+                rol_id: '',
+                activo: true,
+                fecha_ingreso: '',
+                jefe_directo: ''
+            });
+
         } catch (error) {
             if (error.response?.status === 422) {
-                setErrors(error.response.data.errors);
+                setErrors(error.response.data.errors || {});
             } else {
                 setMessage('Error al registrar el usuario');
             }
@@ -46,6 +70,17 @@ function RegisterForm() {
             <div className="register-container">
                 <form onSubmit={handleSubmit} className="register-form">
                     <h2>Crear cuenta</h2>
+
+                    <div className='fecha'>
+                        <label>Fecha de incorporación a la empresa</label>
+                        <input
+                            type="date"
+                            name="fecha_ingreso"
+                            value={form.fecha_ingreso}
+                            onChange={handleChange}
+                        />
+                        {errors.fecha_ingreso && <p className="error">{errors.fecha_ingreso[0]}</p>}
+                    </div>
 
                     <input
                         type="text"
@@ -65,14 +100,21 @@ function RegisterForm() {
                     />
                     {errors.surnames && <p className="error">{errors.surnames[0]}</p>}
 
-                    <input
-                        type="text"
-                        name="fecha_ingreso"
-                        placeholder="Fecha de incorporación a la empresa"
-                        value={form.surnames}
-                        onChange={handleChange}
-                    />
-                    {errors.surnames && <p className="error">{errors.surnames[0]}</p>}
+                    <div className="grupo-input">
+                        <select
+                            name="jefe_directo"
+                            value={form.jefe_directo}
+                            onChange={handleChange}
+                        >
+                            <option value="">Selecciona tu jefe</option>
+                            {jefes.map(j => (
+                                <option key={j.id} value={j.id}>
+                                    {j.name} {j.surnames}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.jefe_directo && <p className="error">{errors.jefe_directo[0]}</p>}
+                    </div>
 
                     <input
                         type="email"

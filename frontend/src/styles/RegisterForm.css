@@ -1,10 +1,10 @@
 /* Contenedor principal centrado */
 .register-wrapper {
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center;     /* Centra verticalmente */
+  justify-content: center;
+  align-items: center;
   width: 70%;
-  height: auto;           /* Altura completa de la pantalla */
+  height: auto;
   padding: 1rem;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -21,34 +21,41 @@
   align-items: center;
 }
 
-/* Header del formulario */
-.register-header h2 {
-  text-align: center;
-  color: #1d3557;
-  font-size: 28px;
-  margin-bottom: 1.5rem;
-}
-
 /* Formulario en dos columnas */
 .register-form {
   display: grid;
-  width:  100%;
+  width: 100%;
   grid-template-columns: repeat(2, 1fr);
   gap: 15px 20px; /* filas x columnas */
 }
 
-.register-form input {
+.register-form h2 {
+  text-align: center;
+  color: #1d3557;
+  margin-bottom: 0.1rem;
+}
+
+/* Inputs, selects y date con tamaño fijo y uniforme */
+.register-form input,
+.register-form select,
+.register-form input[type="date"],
+.password-wrapper input {
   width: 100%;
-  padding: 0.85rem;
+  height: 45px;          /* altura fija */
+  padding: 0 12px;       /* padding horizontal */
   border: 1px solid #ccc;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 1rem;
   transition: all 0.3s ease;
   box-sizing: border-box;
   background-color: #e0efff;
+  color: #717171;
 }
 
-.register-form input:focus {
+.register-form input:focus,
+.register-form select:focus,
+.register-form input[type="date"]:focus,
+.password-wrapper input:focus {
   border-color: #1976d2;
   box-shadow: 0 0 6px rgba(25, 118, 210, 0.4);
   outline: none;
@@ -56,7 +63,7 @@
 
 /* Botón principal */
 .register-form button {
-  grid-column: 1 / -1; 
+  grid-column: 1 / -1;
   width: 130px;
   padding: 12px 0;
   margin-top: 10px;
@@ -78,7 +85,7 @@
 
 /* Mensajes de error y éxito */
 .error {
-  grid-column: 1 / -1; /* ocupa las dos columnas */
+  grid-column: 1 / -1;
   color: #e63946;
   text-align: center;
   font-weight: bold;
@@ -98,12 +105,6 @@
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.password-wrapper input {
-  width: 100%;
-  padding-right: 40px;
-  box-sizing: border-box;
 }
 
 .password-toggle {

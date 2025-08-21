@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usuario;
-
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+    // 🔹 Login
     public function login(Request $request)
     {
         $request->validate([
@@ -27,21 +27,26 @@ class AuthController extends Controller
 
         return response()->json([
             'user' => [
-                'usuarioID'       => $usuario->id,
-                'nombre'   => $usuario->name,
-                'apellidos'   => $usuario->surnames,
-                'rol_id'   => $usuario->rol_id,
-                'email'    => $usuario->email,
+                'usuarioID' => $usuario->id,
+                'nombre'    => $usuario->name,
+                'apellidos' => $usuario->surnames,
+                'rol_id'    => $usuario->rol_id,
+                'email'     => $usuario->email,
+                'jefe_directo' => $usuario->jefe_directo, // 👈 opcional, id del jefe
+                'activo'    => $usuario->activo,
+                'fecha_ingreso' => $usuario->fecha_ingreso,
             ],
             'token' => $token
         ]);
     }
 
+    // 🔹 Obtener usuario logueado
     public function me(Request $request)
     {
         return response()->json($request->user());
     }
 
+    // 🔹 Logout
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
@@ -49,29 +54,34 @@ class AuthController extends Controller
         return response()->json(['message' => 'Sesión cerrada']);
     }
 
+    // 🔹 Registro de usuario
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'surnames'  => 'required|string|max:255', // ✅ Igual que en la BD
-            'email'     => 'required|email|unique:users,email',
-            'password'  => 'required|string|min:6|confirmed',
+            'name'          => 'required|string|max:255',
+            'surnames'      => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email',
+            'password'      => 'required|string|min:6|confirmed',
+            'fecha_ingreso' => 'required|date',
+            'jefe_directo'  => 'nullable|exists:users,id',
         ]);
+
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
         $usuario = Usuario::create([
-            'name'      => $request->name,
-            'surnames'  => $request->surnames, // ✅ Igual que en la BD
-            'email'     => $request->email,
-            'password'  => Hash::make($request->password),
-            'rol_id'    => 0,
-            'activo'    => 1,
+            'name'          => $request->name,
+            'surnames'      => $request->surnames,
+            'email'         => $request->email,
+            'password'      => Hash::make($request->password),
+            'rol_id'        => 5,
+            'activo'        => 1,
+            'fecha_ingreso' => $request->fecha_ingreso,
+            'jefe_directo'  => $request->jefe_directo,
             'email_verified_at' => now(),
         ]);
-
 
         return response()->json([
             'message' => 'Usuario registrado correctamente',
