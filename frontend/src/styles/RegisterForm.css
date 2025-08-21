@@ -1,77 +1,119 @@
-/* Contenedor centrado */
-.form-wrapper {
-  width: 200%;
+/* Contenedor principal centrado */
+.register-wrapper {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  height: calc(100vh - 60px);
-  transform: translateX(-130px);
-  /* Después del header */
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center;     /* Centra verticalmente */
+  width: 70%;
+  height: auto;           /* Altura completa de la pantalla */
+  padding: 1rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Formulario */
-.register-form {
+/* Contenedor del formulario */
+.register-container {
   width: 100%;
-  max-width: 400px;
-  background: white;
-  padding: 30px;
-  border-radius: 14px;
-  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+  padding: 2.5rem;
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.register-form h2 {
+/* Header del formulario */
+.register-header h2 {
   text-align: center;
-  color: #0d47a1;
-  margin-bottom: 20px;
+  color: #1d3557;
+  font-size: 28px;
+  margin-bottom: 1.5rem;
 }
 
-/* Inputs */
+/* Formulario en dos columnas */
+.register-form {
+  display: grid;
+  width:  100%;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px 20px; /* filas x columnas */
+}
+
 .register-form input {
-  width: 95%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 8px;
+  width: 100%;
+  padding: 0.85rem;
   border: 1px solid #ccc;
+  border-radius: 10px;
   font-size: 1rem;
   transition: all 0.3s ease;
+  box-sizing: border-box;
+  background-color: #e0efff;
 }
 
 .register-form input:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 6px rgba(25, 118, 210, 0.4);
   outline: none;
-  border-color: #0d47a1;
-  box-shadow: 0px 0px 5px rgba(13, 71, 161, 0.4);
 }
 
-/* Botón */
+/* Botón principal */
 .register-form button {
-  display: block;
-  margin: 0 auto;
-  padding: 12px 25px;
+  grid-column: 1 / -1; 
+  width: 130px;
+  padding: 12px 0;
+  margin-top: 10px;
   background: linear-gradient(90deg, #1976d2, #0d47a1);
   color: white;
+  font-size: 1.1rem;
   font-weight: bold;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .register-form button:hover {
   background: linear-gradient(90deg, #0d47a1, #1976d2);
-  box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
+  box-shadow: 0 6px 15px rgba(25, 118, 210, 0.4);
   transform: translateY(-2px);
 }
 
-/* Mensajes */
+/* Mensajes de error y éxito */
 .error {
-  color: red;
-  font-size: 0.85rem;
-  margin-bottom: 10px;
+  grid-column: 1 / -1; /* ocupa las dos columnas */
+  color: #e63946;
+  text-align: center;
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 .message {
-  margin-top: 15px;
+  grid-column: 1 / -1;
   text-align: center;
-  font-size: 0.9rem;
-  color: green;
+  color: #2a9d8f;
+  margin-top: 10px;
+  font-weight: 500;
+}
+
+/* Wrapper para password con ícono */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 40px;
+  box-sizing: border-box;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  user-select: none;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
 }

@@ -57,6 +57,59 @@ export default function Solicitudes({ userID }) {
         return formatoFecha.charAt(0).toUpperCase() + formatoFecha.slice(1);
     };
 
+    // Función para editar la solicitud
+    const manejarEditar = (id) => {
+        // Aquí podrías redirigir a un formulario con la solicitud cargada
+        console.log("Editar solicitud con id:", id);
+        // Por ejemplo, abrir un modal o cambiar la pestaña a "Nueva solicitud" con los datos cargados
+    };
+
+    // Función para cancelar la solicitud (cambiar estado a 'Cancelada')
+    const manejarCancelar = async (id) => {
+        if (!window.confirm("¿Seguro que deseas cancelar esta solicitud?")) return;
+
+        try {
+            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}/cancelar`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (!respuesta.ok) throw new Error('Error al cancelar la solicitud');
+
+            // Actualizar la lista de solicitudes localmente
+            setSolicitudes(prev => prev.map(s => s.id === id ? { ...s, estado_solicitud: 4 } : s));
+        } catch (err) {
+            console.error(err);
+            alert(err.message);
+        }
+    };
+
+    // Función para eliminar la solicitud
+    const manejarEliminar = async (id) => {
+        if (!window.confirm("¿Seguro que deseas eliminar esta solicitud?")) return;
+
+        try {
+            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (!respuesta.ok) throw new Error('Error al eliminar la solicitud');
+
+            // Quitar la solicitud de la lista localmente
+            setSolicitudes(prev => prev.filter(s => s.id !== id));
+        } catch (err) {
+            console.error(err);
+            alert(err.message);
+        }
+    };
+
+
 
     useEffect(() => {
         if (!userID) return; // evita fetch si userID no está definido
@@ -150,16 +203,31 @@ export default function Solicitudes({ userID }) {
                         <div className="acciones-solicitud">
                             {estados[solicitud.estado_solicitud] === 'Pendiente' && (
                                 <>
-                                    <button className="btn editar">Editar</button>
-                                    <button className="btn eliminar">Cancelar</button>
+                                    <button
+                                        className="btn editar"
+                                        onClick={() => manejarEditar(solicitud.id)}
+                                    >
+                                        Editar
+                                    </button>
+                                    <button
+                                        className="btn eliminar"
+                                        onClick={() => manejarCancelar(solicitud.id)}
+                                    >
+                                        Cancelar
+                                    </button>
                                 </>
                             )}
                             {(estados[solicitud.estado_solicitud] === 'Rechazada' ||
                                 estados[solicitud.estado_solicitud] === 'Cancelada') && (
-                                    <button className="btn eliminar">Eliminar</button>
+                                    <button
+                                        className="btn eliminar"
+                                        onClick={() => manejarEliminar(solicitud.id)}
+                                    >
+                                        Eliminar
+                                    </button>
                                 )}
-                            {/* Aprobada no muestra botones */}
                         </div>
+
                     </div>
                 ))}
             </div>

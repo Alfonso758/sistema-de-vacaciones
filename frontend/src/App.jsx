@@ -41,24 +41,26 @@ function App() {
   };
 
   if (!usuario) {
-    return mostrarRegistro ? (
-      <>
-        <RegisterForm onRegisterSuccess={setUsuario} />
+    return (
+      <div className="auth-wrapper"> 
+        {mostrarRegistro ? (
+          <RegisterForm onRegisterSuccess={setUsuario} />
+        ) : (
+          <LoginForm onLoginSuccess={setUsuario} />
+        )}
+
         <p className="texto-centrado">
-          ¿Ya tienes una cuenta?{' '}
-          <button onClick={() => setMostrarRegistro(false)}>Inicia sesión</button>
+          {mostrarRegistro ? (
+            <>¿Ya tienes una cuenta? <button onClick={() => setMostrarRegistro(false)}>Inicia sesión</button></>
+          ) : (
+            <>¿No tienes cuenta? <button onClick={() => setMostrarRegistro(true)}>Regístrate</button></>
+          )}
         </p>
-      </>
-    ) : (
-      <>
-        <LoginForm onLoginSuccess={setUsuario} />
-        <p className="texto-centrado">
-          ¿No tienes cuenta?{' '}
-          <button onClick={() => setMostrarRegistro(true)}>Regístrate</button>
-        </p>
-      </>
+      </div>
     );
   }
+
+
 
   return (
     <>
@@ -112,12 +114,14 @@ function App() {
         )}
         {usuario.rol_id === 2 && (
           <SupervisorDashboard
+            userID={usuario.usuarioID}
             userName={usuario.nombre}
             userSurname={usuario.apellidos}
           />
         )}
         {usuario.rol_id === 3 && (
           <AdminDashboard
+            userID={usuario.usuarioID}
             userName={usuario.nombre}
             userSurname={usuario.apellidos}
           />
@@ -125,9 +129,7 @@ function App() {
         {!([1, 2, 3].includes(usuario.rol_id)) && <label>No tienes acceso al sistema.</label>}
       </div>
 
-      <footer className="pie-app">
-        <p>© {new Date().getFullYear()} Soko Labs. Todos los derechos reservados</p>
-      </footer>
+
     </>
   );
 }

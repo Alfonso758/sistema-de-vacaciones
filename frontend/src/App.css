@@ -1,13 +1,37 @@
+.auth-wrapper {
+  display: flex;
+  flex-direction: column;
+  /* Formulario + texto */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  /* altura completa */
+  padding: 20px;
+}
+
 .texto-centrado {
   text-align: center;
+  margin-top: 10px;
 }
+
+.texto-centrado button {
+  background: none;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 1rem;
+  padding: 0;
+  outline: none;
+}
+
 
 .encabezado-app {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0px 20px;
-  background:#ffffff;
+  padding: 0.6em 1.2em;
+  background: #ffffff00;
   position: fixed;
   top: 0;
   left: 0;
@@ -108,7 +132,7 @@
 }
 
 .boton-menu:focus {
-  outline: none; 
+  outline: none;
 }
 
 .menu-desplegable {
@@ -156,18 +180,20 @@
   .encabezado-app {
     padding: 15px 10px !important;
   }
+
   .barra-navegacion {
     gap: 10px !important;
     flex-wrap: wrap;
   }
+
   .boton-navegacion {
     font-size: 14px !important;
     padding: 6px 10px !important;
   }
+
   .info-usuario {
     width: 100% !important;
     justify-content: center !important;
     margin-top: 10px !important;
   }
 }
-

@@ -1,23 +1,21 @@
-/* styles/LoginForm.css */
-
-body {
-  margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f1f1f1;
-  height: 100vh;
+/* Contenedor centrado */
+.login-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: center; /* Centra horizontalmente */
+  align-items: center; /* Centra verticalmente */
+  height: auto; 
+  padding: 1rem;
 }
 
 .login-container {
   width: 100%;
   max-width: 400px;
   padding: 2rem;
-  background-color: #ffffffdd;
+  background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
+
 
 .login-form {
   display: flex;
@@ -31,11 +29,13 @@ body {
 }
 
 .login-form input {
+  display: block;
   padding: 0.75rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.1rem;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
+  background-color: #e0efff;
 }
 
 .login-form button {
@@ -82,23 +82,29 @@ body {
 .password-wrapper {
   position: relative;
   display: flex;
-  align-items: center; /* centra verticalmente el contenido del wrapper */
+  align-items: center;
+  /* centra verticalmente el contenido del wrapper */
 }
 
 .password-wrapper input {
   width: 100%;
-  padding-right: 40px; /* deja espacio suficiente para el ícono */
-  box-sizing: border-box; /* para que el padding no aumente el ancho total */
+  padding-right: 40px;
+  /* deja espacio suficiente para el ícono */
+  box-sizing: border-box;
+  /* para que el padding no aumente el ancho total */
 }
 
 .password-toggle {
   position: absolute;
-  right: 10px; /* distancia desde el borde derecho */
-  top: 50%; /* posiciona en la mitad vertical */
-  transform: translateY(-80%); /* ajusta para centrar el ícono exactamente */
+  right: 10px;
+  /* distancia desde el borde derecho */
+  top: 50%;
+  /* posiciona en la mitad vertical */
+  transform: translateY(-80%);
+  /* ajusta para centrar el ícono exactamente */
   cursor: pointer;
   display: flex;
   align-items: center;
   user-select: none;
-  filter: drop-shadow(0 0 1px rgba(0,0,0,0.7));
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
 }
