@@ -153,21 +153,21 @@ h2 {
 }
 
 .btn.editar {
-    background-color: #0d47a1;
+    background: linear-gradient(90deg, #1976d2, #0d47a1);
     color: #fff;
 }
 
 .btn.editar:hover {
-    background-color: #1565c0;
+    background: linear-gradient(90deg, #0d47a1, #1976d2);
 }
 
 .btn.eliminar {
-    background-color: #e53935;
+    background: linear-gradient(90deg, #e53935, #911614);
     color: #fff;
 }
 
 .btn.eliminar:hover {
-    background-color: #c62828;
+    background: linear-gradient(90deg, #911614, #e53935);
 }
 
 label {
