@@ -32,10 +32,16 @@
   display: block;
   padding: 0.75rem;
   margin-bottom: 0.1rem;
-  border: 1px solid #ccc;
+  border: 1px solid #ccc; /* Color por defecto */
   border-radius: 8px;
   font-size: 1rem;
   background-color: #e0efff;
+  outline: none; /* Quita el borde de enfoque nativo */
+}
+
+.login-form input:focus {
+  border-color: #1976d2; /* Azul */
+  box-shadow: 0 0 5px rgba(25, 118, 210, 0.6); /* Brillo azul */
 }
 
 .login-form button {

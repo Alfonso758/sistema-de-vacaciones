@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import Solicitudes from '../components/Solicitudes';
 import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
+import axios from 'axios';
+import dayjs from 'dayjs';
 
 export default function EmpleadoDashboard({ userID, userName, userSurname, pestañaActiva }) {
   const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
@@ -11,10 +13,50 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
   const [pestañaSeleccionada, setPestañaSeleccionada] = useState(pestañaActiva || 'Nueva solicitud');
   const [menuColapsado, setMenuColapsado] = useState(false);
 
+  // Estados para los datos de vacaciones
+  const [anosTrabajados, setAnosTrabajados] = useState(0);
+  const [diasTomados, setDiasTomados] = useState(0);
+  const [diasDisponibles, setDiasDisponibles] = useState(0);
+  const [fechaFinAnio, setFechaFinAnio] = useState('');
+  const [fechaIngreso, setFechaIngreso] = useState('');
+  const [diasAnuales, setDiasAnuales] = useState(0);
+
+
+
   useEffect(() => {
-    document.body.classList.add("pagina-empleado");
-    return () => document.body.classList.remove("pagina-empleado");
-  }, []);
+    const cargarDatos = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8000/api/datos-vacaciones/${userID}`);
+        setAnosTrabajados(res.data.anosTrabajados);
+        setDiasTomados(res.data.diasTomados);
+        setDiasDisponibles(res.data.diasDisponibles);
+        setFechaFinAnio(res.data.fechaFinAnio);
+        setFechaIngreso(res.data.fechaIngreso);
+        setDiasAnuales(res.data.diasAnuales);
+
+      } catch (err) {
+        console.error('Error al cargar datos de vacaciones', err);
+      }
+    };
+    cargarDatos();
+  }, [userID]);
+
+
+  // Cargar datos de vacaciones desde la API
+  useEffect(() => {
+    const cargarDatos = async () => {
+      try {
+        const res = await axios.get(`http://localhost:8000/api/datos-vacaciones/${userID}`);
+        setAnosTrabajados(res.data.anosTrabajados);
+        setDiasTomados(res.data.diasTomados);
+        setDiasDisponibles(res.data.diasDisponibles);
+        setFechaFinAnio(res.data.fechaFinAnio);
+      } catch (err) {
+        console.error('Error al cargar datos de vacaciones', err);
+      }
+    };
+    cargarDatos();
+  }, [userID]);
 
   const enviarSolicitud = async (e) => {
     e.preventDefault();
@@ -61,14 +103,28 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
         return (
           <>
             <h2 className='titulo1'>Nueva solicitud</h2>
+
             <div className="labels-linea">
-              <label >15</label>
-              <label className="disponibles">Días de vacaciones disponibles hasta el</label>
-              <label>16 de agosto 2025</label>
+              <label>{anosTrabajados}</label>
+              <label className="disponibles">Años laborando desde</label>
+              <label>{fechaIngreso}</label> {/* ahora muestra la fecha real de ingreso */}
             </div>
+
+            <div className="labels-linea">
+              <label>{diasTomados}/{diasAnuales}</label>
+              <label className="disponibles">Días tomados este año.</label>
+            </div>
+
+            <div className="labels-linea">
+              <label>{diasDisponibles}</label>
+              <label className="disponibles">Días disponibles hasta el</label>
+              <label>{fechaFinAnio}</label>
+            </div>
+
+
             <div className="seccion-formulario">
               <div className="tarjeta-formulario tarjeta-formulario-grande">
-                <br></br>
+                <br />
                 <form onSubmit={enviarSolicitud}>
                   <div className="grupo-input">
                     <label>Fecha de Inicio</label>
