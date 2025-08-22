@@ -4,6 +4,8 @@ import Solicitudes from '../components/Solicitudes';
 import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 export default function EmpleadoDashboard({ userID, userName, userSurname, pestañaActiva }) {
   const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
@@ -68,8 +70,36 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
       return;
     }
 
-    if (fechaFinVacaciones < fechaInicioVacaciones) {
+    const hoy = dayjs();
+    const inicio = dayjs(fechaInicioVacaciones, 'YYYY-MM-DD');
+    const fin = dayjs(fechaFinVacaciones, 'YYYY-MM-DD');
+
+    // Validación: fecha fin mayor que fecha inicio
+    if (fin.isBefore(inicio)) {
       setMensajeError('La fecha de fin no puede ser anterior a la fecha de inicio.');
+      return;
+    }
+
+    // Validación: solicitud al menos 2 meses antes
+    if (inicio.diff(hoy, 'month') < 2) {
+      setMensajeError('Las vacaciones deben solicitarse al menos con 2 meses de anticipación.');
+      return;
+    }
+
+    // Calcular días hábiles entre inicio y fin
+    let diasSolicitados = 0;
+    let diaActual = inicio.clone();
+    while (diaActual.isBefore(fin.add(1, 'day'))) { // incluir fecha fin
+      const diaSemana = diaActual.day(); // 0 = domingo, 6 = sábado
+      if (diaSemana !== 0 && diaSemana !== 6) {
+        diasSolicitados++;
+      }
+      diaActual = diaActual.add(1, 'day');
+    }
+
+    // Validación: no exceder días disponibles
+    if (diasSolicitados > diasDisponibles) {
+      setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
       return;
     }
 
@@ -96,6 +126,8 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
       setMensajeError(err.message);
     }
   };
+
+
 
   const mostrarContenido = () => {
     switch (pestañaSeleccionada) {
