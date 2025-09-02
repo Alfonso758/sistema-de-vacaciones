@@ -24,13 +24,16 @@
   background-color: #f1f1f1;
 }
 
+.barra-lateral.colapsada ~ .contenido-principal {
+  margin-left: 80px;
+}
 
 .titulo1 {
 color:#0d47a1;
 }
 
 .barra-lateral.colapsada {
-  width: 80px;
+  width: 30px;
 }
 
 .encabezado-barra {
