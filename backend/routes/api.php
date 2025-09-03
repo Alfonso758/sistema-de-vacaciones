@@ -2,45 +2,65 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\NuevaSolicitudController;
+use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\SolicitudController;
-use App\Http\Controllers\Jefes_directos;
 use App\Http\Controllers\VacacionesController;
-use App\Http\Controllers\EditarSolicitudController;
 
 /*
 |--------------------------------------------------------------------------
-| Rutas públicas (sin auth)
+| Rutas públicas (sin autenticación)
 |--------------------------------------------------------------------------
 */
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
 
-// Crear una nueva solicitud
-Route::post('/solicitudes', [NuevaSolicitudController::class, 'store']);
+// 🔹 Autenticación de usuarios
+Route::post('/login', [UsuarioController::class, 'login']);
+Route::post('/register', [UsuarioController::class, 'register']);
 
-// Obtener todas las solicitudes de un usuario (LISTADO)
+// 🔹 Solicitudes
+Route::prefix('solicitudes')->group(function () {
+    // Crear nueva solicitud
+    Route::post('/', [SolicitudController::class, 'store']);
+
+    // Mostrar solicitud específica
+    Route::get('/{id}', [SolicitudController::class, 'show']);
+
+    // Listado de solicitudes por usuario
+    Route::get('/usuario/{usuario_id}', [SolicitudController::class, 'index']);
+
+    // Actualizar solicitud específica
+    Route::put('/{id}', [SolicitudController::class, 'update']);
+
+    // Eliminar solicitud por ID
+    Route::delete('/{id}', [SolicitudController::class, 'destroy']);
+
+    // Cancelar una solicitud (cambia el estado a Cancelada)
+    Route::put('/{id}/cancelar', [SolicitudController::class, 'cancelar']);
+});
+
+// 🔹 Listado de solicitudes por usuario
 Route::get('/usuarios/{usuario_id}/solicitudes', [SolicitudController::class, 'index']);
 
-// Jefes directos
-Route::get('/jefes', [Jefes_directos::class, 'getJefes']);
+// 🔹 Jefes directos
+Route::get('/jefes', [UsuarioController::class, 'getJefes']);
 
-// Datos de vacaciones de un usuario
+// 🔹 Datos de vacaciones de un usuario
 Route::get('/datos-vacaciones/{usuario}', [VacacionesController::class, 'getDatos']);
-
-// Obtener una solicitud específica
-Route::get('/solicitudes/{id}', [EditarSolicitudController::class, 'show']);
-
-// Actualizar una solicitud específica
-Route::put('/solicitudes/{id}', [EditarSolicitudController::class, 'update']);
 
 /*
 |--------------------------------------------------------------------------
-| Rutas protegidas (requieren auth)
+| Rutas protegidas (requieren autenticación con Sanctum)
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/user', [AuthController::class, 'me']);
-    Route::post('/logout', [AuthController::class, 'logout']);
+
+    // 🔹 Obtener usuario logueado
+    Route::get('/user', [UsuarioController::class, 'me']);
+
+    // 🔹 Cerrar sesión
+    Route::post('/logout', [UsuarioController::class, 'logout']);
+
+    // 🔹 Opcional: mover rutas de solicitudes protegidas aquí si deseas seguridad
+    // Route::prefix('solicitudes')->group(function () {
+    //     Route::delete('/{id}', [SolicitudController::class, 'destroy']);
+    // });
 });

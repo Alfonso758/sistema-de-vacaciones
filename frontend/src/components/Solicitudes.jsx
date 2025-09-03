@@ -142,26 +142,30 @@ export default function Solicitudes({ userID }) {
     };
 
 
-
     useEffect(() => {
-        if (!userID) return; // evita fetch si userID no está definido
+        if (!userID) return;
 
-        fetch(`http://localhost:8000/api/solicitudes/${userID}`)
+        fetch(`http://localhost:8000/api/solicitudes/usuario/${userID}`)
             .then(res => res.json())
             .then(data => {
-                setSolicitudes(data);
+                console.log("Respuesta API:", data);
+
+                // Si data es un array, usarlo directamente; si es un objeto, ponerlo dentro de un array
+                const lista = Array.isArray(data) ? data : [data];
+
+                setSolicitudes(lista);
                 setLoading(false);
             })
             .catch(err => {
                 console.error("Error cargando solicitudes:", err);
+                setSolicitudes([]);
                 setLoading(false);
             });
     }, [userID]);
 
-    if (loading) return <p>Cargando solicitudes...</p>;
 
-    if (solicitudes.length === 0)
-        return <p>No tienes solicitudes registradas.</p>;
+    if (loading) return <p>Cargando solicitudes...</p>;
+    if (!Array.isArray(solicitudes) || solicitudes.length === 0) return <p>No tienes solicitudes registradas.</p>;
 
     return (
         <div className="seccion-lista">
