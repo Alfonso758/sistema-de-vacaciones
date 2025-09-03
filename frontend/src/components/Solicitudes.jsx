@@ -58,11 +58,43 @@ export default function Solicitudes({ userID }) {
     };
 
     // Función para editar la solicitud
-    const manejarEditar = (id) => {
-        // Aquí podrías redirigir a un formulario con la solicitud cargada
-        console.log("Editar solicitud con id:", id);
-        // Por ejemplo, abrir un modal o cambiar la pestaña a "Nueva solicitud" con los datos cargados
+    const [modalEditarOpen, setModalEditarOpen] = useState(false);
+    const [solicitudEditando, setSolicitudEditando] = useState(null);
+
+    const manejarEditar = async (id) => {
+        try {
+            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (!respuesta.ok) throw new Error('Error al obtener la solicitud');
+
+            const solicitud = await respuesta.json();
+
+            // 🔹 Normalizar fechas para el input tipo "date"
+            const formatDateInput = (fecha) => {
+                if (!fecha) return "";
+                return new Date(fecha).toISOString().split("T")[0]; // "YYYY-MM-DD"
+            };
+
+            setSolicitudEditando({
+                ...solicitud,
+                fecha_inicio: formatDateInput(solicitud.fecha_inicio),
+                fecha_fin: formatDateInput(solicitud.fecha_fin)
+            });
+
+            setModalEditarOpen(true);
+
+        } catch (err) {
+            console.error(err);
+            alert('No se pudo cargar la solicitud para edición.');
+        }
     };
+
+
+
 
     // Función para cancelar la solicitud (cambiar estado a 'Cancelada')
     const manejarCancelar = async (id) => {
@@ -231,6 +263,66 @@ export default function Solicitudes({ userID }) {
                     </div>
                 ))}
             </div>
+
+
+            {/* Modal de edición */}
+            {modalEditarOpen && solicitudEditando && (
+                <div className="modal-fondo" onClick={() => setModalEditarOpen(false)}>
+                    <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
+                        <h2>Editar Solicitud</h2>
+                        <form onSubmit={async (e) => {
+                            e.preventDefault();
+                            try {
+                                const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${solicitudEditando.id}`, {
+                                    method: 'PUT',
+                                    headers: {
+                                        'Content-Type': 'application/json',
+                                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                                    },
+                                    body: JSON.stringify({
+                                        fecha_inicio: solicitudEditando.fecha_inicio,
+                                        fecha_fin: solicitudEditando.fecha_fin,
+                                    })
+                                });
+
+                                if (!respuesta.ok) throw new Error('Error al actualizar la solicitud');
+
+                                alert('Solicitud actualizada correctamente');
+                                setModalEditarOpen(false);
+
+                                setSolicitudes(prev => prev.map(s => s.id === solicitudEditando.id ? { ...s, fecha_inicio: solicitudEditando.fecha_inicio, fecha_fin: solicitudEditando.fecha_fin } : s));
+
+                            } catch (err) {
+                                console.error(err);
+                                alert('No se pudo actualizar la solicitud.');
+                            }
+                        }}>
+                            <div className="input-group">
+                                <label>Fecha de Inicio</label>
+                                <input
+                                    type="date"
+                                    value={solicitudEditando.fecha_inicio}
+                                    onChange={(e) => setSolicitudEditando({ ...solicitudEditando, fecha_inicio: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="input-group">
+                                <label>Fecha de Fin</label>
+                                <input
+                                    type="date"
+                                    value={solicitudEditando.fecha_fin}
+                                    onChange={(e) => setSolicitudEditando({ ...solicitudEditando, fecha_fin: e.target.value })}
+                                />
+                            </div>
+
+                            <div className="botones-modal">
+                                <button type="submit" className="btn-guardar">Guardar</button>
+                                <button type="button" className="btn-cancelar" onClick={() => setModalEditarOpen(false)}>Cancelar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

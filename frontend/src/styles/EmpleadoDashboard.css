@@ -48,6 +48,7 @@ color:#0d47a1;
   color: #717171;
   font-size: 1.2rem;
   outline: none;
+  cursor: pointer;
 }
 
 .boton-colapsar:focus {
