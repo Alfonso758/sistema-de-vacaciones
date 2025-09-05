@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Usuario;
 use App\Models\VacacionesUser;
 use App\Models\VacacionesAnuales;
+use App\Models\solicitudesVacaciones;
 use Carbon\Carbon;
 
 class VacacionesController extends Controller
@@ -53,5 +54,14 @@ class VacacionesController extends Controller
             'diasDisponibles' => $diasDisponibles,
             'fechaFinAnio' => $fechaFinAnio
         ]);
+    }
+
+    public function aprobadas($usuario_id)
+    {
+        $solicitudes = solicitudesVacaciones::where('usuario_id', $usuario_id)
+            ->where('estado_solicitud', 2)
+            ->get(['fecha_inicio', 'fecha_fin']); // solo fechas para el calendario
+
+        return response()->json($solicitudes);
     }
 }

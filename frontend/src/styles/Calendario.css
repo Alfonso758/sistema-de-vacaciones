@@ -3,12 +3,9 @@
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    /* ancho completo */
     justify-content: flex-start;
-    /* carga hacia arriba */
     padding: 20px;
     padding-top: 40px;
-    /* ajusta según necesites */
     background: #f0f0f0;
     color: #0d47a1;
     box-sizing: border-box;
@@ -34,8 +31,6 @@
     background: #fff;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
-
-
 
 .calendario-header button {
     background: #e0e0e0;
@@ -88,13 +83,32 @@
     transition: background 0.3s ease;
 }
 
-.calendario-cell:hover {
-    background: #f4f4f4;
-}
-
-.calendario-cell.hoy {
-    background: #a0d9ff;
+/* 🔹 Día actual -> círculo azul alrededor del número */
+.calendario-cell span.hoy {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+    text-align: center;
+    border-radius: 50%;
+    background: #2196f3;
     color: #fff;
     font-weight: bold;
-    border-radius: 6px;
+}
+
+/* 🔹 Días de vacaciones */
+.calendario-cell.vacacion {
+    background-color: #cdf3f6;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+
+.inhabil {
+    background-color: rgba(255, 0, 0, 0.264); /* rojo suave */
+    border-radius: 8%;
+}
+
+.fin-de-semana {
+    background-color: rgba(255, 255, 152, 0.275); /* amarillo suave */
 }
