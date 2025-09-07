@@ -101,54 +101,79 @@ function App() {
     );
   }
 
-  const cambiarAvatar = (event) => {
-    const file = event.target.files[0]; // Tomamos el primer archivo seleccionado
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const usuarioActualizado = { ...usuario, avatarUrl: reader.result };
-        setUsuario(usuarioActualizado);
-        localStorage.setItem('usuario', JSON.stringify(usuarioActualizado));
-      };
-      reader.readAsDataURL(file); // Convierte la imagen a base64
+  const cambiarAvatar = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    try {
+      const token = localStorage.getItem('token'); // token de login
+      const response = await fetch('http://localhost:8000/api/usuarios/avatar', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Actualiza la URL del avatar en React y en localStorage
+        setUsuario(prev => {
+          const actualizado = { ...prev, avatarUrl: data.avatarUrl };
+          localStorage.setItem('usuario', JSON.stringify(actualizado));
+          return actualizado;
+        });
+        alert('Avatar actualizado correctamente');
+      } else {
+        alert(data.message || 'Error al subir avatar');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error de conexión con el servidor');
     }
   };
 
-const cambiarPassword = async (actual, nueva) => {
-  if (!actual || !nueva) {
-    alert('Por favor ingresa ambas contraseñas');
-    return;
-  }
 
-  try {
-    const token = localStorage.getItem('token'); // O donde guardes el token después del login
 
-    const response = await fetch('http://localhost:8000/api/usuarios/cambiar-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // ✅ token requerido
-      },
-      body: JSON.stringify({
-        passwordActual: actual,
-        passwordNueva: nueva
-      })
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      alert('Contraseña actualizada correctamente');
-      setPasswordActual('');
-      setPasswordNueva('');
-    } else {
-      alert(data.message || 'Error al actualizar la contraseña');
+  const cambiarPassword = async (actual, nueva) => {
+    if (!actual || !nueva) {
+      alert('Por favor ingresa ambas contraseñas');
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    alert('Error de conexión con el servidor');
-  }
-};
+
+    try {
+      const token = localStorage.getItem('token'); // O donde guardes el token después del login
+
+      const response = await fetch('http://localhost:8000/api/usuarios/cambiar-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // ✅ token requerido
+        },
+        body: JSON.stringify({
+          passwordActual: actual,
+          passwordNueva: nueva
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Contraseña actualizada correctamente');
+        setPasswordActual('');
+        setPasswordNueva('');
+      } else {
+        alert(data.message || 'Error al actualizar la contraseña');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error de conexión con el servidor');
+    }
+  };
 
 
 
@@ -162,10 +187,17 @@ const cambiarPassword = async (actual, nueva) => {
         <div className="info-usuario" ref={menuRef}>
           <span className="nombre-usuario">{usuario.nombre || usuario.name || 'Usuario'}</span>
           <img
-            src={usuario.avatarUrl || 'http://localhost:8000/images/user.jpg'}
+            src={
+              usuario.avatarUrl
+                ? usuario.avatarUrl.startsWith("storage/")
+                  ? usuario.avatarUrl.replace(/^storage\//, "")
+                  : usuario.avatarUrl
+                : "http://localhost:8000/images/user.jpg"
+            }
             alt="Foto de perfil"
             className="foto-perfil"
           />
+
           <div className="menu-usuario">
             <button
               className="boton-menu"
@@ -204,10 +236,17 @@ const cambiarPassword = async (actual, nueva) => {
                 <h2>Perfil</h2>
                 <div className="foto-contenedor">
                   <img
-                    src={usuario.avatarUrl || 'http://localhost:8000/images/user.jpg'}
+                    src={
+                      usuario.avatarUrl
+                        ? usuario.avatarUrl.startsWith("storage/")
+                          ? usuario.avatarUrl.replace(/^storage\//, "")
+                          : usuario.avatarUrl
+                        : "http://localhost:8000/images/user.jpg"
+                    }
                     alt="Foto de perfil"
                     className="perfil-foto"
                   />
+
                   <input
                     type="file"
                     accept="image/*"
@@ -219,6 +258,7 @@ const cambiarPassword = async (actual, nueva) => {
                     <FaCamera />
                   </label>
                 </div>
+
 
 
                 {usuario.rol_id === 1 && <p>Cuenta de empleado</p>}

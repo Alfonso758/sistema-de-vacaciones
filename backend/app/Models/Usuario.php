@@ -26,7 +26,9 @@ class Usuario extends Authenticatable
         'fecha_ingreso',
         'jefe_directo',
         'email_verified_at',
+        'avatar',
     ];
+
 
     /**
      * Atributos ocultos para serialización

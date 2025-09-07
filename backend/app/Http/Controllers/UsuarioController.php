@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
+
 
 class UsuarioController extends Controller
 {
@@ -32,6 +34,7 @@ class UsuarioController extends Controller
                 'apellidos' => $usuario->surnames,
                 'rol_id'    => $usuario->rol_id,
                 'email'     => $usuario->email,
+                'avatarUrl' => $usuario->avatar ? 'storage/' . $usuario->avatar : null,
                 'jefe_directo' => $usuario->jefe_directo,
                 'activo'    => $usuario->activo,
                 'fecha_ingreso' => $usuario->fecha_ingreso,
@@ -175,5 +178,38 @@ class UsuarioController extends Controller
         $usuario->save();
 
         return response()->json(['message' => 'Contraseña actualizada correctamente'], 200);
+    }
+
+    public function cambiarAvatar(Request $request)
+    {
+        $request->validate([
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $usuario = auth()->user();
+
+        // Elimina el avatar anterior si existe y no es el default
+        if ($usuario->avatar) {
+            // Como guardas la URL completa, hay que obtener la ruta relativa
+            $oldPath = str_replace(asset('storage') . '/', '', $usuario->avatar);
+            if (\Storage::disk('public')->exists($oldPath)) {
+                \Storage::disk('public')->delete($oldPath);
+            }
+        }
+
+        // Guarda la nueva imagen en la carpeta 'public/avatars'
+        $path = $request->file('avatar')->store('avatars', 'public');
+
+        // Construye la URL completa
+        $fullUrl = asset('storage/' . $path);
+
+        // Guarda la URL completa en la base de datos
+        $usuario->avatar = $fullUrl;
+        $usuario->save();
+
+        return response()->json([
+            'message' => 'Imagen actualizada correctamente',
+            'avatarUrl' => $fullUrl
+        ]);
     }
 }

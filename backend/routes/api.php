@@ -84,6 +84,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [UsuarioController::class, 'logout']);
 
     // 🔹 cambiar contraseña
-    Route::middleware('auth:sanctum')->post('/usuarios/cambiar-password', [UsuarioController::class, 'cambiarPassword']);
+    Route::post('/usuarios/cambiar-password', [UsuarioController::class, 'cambiarPassword']);
+
+    // Cambiar avatar
+    Route::post('/usuarios/avatar', [UsuarioController::class, 'cambiarAvatar']);
 
 });
