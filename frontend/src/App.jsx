@@ -114,41 +114,42 @@ function App() {
     }
   };
 
-  const cambiarPassword = async (actual, nueva) => {
-    if (!actual || !nueva) {
-      alert('Por favor ingresa ambas contraseñas');
-      return;
+const cambiarPassword = async (actual, nueva) => {
+  if (!actual || !nueva) {
+    alert('Por favor ingresa ambas contraseñas');
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem('token'); // O donde guardes el token después del login
+
+    const response = await fetch('http://localhost:8000/api/usuarios/cambiar-password', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}` // ✅ token requerido
+      },
+      body: JSON.stringify({
+        passwordActual: actual,
+        passwordNueva: nueva
+      })
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Contraseña actualizada correctamente');
+      setPasswordActual('');
+      setPasswordNueva('');
+    } else {
+      alert(data.message || 'Error al actualizar la contraseña');
     }
+  } catch (error) {
+    console.error(error);
+    alert('Error de conexión con el servidor');
+  }
+};
 
-    try {
-      const response = await fetch('http://localhost:8000/api/usuarios/cambiar-password', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // Si usas token JWT:
-          // 'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          usuarioID: usuario.usuarioID, // ID del usuario
-          passwordActual: actual,
-          passwordNueva: nueva
-        })
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        alert('Contraseña actualizada correctamente');
-        setPasswordActual('');
-        setPasswordNueva('');
-      } else {
-        alert(data.message || 'Error al actualizar la contraseña');
-      }
-    } catch (error) {
-      console.error(error);
-      alert('Error de conexión con el servidor');
-    }
-  };
 
 
   return (
