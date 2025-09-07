@@ -82,4 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 🔹 Cerrar sesión
     Route::post('/logout', [UsuarioController::class, 'logout']);
+
+    // 🔹 cambiar contraseña
+    Route::middleware('auth:sanctum')->post('/usuarios/cambiar-password', [UsuarioController::class, 'cambiarPassword']);
+
 });

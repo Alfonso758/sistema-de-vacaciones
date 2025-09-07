@@ -154,25 +154,26 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
       case 'Nueva solicitud':
         return (
           <>
+            <div className="content">
+              <div className="tarjeta_content">
+                <div className="tarjeta">
+                  <span className="valor">{anosTrabajados}</span>
+                  <p>Años laborando<br /><small>Desde {fechaIngreso}</small></p>
+                </div>
+
+                <div className="tarjeta">
+                  <span className="valor">{diasTomados}/{diasAnuales}</span>
+                  <p>Días tomados<br /><small>Este año</small></p>
+                </div>
+
+                <div className="tarjeta">
+                  <span className="valor">{diasDisponibles}</span>
+                  <p>Días disponibles<br /><small>Hasta {fechaFinAnio}</small></p>
+                </div>
+              </div>
+            </div>
+
             <h2 className='titulo1'>Nueva solicitud</h2>
-
-            <div className="labels-linea">
-              <label>{anosTrabajados}</label>
-              <label className="disponibles">Años laborando desde</label>
-              <label>{fechaIngreso}</label>
-            </div>
-
-            <div className="labels-linea">
-              <label>{diasTomados}/{diasAnuales}</label>
-              <label className="disponibles">Días tomados este año.</label>
-            </div>
-
-            <div className="labels-linea">
-              <label>{diasDisponibles}</label>
-              <label className="disponibles">Días disponibles hasta el</label>
-              <label>{fechaFinAnio}</label>
-            </div>
-
             <div className="seccion-formulario">
               <div className="tarjeta-formulario tarjeta-formulario-grande">
                 <br />

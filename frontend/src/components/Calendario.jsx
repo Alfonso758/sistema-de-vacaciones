@@ -117,42 +117,42 @@ export default function Calendario({ userID }) {
                     ))}
                 </div>
 
-<div className="calendario-grid">
-    {fullCells.map((day, idx) => {
-        // Calcular la columna (0 = lunes, 6 = domingo)
-        const colIndex = idx % 7;
-        const isWeekendColumn = colIndex === 5 || colIndex === 6; // Sábado o Domingo
+                <div className="calendario-grid">
+                    {fullCells.map((day, idx) => {
+                        // Calcular la columna (0 = lunes, 6 = domingo)
+                        const colIndex = idx % 7;
+                        const isWeekendColumn = colIndex === 5 || colIndex === 6; // Sábado o Domingo
 
-        if (!day) {
-            // Celda vacía pero con fondo amarillo si es fin de semana
-            return (
-                <div
-                    key={idx}
-                    className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}
-                ></div>
-            );
-        }
+                        if (!day) {
+                            // Celda vacía pero con fondo amarillo si es fin de semana
+                            return (
+                                <div
+                                    key={idx}
+                                    className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}
+                                ></div>
+                            );
+                        }
 
-        const date = new Date(year, month, day);
-        const isToday = isCurrentMonth && day === today.getDate();
-        const isInhabil = isDiaInhabilDay(day);
-        const isVacacion = !isInhabil && !isWeekendColumn && isVacacionDay(day); // solo entre semana y si no es inhábil
+                        const date = new Date(year, month, day);
+                        const isToday = isCurrentMonth && day === today.getDate();
+                        const isInhabil = isDiaInhabilDay(day);
+                        const isVacacion = !isInhabil && !isWeekendColumn && isVacacionDay(day); // solo entre semana y si no es inhábil
 
-        return (
-            <div
-                key={idx}
-                className={`calendario-cell 
+                        return (
+                            <div
+                                key={idx}
+                                className={`calendario-cell 
                             ${isInhabil ? "inhabil" : ""} 
                             ${isVacacion ? "vacacion" : ""} 
                             ${isWeekendColumn && !isInhabil ? "fin-de-semana" : ""}`}
-            >
-                <span className={`${isToday ? "hoy" : ""}`}>
-                    {day}
-                </span>
-            </div>
-        );
-    })}
-</div>
+                            >
+                                <span className={`${isToday ? "hoy" : ""}`}>
+                                    {day}
+                                </span>
+                            </div>
+                        );
+                    })}
+                </div>
 
 
 

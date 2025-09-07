@@ -157,4 +157,23 @@ class UsuarioController extends Controller
 
         return response()->json($jefes);
     }
+
+    public function cambiarPassword(Request $request)
+    {
+        $request->validate([
+            'passwordActual' => 'required|string',
+            'passwordNueva' => 'required|string|min:6',
+        ]);
+
+        $usuario = auth()->user(); // Usuario logueado vía token
+
+        if (!Hash::check($request->passwordActual, $usuario->password)) {
+            return response()->json(['message' => 'La contraseña actual es incorrecta'], 400);
+        }
+
+        $usuario->password = Hash::make($request->passwordNueva);
+        $usuario->save();
+
+        return response()->json(['message' => 'Contraseña actualizada correctamente'], 200);
+    }
 }
