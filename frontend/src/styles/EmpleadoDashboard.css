@@ -5,7 +5,6 @@
   left: 0;
   width: 200px;
   height: 100vh;
-  /* ocupa el resto de la pantalla */
   background: #f1f1f1;
   color: #717171;
   display: flex;
@@ -15,28 +14,12 @@
   z-index: 999;
 }
 
-/* Contenido principal */
-.contenido-principal {
-  margin-left: 235px;
-  /* espacio de la barra lateral */
-  margin-top: -40px;
-  /* espacio del header */
-  padding: 20px;
-  /* min-height: 100vh; */
-  overflow-y: auto;
-  background-color: #f1f1f1;
-}
-
-.barra-lateral.colapsada~.contenido-principal {
-  margin-left: 80px;
-}
-
-.titulo1 {
-  color: #0d47a1;
-}
-
 .barra-lateral.colapsada {
   width: 30px;
+}
+
+.barra-lateral.colapsada ~ .contenido-principal {
+  margin-left: 80px;
 }
 
 .encabezado-barra {
@@ -50,16 +33,7 @@
   border: none;
   color: #717171;
   font-size: 1.2rem;
-  outline: none;
   cursor: pointer;
-}
-
-.boton-colapsar:focus {
-  outline: none;
-}
-
-.barra-lateral ul li .icono {
-  font-size: 1.2rem;
 }
 
 .barra-lateral h3 {
@@ -69,7 +43,6 @@
 }
 
 .barra-lateral nav ul {
-  cursor: pointer;
   list-style: none;
   padding: 0;
   display: flex;
@@ -98,163 +71,22 @@
 .barra-lateral nav ul li.activo {
   color: #2daeff;
   cursor: pointer;
-  /* 👈 para la manita */
 }
 
-/* Formulario central */
-.seccion-formulario {
-  display: flex;
-  justify-content: center;
+.barra-lateral ul li .icono {
+  font-size: 1.2rem;
 }
 
-.tarjeta-formulario {
-  background: #ffffff;
-  color: #000000;
-  border-radius: 8px;
+/* Contenido principal */
+.contenido-principal {
+  margin-left: 235px;
+  margin-top: -40px;
   padding: 20px;
-  width: 100%;
+  overflow-y: auto;
+  background-color: #f1f1f1;
 }
 
-.disponibles {
-  color: #717171;
-}
-
-.labels-linea {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 20px 30px;
-  font-size: 18px;
-  color: #000000;
-}
-
-.labels-linea label {
-  line-height: 1;
-  vertical-align: middle;
-  margin: 0;
-}
-
-.content {
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-}
-
-.tarjeta_content {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* 3 columnas iguales */
-  gap: 20px;
-  width: 100%;
-}
-
-.tarjeta {
-  background: #fff;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  padding: 20px 10px;
-  text-align: center;
-  height: 120px; /* 👈 más baja */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.tarjeta .valor {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #007bff;
-  margin-bottom: 5px;
-}
-
-.tarjeta p {
-  font-size: 0.9rem;
-  color: #333;
-  margin: 0;
-}
-
-.tarjeta p small {
-  display: block;
-  font-size: 0.75rem;
-  color: #777;
-}
-
-
-
-
-/* Contenedor del formulario */
-form {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  /* dos columnas iguales */
-  gap: 20px;
-  /* espacio entre columnas y filas */
-  position: relative;
-  /* necesario para colocar el botón */
-}
-
-/* Cada grupo de input mantiene su estilo */
-.grupo-input {
-  display: flex;
-  flex-direction: column;
-}
-
-.grupo-input label {
-  font-weight: 500;
-  color: #333;
-  margin-bottom: 5px;
-}
-
-.grupo-input input[type="date"] {
-  padding: 12px;
-  background-color: #e0efff;
-  color: #000000;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-.grupo-input input:focus {
-  border-color: #1976d2;
-  box-shadow: 0 0 10px rgba(25, 118, 210, 0.3);
-  outline: none;
-}
-
-/* Botón en la esquina inferior derecha */
-form button {
-  grid-column: 2;
-  /* ocupa la segunda columna */
-  justify-self: end;
-  /* alinea al final de la columna */
-  padding: 14px 20px;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  background: linear-gradient(90deg, #1976d2, #0d47a1);
-  color: #fff;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-form button:hover {
-  background: linear-gradient(90deg, #0d47a1, #1976d2);
-  box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
-  transform: translateY(-2px);
-}
-
-/* Mensajes */
-.mensaje-error {
-  color: #d32f2f;
-  font-weight: 600;
-}
-
-.mensaje-exito {
-  color: #388e3c;
-  font-weight: 600;
-}
-
-/* Listas, calendario y notificaciones */
+/* Tarjetas de listas, calendario y notificaciones */
 .tarjeta-lista,
 .tarjeta-calendario,
 .tarjeta-notificaciones {
@@ -269,32 +101,4 @@ form button:hover {
 .tarjeta-notificaciones h3 {
   color: #0d47a1;
   margin-bottom: 20px;
-}
-
-/* Inputs agrupados */
-.grupo-input {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 16px;
-}
-
-.grupo-input label {
-  font-weight: 500;
-  color: #333;
-  font-size: 1rem;
-}
-
-.grupo-input input {
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-  background-color: #414040;
-}
-
-.grupo-input input:focus {
-  outline: none;
-  border-color: #1976d2;
-  box-shadow: 0 0 8px rgba(25, 118, 210, 0.3);
 }

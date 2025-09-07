@@ -249,7 +249,7 @@ function App() {
                 <h2>Cambiar Contraseña</h2>
 
                 {/* Contraseña actual */}
-                <div className="password-wrapper">
+                <div className="password-change">
                   <input
                     type={mostrarPassword ? 'text' : 'password'}
                     placeholder="Contraseña actual"
@@ -258,7 +258,7 @@ function App() {
                     disabled={loadingPassword}
                   />
                   <span
-                    className="password-toggle"
+                    className="password-togg"
                     onClick={toggleMostrarPassword}
                     role="button"
                     tabIndex={0}
@@ -270,7 +270,7 @@ function App() {
                 </div>
 
                 {/* Nueva contraseña */}
-                <div className="password-wrapper">
+                <div className="password-change">
                   <input
                     type={mostrarPassword ? 'text' : 'password'}
                     placeholder="Nueva contraseña"
@@ -279,7 +279,7 @@ function App() {
                     disabled={loadingPassword}
                   />
                   <span
-                    className="password-toggle"
+                    className="password-togg"
                     onClick={toggleMostrarPassword}
                     role="button"
                     tabIndex={0}
@@ -291,7 +291,7 @@ function App() {
                 </div>
 
                 {/* Confirmar nueva contraseña */}
-                <div className="password-wrapper">
+                <div className="password-change">
                   <input
                     type={mostrarPassword ? 'text' : 'password'}
                     placeholder="Confirmar nueva contraseña"
@@ -300,7 +300,7 @@ function App() {
                     disabled={loadingPassword}
                   />
                   <span
-                    className="password-toggle"
+                    className="password-togg"
                     onClick={toggleMostrarPassword}
                     role="button"
                     tabIndex={0}

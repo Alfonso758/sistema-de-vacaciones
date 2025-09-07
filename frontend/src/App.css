@@ -314,11 +314,6 @@
   transform: scale(1.2);
 }
 
-
-
-
-
-
 /* Contenedor del modal */
 .modal-password {
   display: flex;
@@ -343,39 +338,52 @@
   font-size: 14px;
 }
 
-/* Inputs de contraseña */
-.password-wrapper {
+.modal-password input {
+  display: block;
+  padding: 0.75rem;
+  margin-bottom: 0.1rem;
+  border: 1px solid #ccc; /* Color por defecto */
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: #e0efff;
+  outline: none; /* Quita el borde de enfoque nativo */
+}
+
+.modal-password input:focus {
+  border-color: #1976d2; /* Azul */
+  box-shadow: 0 0 5px rgba(25, 118, 210, 0.6); /* Brillo azul */
+}
+
+.password-change {
   position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
+  
+  /* centra verticalmente el contenido del wrapper */
 }
 
-.password-wrapper input {
+.password-change input {
   width: 100%;
-  padding: 12px 45px; /* espacio para ícono */
-  height: 45px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
-  background-color: #f5f9ff; /* 👈 azul claro como en login */
-  outline: none;
-  transition: border-color 0.2s, box-shadow 0.2s;
+  padding-right: 40px;
+  /* deja espacio suficiente para el ícono */
+  box-sizing: border-box;
+  /* para que el padding no aumente el ancho total */
 }
 
-.password-wrapper input:focus {
-  border-color: #1976d2;
-  box-shadow: 0 0 5px rgba(25, 118, 210, 0.6);
-}
-
-/* Botón para mostrar/ocultar */
-.password-toggle {
+.password-togg {
   position: absolute;
-  right: 12px;
+  right: 10px;
+  /* distancia desde el borde derecho */
   top: 50%;
-  transform: translateY(-50%);
+  /* posiciona en la mitad vertical */
+  transform: translateY(-80%);
+  /* ajusta para centrar el ícono exactamente */
   cursor: pointer;
-  color: #555;
-  font-size: 18px;
+  display: flex;
+  align-items: center;
   user-select: none;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
 }
 
 /* Botón Guardar */
