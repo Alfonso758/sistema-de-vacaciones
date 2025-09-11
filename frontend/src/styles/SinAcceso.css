@@ -1,0 +1,102 @@
+/* SinAcceso.css */
+
+.sin-acceso-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 40px 20px;
+    font-family: Arial, sans-serif;
+}
+
+.main-label {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #c01e1e;
+    margin-bottom: 20px;
+}
+
+.sin-acceso {
+    max-width: 400px;
+    width: 100%;
+    padding: 30px;
+    background-color: #f9f9f9;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sin-acceso h3 {
+    margin-bottom: 0;
+    color: #444;
+    font-weight: 600;
+    text-align: center;
+}
+
+.sin-acceso form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.sin-acceso form div {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.sin-acceso form label {
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #555;
+}
+
+.sin-acceso form input[type="text"],
+.sin-acceso form input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+}
+
+.sin-acceso form input[type="text"]:focus,
+.sin-acceso form input[type="date"]:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.sin-acceso form button {
+    padding: 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.sin-acceso form button:hover {
+    background-color: #0056b3;
+}
+
+.sin-acceso form select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    width: 100%;
+    transition: border-color 0.3s;
+    background-color: white;
+    appearance: none; /* Quita el estilo por defecto (flecha nativa) */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.sin-acceso form select:focus {
+    border-color: #007bff;
+    outline: none;
+}

@@ -3,6 +3,7 @@ import { FaUser, FaCog, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock
 import { useState, useEffect, useRef } from 'react';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import SinAcceso from './components/SinAcceso';
 import EmpleadoDashboard from './pages/EmpleadoDashboard';
 import SupervisorDashboard from './pages/SupervisorDashboard';
 import AdminDashboard from './pages/AdminDashboard';
@@ -16,7 +17,7 @@ function App() {
 
   const [mostrarRegistro, setMostrarRegistro] = useState(false);
   const [menuAbierto, setMenuAbierto] = useState(false);
-  const [modalActivo, setModalActivo] = useState(''); // '' | 'perfil' | 'config' | 'ayuda'
+  const [modalActivo, setModalActivo] = useState('');
   const menuRef = useRef(null);
   const [passwordActual, setPasswordActual] = useState('');
   const [passwordNueva, setPasswordNueva] = useState('');
@@ -267,7 +268,7 @@ function App() {
 
                 {/* Nombre */}
                 <p>
-                  <b>Nombre:</b> {usuario.nombre}{' '}
+                  <b>Nombre:</b> {usuario.nombre || usuario.name}{' '}
                   <button className="boton-editar" onClick={() => editarCampo('nombre')}>
                     <FaEdit />
                   </button>
@@ -275,7 +276,7 @@ function App() {
 
                 {/* Apellidos */}
                 <p>
-                  <b>Apellidos:</b> {usuario.apellidos}{' '}
+                  <b>Apellidos:</b> {usuario.apellidos || usuario.surnames}{' '}
                   <button className="boton-editar" onClick={() => editarCampo('apellidos')}>
                     <FaEdit />
                   </button>
@@ -407,7 +408,11 @@ function App() {
             userSurname={usuario.apellidos}
           />
         )}
-        {!([1, 2, 3].includes(usuario.rol_id)) && <label>No tienes acceso al sistema.</label>}
+        {!([1, 2, 3].includes(usuario.rol_id)) && (
+          <SinAcceso
+            usuario={usuario}
+          />
+        )}
       </div>
 
       <footer className="pie-app">

@@ -1,15 +1,24 @@
 import { useState } from 'react';
 import '../styles/LoginForm.css';
 import api from '../services/api';
+import { GoogleLogin } from '@react-oauth/google';
+import jwtDecode from "jwt-decode";
 
 function LoginForm({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);  // <-- nuevo estado
+  const [loading, setLoading] = useState(false);
 
   const toggleShowPassword = () => setShowPassword(prev => !prev);
+
+  const normalizeUser = (user) => ({
+    ...user,
+    id: user.id || user.usuarioID,         // siempre habrá id
+    nombre: user.nombre || user.name,      // normaliza nombre
+    apellidos: user.apellidos || user.surnames // normaliza apellidos
+  });
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,11 +29,11 @@ function LoginForm({ onLoginSuccess }) {
       const response = await api.post('/login', { email, password });
       const { user, token } = response.data;
 
-      console.log('Usuario recibido del backend:', user);  // <-- aquí
+      const normalizedUser = normalizeUser(user);
 
-      localStorage.setItem('usuario', JSON.stringify(user));
+      localStorage.setItem('usuario', JSON.stringify(normalizedUser));
       localStorage.setItem('token', token);
-      onLoginSuccess(user);
+      onLoginSuccess(normalizedUser);
     } catch (err) {
       if (err.response && err.response.status === 401) {
         setError("Correo o contraseña incorrectos");
@@ -35,6 +44,29 @@ function LoginForm({ onLoginSuccess }) {
       setLoading(false);
     }
   };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const token = credentialResponse?.credential;
+      if (!token) return;
+
+      const response = await api.post('/google-login', { token });
+      const { user, token: appToken } = response.data;
+
+      const normalizedUser = normalizeUser(user);
+
+      localStorage.setItem('usuario', JSON.stringify(normalizedUser));
+      localStorage.setItem('token', appToken);
+      onLoginSuccess(normalizedUser);
+    } catch (err) {
+      console.error("Error con login Google:", err);
+      setError("Error al iniciar sesión con Google");
+    }
+  };
+
+
+
+
 
 
   return (
@@ -151,6 +183,14 @@ function LoginForm({ onLoginSuccess }) {
 
           {error && <p className="error">{error}</p>}
         </form>
+        <br></br>
+        {/* 🔹 Botón de Google */}
+        <div className="google-login">
+          <GoogleLogin
+            onSuccess={handleGoogleSuccess}
+            onError={() => console.log("Error en login con Google")}
+          />
+        </div>
       </div>
     </div>
   );

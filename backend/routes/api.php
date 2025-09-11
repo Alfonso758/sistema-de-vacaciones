@@ -6,6 +6,7 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\VacacionesController;
 use App\Http\Controllers\DiaInhabilController;
+use App\Http\Controllers\Auth\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -14,6 +15,7 @@ use App\Http\Controllers\DiaInhabilController;
 */
 
 // 🔹 Autenticación de usuarios
+Route::post('/google-login', [GoogleController::class, 'login']);
 Route::post('/login', [UsuarioController::class, 'login']);
 Route::post('/register', [UsuarioController::class, 'register']);
 
@@ -88,5 +90,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Cambiar avatar
     Route::post('/usuarios/avatar', [UsuarioController::class, 'cambiarAvatar']);
+
+    // Agregar jefe y fecha de ingreso
+    Route::put('/usuarios/{id}', [UsuarioController::class, 'update']);
 
 });
