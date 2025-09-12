@@ -212,4 +212,32 @@ class UsuarioController extends Controller
             'avatarUrl' => $fullUrl
         ]);
     }
+
+    // 🔹 Actualizar nombre y apellidos del usuario logueado
+public function actualizar(Request $request)
+{
+    $request->validate([
+        'nombre'    => 'required|string|max:255',
+        'apellidos' => 'required|string|max:255',
+    ]);
+
+    $usuario = auth()->user(); // obtiene el usuario autenticado
+
+    $usuario->name = $request->nombre;
+    $usuario->surnames = $request->apellidos;
+    $usuario->save();
+
+    return response()->json([
+        'mensaje' => 'Datos actualizados correctamente',
+        'usuario' => [
+            'usuarioID' => $usuario->id,
+            'nombre'    => $usuario->name,
+            'apellidos' => $usuario->surnames,
+            'rol_id'    => $usuario->rol_id,
+            'email'     => $usuario->email,
+            'avatarUrl' => $usuario->avatar ? $usuario->avatar : null,
+        ]
+    ]);
+}
+
 }

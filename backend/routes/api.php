@@ -95,3 +95,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/usuarios/{id}', [UsuarioController::class, 'update']);
 
 });
+
+// Actualizar nombre y apellidos del usuario logueado
+Route::middleware('auth:sanctum')->put('/usuario/actualizar', [UsuarioController::class, 'actualizar']);

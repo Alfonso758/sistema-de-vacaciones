@@ -25,6 +25,8 @@ function App() {
   const [mostrarPassword, setMostrarPassword] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [loadingPassword, setLoadingPassword] = useState(false);
+  const [campoEditable, setCampoEditable] = useState('');
+  const [valorEditable, setValorEditable] = useState('');
 
   const toggleMostrarPassword = () => setMostrarPassword(prev => !prev);
 
@@ -176,6 +178,46 @@ function App() {
     }
   };
 
+  const iniciarEdicion = (campo, valor) => {
+    setCampoEditable(campo);
+    setValorEditable(valor);
+  };
+
+
+  const editarCampo = async (campo, valor) => {
+    if (!valor) {
+      valor = campo === 'nombre' ? usuario.nombre : usuario.apellidos;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await fetch('http://localhost:8000/api/usuario/actualizar', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          nombre: campo === 'nombre' ? valor : usuario.nombre,
+          apellidos: campo === 'apellidos' ? valor : usuario.apellidos
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setUsuario(data.usuario);
+        setCampoEditable('');
+      } else {
+        alert(data.message || 'Error al actualizar');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('Error de conexión con el servidor');
+    }
+  };
+
 
 
   return (
@@ -233,58 +275,97 @@ function App() {
           <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
             <button className="cerrar-modal" onClick={() => setModalActivo('')}>X</button>
             {modalActivo === 'perfil' && (
-              <div className="perfil-modal">
-                <h2>Perfil</h2>
-                <div className="foto-contenedor">
-                  <img
-                    src={
-                      usuario.avatarUrl
-                        ? usuario.avatarUrl.startsWith("storage/")
-                          ? usuario.avatarUrl.replace(/^storage\//, "")
-                          : usuario.avatarUrl
-                        : "http://localhost:8000/images/user.jpg"
-                    }
-                    alt="Foto de perfil"
-                    className="perfil-foto"
-                  />
+              <div className="modal-fondo" onClick={() => setModalActivo('')}>
+                <div className="modal-contenido" onClick={(e) => e.stopPropagation()}>
+                  <button className="cerrar-modal" onClick={() => setModalActivo('')}>X</button>
 
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={cambiarAvatar}
-                    id="avatar-input"
-                    style={{ display: 'none' }}
-                  />
-                  <label htmlFor="avatar-input" className="boton-camara">
-                    <FaCamera />
-                  </label>
+                  <div className="perfil-modal">
+                    <h2>Perfil</h2>
+
+                    <div className="foto-contenedor">
+                      <img
+                        src={
+                          usuario.avatarUrl
+                            ? usuario.avatarUrl.startsWith("storage/")
+                              ? usuario.avatarUrl.replace(/^storage\//, "")
+                              : usuario.avatarUrl
+                            : "http://localhost:8000/images/user.jpg"
+                        }
+                        alt="Foto de perfil"
+                        className="perfil-foto"
+                      />
+
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={cambiarAvatar}
+                        id="avatar-input"
+                        style={{ display: 'none' }}
+                      />
+                      <label htmlFor="avatar-input" className="boton-camara">
+                        <FaCamera />
+                      </label>
+                    </div>
+
+                    {usuario.rol_id === 1 && <p>Cuenta de empleado</p>}
+                    {usuario.rol_id === 2 && <p>Cuenta de supervisor</p>}
+                    {usuario.rol_id === 3 && <p>Cuenta de administrador</p>}
+
+                    <div className="campo-perfil">
+                      <label><b>Nombre(s):</b></label>
+                      {campoEditable === 'nombre' ? (
+                        <div className="campo-editable">
+                          <input
+                            type="text"
+                            value={valorEditable}
+                            onChange={(e) => setValorEditable(e.target.value)}
+                          />
+                          <button className="guardar" onClick={() => editarCampo('nombre', valorEditable)}>Guardar</button>
+                          <button className="cancelar" onClick={() => setCampoEditable('')}>Cancelar</button>
+                        </div>
+                      ) : (
+                        <div className="valor-display">
+                          <span>{usuario.nombre || <i></i>}</span>
+                          <button className="boton-editar" onClick={() => iniciarEdicion('nombre', usuario.nombre)}>
+                            <FaEdit />
+                          </button>
+                        </div>
+
+                      )}
+                    </div>
+
+                    <div className="campo-perfil">
+                      <label><b>Apellido(s):</b></label>
+                      {campoEditable === 'apellidos' ? (
+                        <div className="campo-editable">
+                          <input
+                            type="text"
+                            value={valorEditable}
+                            onChange={(e) => setValorEditable(e.target.value)}
+                          />
+                          <button className="guardar" onClick={() => editarCampo('apellidos', valorEditable)}>Guardar</button>
+                          <button className="cancelar" onClick={() => setCampoEditable('')}>Cancelar</button>
+                        </div>
+                      ) : (
+                        <div className="valor-display">
+                          <span>{usuario.apellidos || <i></i>}</span>
+                          <button className="boton-editar" onClick={() => iniciarEdicion('apellidos', usuario.apellidos)}>
+                            <FaEdit />
+                          </button>
+                        </div>
+
+                      )}
+                    </div>
+
+                    <div className="campo-perfil">
+                      <label><b>Email:</b></label>
+                      <div className="valor-display">{usuario.email || 'No registrado'}</div>
+                    </div>
+                  </div>
                 </div>
-
-
-
-                {usuario.rol_id === 1 && <p>Cuenta de empleado</p>}
-                {usuario.rol_id === 2 && <p>Cuenta de supervisor</p>}
-                {usuario.rol_id === 3 && <p>Cuenta de administrador</p>}
-
-                {/* Nombre */}
-                <p>
-                  <b>Nombre:</b> {usuario.nombre || usuario.name}{' '}
-                  <button className="boton-editar" onClick={() => editarCampo('nombre')}>
-                    <FaEdit />
-                  </button>
-                </p>
-
-                {/* Apellidos */}
-                <p>
-                  <b>Apellidos:</b> {usuario.apellidos || usuario.surnames}{' '}
-                  <button className="boton-editar" onClick={() => editarCampo('apellidos')}>
-                    <FaEdit />
-                  </button>
-                </p>
-                <p><b>Email:</b> {usuario.email || 'No registrado'}</p>
               </div>
-
             )}
+
 
             {modalActivo === 'password' && (
               <div className="modal-password">
