@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\BienvenidaUsuario;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Usuario;
@@ -83,6 +85,14 @@ class UsuarioController extends Controller
             'fecha_ingreso' => $request->fecha_ingreso,
             'jefe_directo'  => $request->jefe_directo,
             'email_verified_at' => now(),
+        ]);
+
+        // 📩 Enviar correo de bienvenida
+        $usuario->notify(new BienvenidaUsuario());
+
+        return response()->json([
+            'message' => 'Usuario registrado correctamente y notificación enviada',
+            'user'    => $usuario
         ]);
 
         return response()->json([
@@ -214,30 +224,29 @@ class UsuarioController extends Controller
     }
 
     // 🔹 Actualizar nombre y apellidos del usuario logueado
-public function actualizar(Request $request)
-{
-    $request->validate([
-        'nombre'    => 'required|string|max:255',
-        'apellidos' => 'required|string|max:255',
-    ]);
+    public function actualizar(Request $request)
+    {
+        $request->validate([
+            'nombre'    => 'required|string|max:255',
+            'apellidos' => 'required|string|max:255',
+        ]);
 
-    $usuario = auth()->user(); // obtiene el usuario autenticado
+        $usuario = auth()->user(); // obtiene el usuario autenticado
 
-    $usuario->name = $request->nombre;
-    $usuario->surnames = $request->apellidos;
-    $usuario->save();
+        $usuario->name = $request->nombre;
+        $usuario->surnames = $request->apellidos;
+        $usuario->save();
 
-    return response()->json([
-        'mensaje' => 'Datos actualizados correctamente',
-        'usuario' => [
-            'usuarioID' => $usuario->id,
-            'nombre'    => $usuario->name,
-            'apellidos' => $usuario->surnames,
-            'rol_id'    => $usuario->rol_id,
-            'email'     => $usuario->email,
-            'avatarUrl' => $usuario->avatar ? $usuario->avatar : null,
-        ]
-    ]);
-}
-
+        return response()->json([
+            'mensaje' => 'Datos actualizados correctamente',
+            'usuario' => [
+                'usuarioID' => $usuario->id,
+                'nombre'    => $usuario->name,
+                'apellidos' => $usuario->surnames,
+                'rol_id'    => $usuario->rol_id,
+                'email'     => $usuario->email,
+                'avatarUrl' => $usuario->avatar ? $usuario->avatar : null,
+            ]
+        ]);
+    }
 }

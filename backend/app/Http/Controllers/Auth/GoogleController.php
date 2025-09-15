@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Google\Client;
 use App\Models\Usuario;
 use Illuminate\Support\Str;
+use App\Notifications\BienvenidaUsuario;
 
 class GoogleController extends Controller
 {
@@ -41,6 +42,11 @@ class GoogleController extends Controller
                 ]
             );
 
+            // 📩 Enviar correo de bienvenida solo si es un usuario nuevo
+            if ($user->wasRecentlyCreated) {
+                $user->notify(new BienvenidaUsuario($user));
+            }
+
             // Crear token Sanctum
             $appToken = $user->createToken('authToken')->plainTextToken;
 
@@ -59,7 +65,7 @@ class GoogleController extends Controller
                 'token' => $appToken
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error en el servidor'], 500);
+            return response()->json(['error' => 'Error en el servidor', 'detalle' => $e->getMessage()], 500);
         }
     }
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\SolicitudController;
 use App\Http\Controllers\VacacionesController;
 use App\Http\Controllers\DiaInhabilController;
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\Auth\GoogleCalendarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -71,6 +72,9 @@ Route::get('/datos-vacaciones/{usuario}', [VacacionesController::class, 'getDato
 
 // 🔹 Días de vacaciones de un usuario para el calendario
 Route::get('/vacaciones/{usuario_id}', [VacacionesController::class, 'aprobadas']);
+
+Route::get('/google-auth', [GoogleCalendarController::class, 'redirectToGoogle']);
+Route::get('/callback', [GoogleCalendarController::class, 'handleCallback']);
 
 /*
 |--------------------------------------------------------------------------
