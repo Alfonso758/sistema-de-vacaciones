@@ -123,14 +123,14 @@ class SolicitudController extends Controller
         // 1. Buscar empleados del jefe
         $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
 
-        // 2. Buscar solicitudes pendientes de esos empleados
+        // 2. Buscar solicitudes de esos empleados (todas: pendientes, aprobadas, rechazadas)
         $solicitudes = solicitudesVacaciones::whereIn('usuario_id', $empleados)
-            ->where('estado_solicitud', 1)
             ->with('usuario') // para traer info del empleado
             ->get();
 
         return response()->json($solicitudes);
     }
+
 
     public function decision(Request $request, $id)
     {

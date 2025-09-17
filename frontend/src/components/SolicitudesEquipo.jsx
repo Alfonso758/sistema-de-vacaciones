@@ -6,6 +6,7 @@ export default function SolicitudesEquipo({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [comentarios, setComentarios] = useState({});
+    const [filtro, setFiltro] = useState(''); 
 
     const estados = {
         1: "Pendiente",
@@ -18,14 +19,12 @@ export default function SolicitudesEquipo({ userID }) {
     const formatDate = (fechaStr) => {
         if (!fechaStr) return "";
         const fecha = new Date(fechaStr);
-
         let formatoFecha = new Intl.DateTimeFormat("es-ES", {
             weekday: "short",
             day: "2-digit",
             month: "2-digit",
             year: "numeric"
         }).format(fecha);
-
         formatoFecha = formatoFecha.charAt(0).toUpperCase() + formatoFecha.slice(1);
 
         const formatoHora = new Intl.DateTimeFormat("es-ES", {
@@ -44,14 +43,12 @@ export default function SolicitudesEquipo({ userID }) {
     const formatDateSinHora = (fechaStr) => {
         if (!fechaStr) return "";
         const fecha = new Date(fechaStr);
-
         let formatoFecha = new Intl.DateTimeFormat("es-ES", {
             weekday: "short",
             day: "2-digit",
             month: "2-digit",
             year: "numeric"
         }).format(fecha);
-
         return formatoFecha.charAt(0).toUpperCase() + formatoFecha.slice(1);
     };
 
@@ -65,7 +62,7 @@ export default function SolicitudesEquipo({ userID }) {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify({
-                    decision, // 2 o 3
+                    decision,
                     comentario: comentarios[id] || "",
                     revisor_id: userID
                 }),
@@ -76,7 +73,6 @@ export default function SolicitudesEquipo({ userID }) {
             const data = await res.json();
             console.log('Solicitud actualizada', data);
 
-            // Actualizar estado en la UI, incluyendo revisor si viene en la respuesta
             setSolicitudes(solicitudes.map(s =>
                 s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "", revisor: data.revisor } : s
             ));
@@ -84,8 +80,6 @@ export default function SolicitudesEquipo({ userID }) {
             console.error(error);
         }
     };
-
-
 
     // ----------------- CARGA DE SOLICITUDES DE EMPLEADOS -----------------
     useEffect(() => {
@@ -110,86 +104,100 @@ export default function SolicitudesEquipo({ userID }) {
             });
     }, [userID]);
 
-    // ----------------- RENDER -----------------
-    if (loading) return <p>Cargando solicitudes...</p>;
-    if (!Array.isArray(solicitudes) || solicitudes.length === 0) return <p>No hay solicitudes pendientes de tus empleados.</p>;
+    // ----------------- FILTRADO -----------------
+    const solicitudesFiltradas = filtro ? solicitudes.filter(s => String(s.estado_solicitud) === filtro) : solicitudes;
 
+    // ----------------- RENDER -----------------
     return (
         <div className="seccion-lista">
             <h2>Solicitudes de mi equipo</h2>
+
+            {/* Filtros */}
+            <div className="filtros-solicitudes">
+                <button onClick={() => setFiltro('1')} className={filtro === '1' ? 'activo' : ''}>Pendientes</button>
+                <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
+                <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
+            </div>
+
             <div className="lista-solicitudes">
-                {solicitudes.slice().reverse().map((solicitud, index, arr) => (
-                    <div
-                        key={solicitud.id}
-                        className={`tarjeta-solicitud ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}
-                    >
-                        {/* Cabecera */}
-                        <div className="cabecera-solicitud">
-                            <span className="numero">#{arr.length - index}</span>
-                            <div className="fecha-estado">
-                                <span className="fecha gris">
-                                    <FaCalendarAlt style={{ marginRight: '5px' }} />
-                                    {formatDate(solicitud.fecha_solicitud)}
-                                </span>
-                                <span className={`estado ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}>
-                                    <span className={`estado-indicador ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}></span>
-                                    {estados[solicitud.estado_solicitud]}
-                                </span>
-                            </div>
-                        </div>
-
-                        {/* Info del empleado */}
-                        {solicitud.usuario && (
-                            <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name}</strong></p>
-                        )}
-
-                        {/* Fechas de inicio y fin */}
-                        <div className="fechas-solicitud">
-                            <span>
-                                <FaClock style={{ marginRight: '5px' }} />
-                                <strong>Inicio:</strong> {formatDateSinHora(solicitud.fecha_inicio)}
-                            </span>
-                            <span>
-                                <FaClock style={{ marginRight: '5px' }} />
-                                <strong>Fin:</strong> {formatDateSinHora(solicitud.fecha_fin)}
-                            </span>
-                        </div>
-
-                        {/* Comentarios existentes */}
-                        {solicitud.comentario && (
-                            <div className="comentario-contenedor">
-                                <label>Comentarios:</label>
-                                <div className="comentario">
-                                    <FaComment style={{ marginRight: '5px' }} /> {solicitud.comentario}
+                {loading ? (
+                    <p>Cargando solicitudes...</p>
+                ) : solicitudesFiltradas.length === 0 ? (
+                    <p>No hay solicitudes en este estado.</p>
+                ) : (
+                    solicitudesFiltradas.slice().reverse().map((solicitud, index, arr) => (
+                        <div
+                            key={solicitud.id}
+                            className={`tarjeta-solicitud ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}
+                        >
+                            {/* Cabecera */}
+                            <div className="cabecera-solicitud">
+                                <span className="numero">#{arr.length - index}</span>
+                                <div className="fecha-estado">
+                                    <span className="fecha gris">
+                                        <FaCalendarAlt style={{ marginRight: '5px' }} />
+                                        {formatDate(solicitud.fecha_solicitud)}
+                                    </span>
+                                    <span className={`estado ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}>
+                                        <span className={`estado-indicador ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}></span>
+                                        {estados[solicitud.estado_solicitud]}
+                                    </span>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Acciones solo si está pendiente */}
-                        {solicitud.estado_solicitud === 1 && (
-                            <div className="acciones-solicitud">
-                                <textarea
-                                    placeholder="Agregar un comentario (opcional)"
-                                    value={comentarios[solicitud.id] || ""}
-                                    onChange={(e) => setComentarios({ ...comentarios, [solicitud.id]: e.target.value })}
-                                />
+                            {/* Info del empleado */}
+                            {solicitud.usuario && (
+                                <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name}</strong></p>
+                            )}
 
-                                <button
-                                    className="btn aprobar"
-                                    onClick={() => manejarDecision(solicitud.id, 2)}
-                                >
-                                    Aprobar
-                                </button>
-                                <button
-                                    className="btn rechazar"
-                                    onClick={() => manejarDecision(solicitud.id, 3)}
-                                >
-                                    Rechazar
-                                </button>
+                            {/* Fechas de inicio y fin */}
+                            <div className="fechas-solicitud">
+                                <span>
+                                    <FaClock style={{ marginRight: '5px' }} />
+                                    <strong>Inicio:</strong> {formatDateSinHora(solicitud.fecha_inicio)}
+                                </span>
+                                <span>
+                                    <FaClock style={{ marginRight: '5px' }} />
+                                    <strong>Fin:</strong> {formatDateSinHora(solicitud.fecha_fin)}
+                                </span>
                             </div>
-                        )}
-                    </div>
-                ))}
+
+                            {/* Comentarios existentes */}
+                            {solicitud.comentario && (
+                                <div className="comentario-contenedor">
+                                    <label>Comentarios:</label>
+                                    <div className="comentario">
+                                        <FaComment style={{ marginRight: '5px' }} /> {solicitud.comentario}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Acciones solo si está pendiente */}
+                            {solicitud.estado_solicitud === 1 && (
+                                <div className="acciones-solicitud">
+                                    <textarea
+                                        placeholder="Agregar un comentario (opcional)"
+                                        value={comentarios[solicitud.id] || ""}
+                                        onChange={(e) => setComentarios({ ...comentarios, [solicitud.id]: e.target.value })}
+                                    />
+
+                                    <button
+                                        className="btn aprobar"
+                                        onClick={() => manejarDecision(solicitud.id, 2)}
+                                    >
+                                        Aprobar
+                                    </button>
+                                    <button
+                                        className="btn rechazar"
+                                        onClick={() => manejarDecision(solicitud.id, 3)}
+                                    >
+                                        Rechazar
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );
