@@ -5,7 +5,6 @@
   gap: 12px;
   padding: 10px;
   box-sizing: border-box;
-  background: #f4f4f4;
 }
 
 .tarjeta-notificacion {
@@ -13,10 +12,11 @@
   background: #fff;
   border-radius: 6px;
   padding: 10px 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   cursor: pointer;
-  border-left: 5px solid; /* Borde izquierdo */
+  border-left: 5px solid;
+  /* Borde izquierdo */
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -24,24 +24,34 @@
 
 .tarjeta-notificacion:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
 }
 
 /* Borde y estilo según visto o no visto */
 .tarjeta-notificacion.novista {
-  border-left-color: #000; /* negro para no vistas */
+  border-left-color: #000;
+  /* negro para no vistas */
 }
 
 .tarjeta-notificacion.visto {
-  border-left-color: #ccc; /* gris claro para vistas */
+  border-left-color: #ccc;
+  /* gris claro para vistas */
 }
 
 /* Cabecera */
 .cabecera-notificacion {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 5px;
+  position: relative;
+  /* para posicionar la X */
+}
+
+.cabecera-notificacion h3 {
+  margin: 0;
+  font-size: 1rem;
+  padding-right: 20px;
+  /* espacio para la X */
 }
 
 .tarjeta-notificacion.novista h3 {
@@ -54,18 +64,45 @@
   color: #888;
 }
 
-.cabecera-notificacion h3 {
-  margin: 0;
-  font-size: 1rem;
-}
-
 .fecha-notificacion {
   font-size: 0.8rem;
   color: #666;
+  margin-left: auto; /* empuja la fecha a la derecha */
+  margin-right: 50px; /* espacio para la "X" */
+}
+
+
+/* Icono para eliminar notificación */
+.eliminar-notificacion {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-weight: bold;
+  color: #999;
+  cursor: pointer;
+  font-size: 1.6rem;
+  transition: color 0.2s;
+}
+
+.eliminar-notificacion:hover {
+  color: red;
 }
 
 .tarjeta-notificacion p {
   margin: 0;
   font-size: 0.9rem;
   color: #555;
+}
+
+/* Mensaje de carga */
+.cargando-container {
+  display: flex;
+  min-height: 100px;
+  /* espacio consistente */
+}
+
+.cargando-texto {
+  font-size: 1rem;
+  color: #333;
 }

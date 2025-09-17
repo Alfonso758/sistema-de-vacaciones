@@ -8,6 +8,7 @@ use App\Http\Controllers\VacacionesController;
 use App\Http\Controllers\DiaInhabilController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GoogleCalendarController;
+use App\Http\Controllers\NotificacionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +60,22 @@ Route::prefix('dias-inhabiles')->group(function () {
     Route::delete('/{id}', [DiaInhabilController::class, 'destroy']);
 });
 
+Route::prefix('notificaciones')->group(function () {
+    // Listar todas las notificaciones
+    Route::get('/', [NotificacionController::class, 'index']);
 
+    // Crear nueva notificación
+    Route::post('/', [NotificacionController::class, 'store']);
+
+    // Mostrar notificación específica
+    Route::get('/{id}', [NotificacionController::class, 'show']);
+
+    // Actualizar notificación específica
+    Route::put('/{id}', [NotificacionController::class, 'update']);
+
+    // Eliminar notificación específica
+    Route::delete('/{id}', [NotificacionController::class, 'destroy']);
+});
 
 // 🔹 Listado de solicitudes por usuario
 Route::get('/usuarios/{usuario_id}/solicitudes', [SolicitudController::class, 'index']);
@@ -97,7 +113,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Agregar jefe y fecha de ingreso
     Route::put('/usuarios/{id}', [UsuarioController::class, 'update']);
-
 });
 
 // Actualizar nombre y apellidos del usuario logueado

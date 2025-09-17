@@ -3,20 +3,65 @@ import "../styles/Notificaciones.css";
 
 export default function Notificaciones({ userID }) {
     const [notificaciones, setNotificaciones] = useState([]);
+    const [cargando, setCargando] = useState(true);
 
     useEffect(() => {
-        const ejemplo = [
-            { id: 1, titulo: "Nueva solicitud", mensaje: "Tienes una solicitud pendiente de aprobación.", fecha: "2025-09-01T09:30:00", visto: false },
-            { id: 2, titulo: "Actualización de perfil", mensaje: "Tu perfil ha sido actualizado correctamente.", fecha: "2025-08-30T14:20:00", visto: true },
-            { id: 3, titulo: "Recordatorio", mensaje: "No olvides enviar tu reporte semanal.", fecha: "2025-08-31T18:00:00", visto: false },
-        ];
-        setNotificaciones(ejemplo);
-    }, []);
+        const fetchNotificaciones = async () => {
+            try {
+                const response = await fetch(`http://localhost:8000/api/notificaciones?userID=${userID}`);
+                const data = await response.json();
 
-    const marcarVisto = (id) => {
-        setNotificaciones(prev =>
-            prev.map(n => n.id === id ? { ...n, visto: true } : n)
-        );
+                // Filtrar solo las notificaciones del usuario actual
+                const notis = data
+                    .filter(n => n.id_usuario === userID)
+                    .map(n => ({
+                        id: n.id,
+                        titulo: n.titulo,
+                        mensaje: n.mensaje,
+                        fecha: n.fecha_envio,
+                        visto: n.leido === 1
+                    }));
+
+                setNotificaciones(notis);
+            } catch (error) {
+                console.error("Error al cargar notificaciones:", error);
+            } finally {
+                setCargando(false);
+            }
+        };
+
+        fetchNotificaciones();
+    }, [userID]);
+
+    const marcarVisto = async (id) => {
+        const noti = notificaciones.find(n => n.id === id);
+        if (!noti.visto) {
+            try {
+                await fetch(`http://localhost:8000/api/notificaciones/${id}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ leido: 1 })
+                });
+
+                setNotificaciones(prev =>
+                    prev.map(n => n.id === id ? { ...n, visto: true } : n)
+                );
+            } catch (error) {
+                console.error("Error al marcar notificación como vista:", error);
+            }
+        }
+    };
+
+    const eliminarNotificacion = async (id) => {
+        try {
+            await fetch(`http://localhost:8000/api/notificaciones/${id}`, {
+                method: "DELETE",
+            });
+
+            setNotificaciones(prev => prev.filter(n => n.id !== id));
+        } catch (error) {
+            console.error("Error al eliminar notificación:", error);
+        }
     };
 
     const formatoFechaHora = (fechaStr) => {
@@ -32,32 +77,36 @@ export default function Notificaciones({ userID }) {
 
     return (
         <div className="seccion-notificaciones">
-            <h2>Notificaciones</h2>
-            {notificaciones.map((noti) => (
-                <div
-                    key={noti.id}
-                    className={`tarjeta-notificacion ${noti.visto ? "visto" : "novista"}`}
-                    onClick={() => marcarVisto(noti.id)}
-                >
-                    <div className="cabecera-notificacion">
-                        <h3>{noti.titulo}</h3>
-                        <span className="fecha-notificacion">{formatoFechaHora(noti.fecha)}</span>
-                    </div>
-                    <p>{noti.mensaje}</p>
+            {cargando ? (
+                <div className="cargando-container">
+                    <p className="cargando-texto">Cargando notificaciones...</p>
                 </div>
-            ))}
+            ) : (
+                <>
+                    <h2>Notificaciones</h2>
+                    {notificaciones.map((noti) => (
+                        <div
+                            key={noti.id}
+                            className={`tarjeta-notificacion ${noti.visto ? "visto" : "novista"}`}
+                            onClick={() => marcarVisto(noti.id)}
+                        >
+                            <div className="cabecera-notificacion">
+                                <h3>{noti.titulo}</h3>
+                                <span className="fecha-notificacion">{formatoFechaHora(noti.fecha)}</span>
+                                <span
+                                    className="eliminar-notificacion"
+                                    onClick={(e) => { e.stopPropagation(); eliminarNotificacion(noti.id); }}
+                                >
+                                    ×
+                                </span>
+                            </div>
+                            <p>{noti.mensaje}</p>
+                        </div>
+
+                    ))}
+                </>
+            )}
         </div>
     );
 }
 
-
-
-
-
-/*const marcarVistoDB = async (id) => {
-    await fetch(`http://localhost:8000/api/notificaciones/${id}/visto`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ visto: true })
-    });
-};*/

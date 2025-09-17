@@ -176,6 +176,7 @@ label {
 
 .tarjeta-solicitud.cancelada {
     opacity: 0.5;
+    font-style: italic;
 }
 
 p {
