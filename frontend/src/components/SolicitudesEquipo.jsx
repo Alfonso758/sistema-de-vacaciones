@@ -58,29 +58,30 @@ export default function SolicitudesEquipo({ userID }) {
     // ----------------- APROBAR O RECHAZAR -----------------
     const manejarDecision = async (id, decision) => {
         try {
-            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}/decision`, {
+            const res = await fetch(`http://localhost:8000/api/solicitudes/${id}/decision`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
                 },
                 body: JSON.stringify({
-                    estado_solicitud: decision,
-                    comentario: comentarios[id] || ""
-                })
+                    decision, // 2 o 3
+                    comentario: comentarios[id] || "",
+                    revisor_id: userID
+                }),
             });
 
-            if (!respuesta.ok) throw new Error("Error al actualizar la solicitud");
+            if (!res.ok) throw new Error('Error al actualizar la solicitud');
 
-            // Actualizar localmente
-            setSolicitudes(prev =>
-                prev.map(s =>
-                    s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "" } : s
-                )
-            );
-        } catch (err) {
-            console.error(err);
-            alert("No se pudo actualizar la solicitud.");
+            const data = await res.json();
+            console.log('Solicitud actualizada', data);
+
+            // Actualizar estado en la UI
+            setSolicitudes(solicitudes.map(s =>
+                s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "" } : s
+            ));
+        } catch (error) {
+            console.error(error);
         }
     };
 

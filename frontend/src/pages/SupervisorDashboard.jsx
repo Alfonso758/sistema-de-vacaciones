@@ -40,7 +40,8 @@ export default function SupervisorDashboard({ userID, userName, userSurname, pes
     "Calendario": {
       icono: <FaCalendarAlt />,
       opciones: [
-        { nombre: "Ver calendario" }
+        { nombre: "Mi calendario" },
+        { nombre: "Cal. de mi equipo" }
       ]
     },
     "Reportes y estadísticas": {

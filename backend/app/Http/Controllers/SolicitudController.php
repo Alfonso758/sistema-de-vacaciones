@@ -135,7 +135,7 @@ class SolicitudController extends Controller
     public function decision(Request $request, $id)
     {
         $request->validate([
-            'decision' => 'required|in:aprobada,rechazada',
+            'decision' => 'required|in:2,3', // ahora acepta 2 (aprobada) o 3 (rechazada)
             'comentario' => 'nullable|string|max:500',
         ]);
 
@@ -145,24 +145,26 @@ class SolicitudController extends Controller
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
         }
 
-        // Asignar estado según decisión
-        if ($request->decision === 'aprobada') {
-            $solicitud->estado_solicitud = 2;
-        } else {
-            $solicitud->estado_solicitud = 3;
+        try {
+            $solicitud->estado_solicitud = (int)$request->decision;
+
+            if ($request->comentario) {
+                $solicitud->comentario = $request->comentario;
+            }
+
+            if (auth()->check()) {
+                $solicitud->revisor_id = auth()->id();
+            }
+
+            $solicitud->fecha_respuesta = now();
+            $solicitud->save();
+
+            return response()->json($solicitud);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error al actualizar la solicitud',
+                'detalle' => $e->getMessage()
+            ], 500);
         }
-
-        // Guardar comentario si existe
-        if ($request->comentario) {
-            $solicitud->comentario = $request->comentario;
-        }
-
-        // Guardar quién revisó y fecha
-        $solicitud->revisor_id = auth()->id(); // si usas Sanctum y usuario logueado
-        $solicitud->fecha_respuesta = now();
-
-        $solicitud->save();
-
-        return response()->json($solicitud);
     }
 }
