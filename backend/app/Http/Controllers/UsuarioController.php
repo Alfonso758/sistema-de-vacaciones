@@ -91,7 +91,7 @@ class UsuarioController extends Controller
         $usuario->notify(new BienvenidaUsuario());
 
         return response()->json([
-            'message' => 'Usuario registrado correctamente y notificación enviada',
+            'message' => 'Usuario registrado',
             'user'    => $usuario
         ]);
 

@@ -106,7 +106,7 @@ function RegisterForm() {
                             value={form.jefe_directo}
                             onChange={handleChange}
                         >
-                            <option value="">Selecciona tu jefe</option>
+                            <option value="">Selecciona tu jefe (si aplica)</option>
                             {jefes.map(j => (
                                 <option key={j.id} value={j.id}>
                                     {j.name} {j.surnames}

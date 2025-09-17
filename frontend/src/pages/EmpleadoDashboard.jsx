@@ -201,7 +201,7 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
         throw new Error(text || 'Error al registrar la solicitud');
       }
 
-      setMensajeExito('Solicitud de vacaciones enviada correctamente.');
+      setMensajeExito('Solicitud de vacaciones enviada.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
       await fetchDatosVacaciones();
