@@ -1,117 +1,269 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
-import {FaFileAlt , FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
+import Solicitudes from '../components/Solicitudes';
+import Calendario from '../components/Calendario';
+import Notificaciones from '../components/Notificaciones';
+import NuevaSolicitud from '../components/NuevaSolicitud';
+import { FaUsers, FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
-export default function AdminDashboard({ userName, userSurname, activeTab }) {
-  const [fechaInicio, setFechaInicio] = useState('');
-  const [fechaFin, setFechaFin] = useState('');
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
-  const [selectedTab, setSelectedTab] = useState(activeTab || 'Solicitudes');
-  const [isCollapsed, setIsCollapsed] = useState(false);
+export default function AdminDashboard({ userID, userName, userSurname, pestañaActiva }) {
+  // Form / UI
+  const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
+  const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');
+  const [mensajeError, setMensajeError] = useState('');
+  const [mensajeExito, setMensajeExito] = useState('');
+  const [menuColapsado, setMenuColapsado] = useState(false);
 
-  useEffect(() => {
-    document.body.classList.add("empleado-page");
-    return () => document.body.classList.remove("empleado-page");
-  }, []);
+  // Datos de vacaciones
+  const [anosTrabajados, setAnosTrabajados] = useState(0);
+  const [diasTomados, setDiasTomados] = useState(0);
+  const [diasDisponibles, setDiasDisponibles] = useState(0);
+  const [fechaFinAnio, setFechaFinAnio] = useState('');
+  const [fechaIngreso, setFechaIngreso] = useState('');
+  const [diasAnuales, setDiasAnuales] = useState(0);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    if (!fechaInicio || !fechaFin) {
-      setError('Por favor completa todos los campos.');
-      return;
+  // Menú tipo acordeón con iconos en títulos y opciones
+  const menu = {
+    "Solicitudes": {
+      icono: <FaListAlt />,
+      opciones: [
+        { nombre: "Solic. pendientes" },
+        { nombre: "Todas las solicitudes" }
+      ]
+    },
+    "Usuarios": {
+      icono: <FaUsers />,
+      opciones: [
+        { nombre: "Usuarios pendientes" },
+        { nombre: "Lista de usuarios" }
+      ]
+    },
+    "Calendario": {
+      icono: <FaCalendarAlt />,
+      opciones: [
+        { nombre: "Ver calendario" }
+      ]
+    },
+    "Reportes y estadísticas": {
+      icono: <FaChartPie />,
+      opciones: [
+        { nombre: "Reportes" },
+        { nombre: "Estadísticas" }
+      ]
+    },
+    "Notificaciones": {
+      icono: <FaBell />,
+      opciones: [
+        { nombre: "Ver notificaciones" }
+      ]
+    },
+    "Configuración": {
+      icono: <FaCog />,
+      opciones: [
+        { nombre: "Gestión del área" }
+      ]
     }
-    if (fechaFin < fechaInicio) {
-      setError('La fecha de fin no puede ser anterior a la fecha de inicio.');
-      return;
-    }
-    setSuccess('Solicitud de vacaciones enviada correctamente.');
-    setFechaInicio('');
-    setFechaFin('');
   };
 
-  const renderContent = () => {
-    switch (selectedTab) {
+  // Estados del acordeón
+  const [desgloceAbierto, setDesgloceAbierto] = useState("Solicitudes");
+  const [pestañaSeleccionada, setPestañaSeleccionada] = useState(menu["Solicitudes"].opciones[0].nombre);
+
+  // Control de transición secuencial (cerrar -> abrir)
+  const ANIMATION_MS = 300; // debe coincidir con CSS
+  const switchingTimeoutRef = useRef(null);
+  const endSwitchTimeoutRef = useRef(null);
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  // Manejo del toggle con cierre primero si hay otro abierto
+  const toggleDesgloce = (titulo) => {
+    if (isSwitching) return; // evita clicks durante la animación
+    // si clic en el mismo: cerrar
+    if (desgloceAbierto === titulo) {
+      setDesgloceAbierto(null);
+      return;
+    }
+    // si no hay ninguno abierto: abrir inmediatamente
+    if (desgloceAbierto === null) {
+      setDesgloceAbierto(titulo);
+      setPestañaSeleccionada(menu[titulo].opciones[0].nombre);
+      return;
+    }
+
+    // hay otro abierto: cerrar primero, luego abrir el nuevo
+    setIsSwitching(true);
+    // cerrar actual
+    setDesgloceAbierto(null);
+
+    // despues de la animación de cierre, abrir el nuevo
+    clearTimeout(switchingTimeoutRef.current);
+    switchingTimeoutRef.current = setTimeout(() => {
+      setDesgloceAbierto(titulo);
+      setPestañaSeleccionada(menu[titulo].opciones[0].nombre);
+
+      // permitir nuevas acciones cuando termine la apertura
+      clearTimeout(endSwitchTimeoutRef.current);
+      endSwitchTimeoutRef.current = setTimeout(() => {
+        setIsSwitching(false);
+      }, ANIMATION_MS);
+    }, ANIMATION_MS);
+  };
+
+  // limpiar timeouts al desmontar
+  useEffect(() => {
+    return () => {
+      clearTimeout(switchingTimeoutRef.current);
+      clearTimeout(endSwitchTimeoutRef.current);
+    };
+  }, []);
+
+  // Key para forzar remonte cuando cambie la pestaña
+  const [reloadKey, setReloadKey] = useState(0);
+
+  // Si el prop pestañaActiva cambia externamente, actualizar el estado
+  useEffect(() => {
+    if (pestañaActiva) setPestañaSeleccionada(pestañaActiva);
+  }, [pestañaActiva]);
+
+  // Incrementa reloadKey cada vez que cambia la pestaña (forzar remonte)
+  useEffect(() => {
+    setReloadKey(k => k + 1);
+    setMensajeError('');
+    setMensajeExito('');
+  }, [pestañaSeleccionada]);
+
+  // Función para cargar datos de vacaciones desde API
+  const fetchDatosVacaciones = useCallback(async () => {
+    if (!userID) return;
+    try {
+      const res = await axios.get(`http://localhost:8000/api/datos-vacaciones/${userID}`);
+      setAnosTrabajados(res.data.anosTrabajados ?? 0);
+      setDiasTomados(res.data.diasTomados ?? 0);
+      setDiasDisponibles(res.data.diasDisponibles ?? 0);
+      setFechaFinAnio(res.data.fechaFinAnio ?? '');
+      setFechaIngreso(res.data.fechaIngreso ?? '');
+      setDiasAnuales(res.data.diasAnuales ?? 0);
+    } catch (err) {
+      console.error('Error al cargar datos de vacaciones', err);
+    }
+  }, [userID]);
+
+  // Cargar datos cuando entres a "Nueva solicitud" (o cuando cambie reloadKey)
+  useEffect(() => {
+    if (pestañaSeleccionada === 'Nueva solicitud') {
+      setFechaInicioVacaciones('');
+      setFechaFinVacaciones('');
+      setMensajeError('');
+      setMensajeExito('');
+      fetchDatosVacaciones();
+    }
+  }, [pestañaSeleccionada, fetchDatosVacaciones, reloadKey]);
+
+  // Enviar solicitud
+  const enviarSolicitud = async (e) => {
+    e.preventDefault();
+    setMensajeError('');
+    setMensajeExito('');
+
+    if (!fechaInicioVacaciones || !fechaFinVacaciones) {
+      setMensajeError('Por favor completa todos los campos.');
+      return;
+    }
+
+    const hoy = dayjs();
+    const inicio = dayjs(fechaInicioVacaciones, 'YYYY-MM-DD');
+    const fin = dayjs(fechaFinVacaciones, 'YYYY-MM-DD');
+
+    if (fin.isBefore(inicio, 'day')) {
+      setMensajeError('La fecha de fin no puede ser anterior a la fecha de inicio.');
+      return;
+    }
+
+    if (inicio.diff(hoy, 'month') < 2) {
+      setMensajeError('Las vacaciones deben solicitarse al menos con 2 meses de anticipación.');
+      return;
+    }
+
+    let diasSolicitados = 0;
+    let diaActual = inicio.clone();
+    const finInclusive = fin.clone().add(1, 'day');
+    while (diaActual.isBefore(finInclusive)) {
+      const diaSemana = diaActual.day();
+      if (diaSemana !== 0 && diaSemana !== 6) diasSolicitados++;
+      diaActual = diaActual.add(1, 'day');
+    }
+
+    if (diasSolicitados > diasDisponibles) {
+      setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
+      return;
+    }
+
+    try {
+      const respuesta = await fetch('http://localhost:8000/api/solicitudes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          usuario_id: userID,
+          fecha_inicio: fechaInicioVacaciones,
+          fecha_fin: fechaFinVacaciones
+        })
+      });
+
+      if (!respuesta.ok) {
+        const text = await respuesta.text();
+        throw new Error(text || 'Error al registrar la solicitud');
+      }
+
+      setMensajeExito('Solicitud de vacaciones enviada correctamente.');
+      setFechaInicioVacaciones('');
+      setFechaFinVacaciones('');
+      await fetchDatosVacaciones();
+
+    } catch (err) {
+      setMensajeError(err.message || 'Error al enviar solicitud.');
+    }
+  };
+
+  // Contenido según pestaña
+  const mostrarContenido = () => {
+    switch (pestañaSeleccionada) {
       case 'Nueva solicitud':
         return (
-          <>
-            <div className="summary-section">
-              <div className="summary-card days-card">
-                <h4>Bienvenido</h4>
-                <p>{userName} {userSurname}</p>
-              </div>
-              <div className="summary-card upcoming-card">
-                <h4>Días Disponibles</h4>
-                <p>15</p>
-              </div>
-              <div className="summary-card status-card">
-                <h4>Próximas Vacaciones</h4>
-                <p>12 - 16 Ago 2025</p>
-              </div>
-            </div>
-
-            <div className="form-section">
-              <div className="form-card form-card-wide">
-                <h3>Nueva solicitud</h3>
-                <form onSubmit={handleSubmit}>
-                  <div className="input-group">
-                    <label>Fecha de Inicio</label>
-                    <input
-                      type="date"
-                      value={fechaInicio}
-                      onChange={(e) => setFechaInicio(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="input-group">
-                    <label>Fecha de Fin</label>
-                    <input
-                      type="date"
-                      value={fechaFin}
-                      onChange={(e) => setFechaFin(e.target.value)}
-                    />
-                  </div>
-
-                  <button type="submit">Enviar Solicitud</button>
-                  {error && <p className="error">{error}</p>}
-                  {success && <p className="success">{success}</p>}
-                </form>
-              </div>
-            </div>
-          </>
+          <NuevaSolicitud
+            anosTrabajados={anosTrabajados}
+            diasTomados={diasTomados}
+            diasAnuales={diasAnuales}
+            diasDisponibles={diasDisponibles}
+            fechaIngreso={fechaIngreso}
+            fechaFinAnio={fechaFinAnio}
+            fechaInicioVacaciones={fechaInicioVacaciones}
+            setFechaInicioVacaciones={setFechaInicioVacaciones}
+            fechaFinVacaciones={fechaFinVacaciones}
+            setFechaFinVacaciones={setFechaFinVacaciones}
+            mensajeError={mensajeError}
+            mensajeExito={mensajeExito}
+            enviarSolicitud={enviarSolicitud}
+          />
         );
 
-      case 'Solicitudes':
-        return (
-          <div className="list-section">
-            <div className="list-card">
-              <h3>Solicitudes Enviadas</h3>
-              <p>Aquí se mostrarían las solicitudes del empleado con estados y fechas.</p>
-            </div>
-          </div>
-        );
+      case 'Mis solicitudes':
+        return <Solicitudes userID={userID} />;
 
-      case 'Calendario':
-        return (
-          <div className="calendar-section">
-            <div className="calendar-card">
-              <h3>Calendario de Vacaciones</h3>
-              <p>Aquí se mostraría un calendario interactivo.</p>
-            </div>
-          </div>
-        );
+      case 'Solic. de mi equipo':
+        return <Solicitudes userID={userID} />;
 
-      case 'Notificaciones':
-        return (
-          <div className="notification-section">
-            <div className="notification-card">
-              <h3>Notificaciones</h3>
-              <p>Aquí se mostrarían las notificaciones del empleado.</p>
-            </div>
-          </div>
-        );
+      case 'Ver calendario':
+        return <Calendario userID={userID} />;
+
+      case 'Ver notificaciones':
+        return <Notificaciones userID={userID} />;
 
       default:
         return <p>Pestaña no encontrada.</p>;
@@ -119,39 +271,71 @@ export default function AdminDashboard({ userName, userSurname, activeTab }) {
   };
 
   return (
-    <div className="dashboard-container full-screen">
-      <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
-          <h2>{!isCollapsed && 'Panel'}</h2>
+    <div className={`contenedor-dashboard pantalla-completa ${menuColapsado ? 'menu-colapsado' : ''}`}>
+      <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
+        <div className="encabezado-barra">
+          <h3>{!menuColapsado && 'Panel'}</h3>
           <button
-            className="collapse-btn"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="boton-colapsar"
+            onClick={() => setMenuColapsado(!menuColapsado)}
+            aria-label="Colapsar menú"
           >
             <FaBars />
           </button>
         </div>
         <nav>
           <ul>
-            {[
-              { name: 'Solicitudes', icon: <FaListAlt /> },
-              { name: 'Calendario', icon: <FaCalendarAlt /> },
-              { name: 'Reportes', icon: <FaFileAlt   /> },
-              { name: 'Notificaciones', icon: <FaBell /> }
-            ].map(({ name, icon }) => (
-              <li
-                key={name}
-                className={selectedTab === name ? 'active' : ''}
-                onClick={() => setSelectedTab(name)}
-              >
-                <span className="icon">{icon}</span>
-                {!isCollapsed && <span className="text">{name}</span>}
-              </li>
-            ))}
+            {Object.keys(menu).map((titulo) => {
+              const opciones = menu[titulo].opciones;
+              const isOpen = desgloceAbierto === titulo;
+              // calcular altura dinámica del sub-menu (por item) para transición suave
+              const itemHeight = 40; // ajustar si tu li tiene otra altura
+              const maxHeight = `${opciones.length * itemHeight}px`;
+
+              return (
+                <li key={titulo}>
+                  <div
+                    className={`menu-titulo ${isOpen ? 'activo' : ''}`}
+                    onClick={() => toggleDesgloce(titulo)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <span className="icono-titulo">{menu[titulo].icono}</span>
+                    {!menuColapsado && titulo}
+                  </div>
+
+                  {/* sub-menu siempre en DOM; controlamos apertura por estilo */}
+                  <ul
+                    className={`sub-menu ${isOpen ? 'abierto' : ''}`}
+                    style={{
+                      maxHeight: isOpen ? maxHeight : '0px',
+                      opacity: isOpen ? 1 : 0,
+                      transform: isOpen ? 'translateY(0)' : 'translateY(-6px)',
+                      transition: `max-height ${ANIMATION_MS}ms ease, opacity ${ANIMATION_MS / 1.6}ms ease, transform ${ANIMATION_MS}ms ease`
+                    }}
+                  >
+                    {opciones.map(({ nombre, icono }) => (
+                      <li
+                        key={nombre}
+                        className={pestañaSeleccionada === nombre ? 'activo' : ''}
+                        onClick={() => setPestañaSeleccionada(nombre)}
+                      >
+                        <span className="icono">{icono}</span>
+                        {!menuColapsado && <span className="texto">{nombre}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </aside>
-      <main className="main-content">
-        {renderContent()}
+
+      <main className="contenido-principal">
+        <div key={`${pestañaSeleccionada}-${reloadKey}`}>
+          {mostrarContenido()}
+        </div>
       </main>
     </div>
   );

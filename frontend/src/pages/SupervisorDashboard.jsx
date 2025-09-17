@@ -4,7 +4,7 @@ import Solicitudes from '../components/Solicitudes';
 import Calendario from '../components/Calendario';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
-import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
+import {FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog} from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -42,10 +42,23 @@ export default function SupervisorDashboard({ userID, userName, userSurname, pes
         { nombre: "Ver calendario" }
       ]
     },
+    "Reportes y estadísticas": {
+      icono: <FaChartPie />,
+      opciones: [
+        { nombre: "Reportes" },
+        { nombre: "Estadísticas" }
+      ]
+    },
     "Notificaciones": {
       icono: <FaBell />,
       opciones: [
         { nombre: "Ver notificaciones" }
+      ]
+    },
+    "Configuración": {
+      icono: <FaCog />,
+      opciones: [
+        { nombre: "Gestión del área" }
       ]
     }
   };
