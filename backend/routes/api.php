@@ -23,72 +23,43 @@ Route::post('/register', [UsuarioController::class, 'register']);
 
 // 🔹 Solicitudes
 Route::prefix('solicitudes')->group(function () {
-    // Crear nueva solicitud
-    Route::post('/', [SolicitudController::class, 'store']);
+    Route::post('/', [SolicitudController::class, 'store']); // Crear solicitud
+    Route::get('/{id}', [SolicitudController::class, 'show']); // Mostrar solicitud
+    Route::get('/usuario/{usuario_id}', [SolicitudController::class, 'index']); // Listado por usuario
+    Route::put('/{id}', [SolicitudController::class, 'update']); // Actualizar
+    Route::delete('/{id}', [SolicitudController::class, 'destroy']); // Eliminar
+    Route::put('/{id}/cancelar', [SolicitudController::class, 'cancelar']); // Cancelar
 
-    // Mostrar solicitud específica
-    Route::get('/{id}', [SolicitudController::class, 'show']);
+    // 🔹 Aprobar o rechazar una solicitud (decisión)
+    Route::put('/{id}/decision', [SolicitudController::class, 'decision']);
 
-    // Listado de solicitudes por usuario
-    Route::get('/usuario/{usuario_id}', [SolicitudController::class, 'index']);
-
-    // Actualizar solicitud específica
-    Route::put('/{id}', [SolicitudController::class, 'update']);
-
-    // Eliminar solicitud por ID
-    Route::delete('/{id}', [SolicitudController::class, 'destroy']);
-
-    // Cancelar una solicitud (cambia el estado a Cancelada)
-    Route::put('/{id}/cancelar', [SolicitudController::class, 'cancelar']);
+    // 🔹 Cargar solicitudes de empleados a jefes
+    Route::get('/equipo/{jefeId}', [SolicitudController::class, 'solicitudesEquipo']);
 });
 
 // 🔹 Días inhábiles
 Route::prefix('dias-inhabiles')->group(function () {
-    // Listar todos los días inhábiles
     Route::get('/', [DiaInhabilController::class, 'index']);
-
-    // Crear nuevo día inhábil
     Route::post('/', [DiaInhabilController::class, 'store']);
-
-    // Mostrar día inhábil específico
     Route::get('/{id}', [DiaInhabilController::class, 'show']);
-
-    // Actualizar día inhábil específico
     Route::put('/{id}', [DiaInhabilController::class, 'update']);
-
-    // Eliminar día inhábil específico
     Route::delete('/{id}', [DiaInhabilController::class, 'destroy']);
 });
 
+// 🔹 Notificaciones
 Route::prefix('notificaciones')->group(function () {
-    // Listar todas las notificaciones
     Route::get('/', [NotificacionController::class, 'index']);
-
-    // Crear nueva notificación
     Route::post('/', [NotificacionController::class, 'store']);
-
-    // Mostrar notificación específica
     Route::get('/{id}', [NotificacionController::class, 'show']);
-
-    // Actualizar notificación específica
     Route::put('/{id}', [NotificacionController::class, 'update']);
-
-    // Eliminar notificación específica
     Route::delete('/{id}', [NotificacionController::class, 'destroy']);
 });
 
-// 🔹 Listado de solicitudes por usuario
+// 🔹 Otras rutas públicas
 Route::get('/usuarios/{usuario_id}/solicitudes', [SolicitudController::class, 'index']);
-
-// 🔹 Jefes directos
 Route::get('/jefes', [UsuarioController::class, 'getJefes']);
-
-// 🔹 Datos de vacaciones de un usuario
 Route::get('/datos-vacaciones/{usuario}', [VacacionesController::class, 'getDatos']);
-
-// 🔹 Días de vacaciones de un usuario para el calendario
 Route::get('/vacaciones/{usuario_id}', [VacacionesController::class, 'aprobadas']);
-
 Route::get('/google-auth', [GoogleCalendarController::class, 'redirectToGoogle']);
 Route::get('/callback', [GoogleCalendarController::class, 'handleCallback']);
 
@@ -98,22 +69,10 @@ Route::get('/callback', [GoogleCalendarController::class, 'handleCallback']);
 |--------------------------------------------------------------------------
 */
 Route::middleware('auth:sanctum')->group(function () {
-
-    // 🔹 Obtener usuario logueado
-    Route::get('/user', [UsuarioController::class, 'me']);
-
-    // 🔹 Cerrar sesión
-    Route::post('/logout', [UsuarioController::class, 'logout']);
-
-    // 🔹 cambiar contraseña
+    Route::get('/user', [UsuarioController::class, 'me']); // Usuario logueado
+    Route::post('/logout', [UsuarioController::class, 'logout']); // Logout
     Route::post('/usuarios/cambiar-password', [UsuarioController::class, 'cambiarPassword']);
-
-    // Cambiar avatar
     Route::post('/usuarios/avatar', [UsuarioController::class, 'cambiarAvatar']);
-
-    // Agregar jefe y fecha de ingreso
-    Route::put('/usuarios/{id}', [UsuarioController::class, 'update']);
+    Route::put('/usuarios/{id}', [UsuarioController::class, 'update']); // Actualizar jefe y fecha
+    Route::put('/usuario/actualizar', [UsuarioController::class, 'actualizar']); // Actualizar nombre y apellidos
 });
-
-// Actualizar nombre y apellidos del usuario logueado
-Route::middleware('auth:sanctum')->put('/usuario/actualizar', [UsuarioController::class, 'actualizar']);

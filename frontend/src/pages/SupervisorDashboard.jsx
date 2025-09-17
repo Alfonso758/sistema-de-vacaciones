@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import Solicitudes from '../components/Solicitudes';
+import SolicitudesEquipo from '../components/SolicitudesEquipo';
 import Calendario from '../components/Calendario';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
@@ -251,7 +252,7 @@ export default function SupervisorDashboard({ userID, userName, userSurname, pes
         return <Solicitudes userID={userID} />;
 
       case 'Solic. de mi equipo':
-        return <Solicitudes userID={userID} />;
+        return <SolicitudesEquipo userID={userID} />;
 
       case 'Ver calendario':
         return <Calendario userID={userID} />;

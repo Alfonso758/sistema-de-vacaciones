@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Solicitud;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Models\Usuario;
+use App\Models\solicitudesVacaciones;
 
 class SolicitudController extends Controller
 {
@@ -114,5 +116,53 @@ class SolicitudController extends Controller
         $solicitud->delete();
 
         return response()->json(['message' => 'Solicitud eliminada']);
+    }
+
+    public function solicitudesEquipo($jefeId)
+    {
+        // 1. Buscar empleados del jefe
+        $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
+
+        // 2. Buscar solicitudes pendientes de esos empleados
+        $solicitudes = solicitudesVacaciones::whereIn('usuario_id', $empleados)
+            ->where('estado_solicitud', 1)
+            ->with('usuario') // para traer info del empleado
+            ->get();
+
+        return response()->json($solicitudes);
+    }
+
+    public function decision(Request $request, $id)
+    {
+        $request->validate([
+            'decision' => 'required|in:aprobada,rechazada',
+            'comentario' => 'nullable|string|max:500',
+        ]);
+
+        $solicitud = Solicitud::find($id);
+
+        if (!$solicitud) {
+            return response()->json(['error' => 'Solicitud no encontrada'], 404);
+        }
+
+        // Asignar estado según decisión
+        if ($request->decision === 'aprobada') {
+            $solicitud->estado_solicitud = 2;
+        } else {
+            $solicitud->estado_solicitud = 3;
+        }
+
+        // Guardar comentario si existe
+        if ($request->comentario) {
+            $solicitud->comentario = $request->comentario;
+        }
+
+        // Guardar quién revisó y fecha
+        $solicitud->revisor_id = auth()->id(); // si usas Sanctum y usuario logueado
+        $solicitud->fecha_respuesta = now();
+
+        $solicitud->save();
+
+        return response()->json($solicitud);
     }
 }
