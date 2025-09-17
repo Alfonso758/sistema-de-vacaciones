@@ -215,7 +215,7 @@ export default function SupervisorDashboard({ userID, userName, userSurname, pes
         throw new Error(text || 'Error al registrar la solicitud');
       }
 
-      setMensajeExito('Solicitud de vacaciones enviada correctamente.');
+      setMensajeExito('Solicitud de vacaciones enviada.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
       await fetchDatosVacaciones();

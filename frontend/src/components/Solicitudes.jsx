@@ -253,8 +253,7 @@ export default function Solicitudes({ userID }) {
                                     </button>
                                 </>
                             )}
-                            {(estados[solicitud.estado_solicitud] === 'Rechazada' ||
-                                estados[solicitud.estado_solicitud] === 'Cancelada') && (
+                            {(estados[solicitud.estado_solicitud] === 'Cancelada') && (
                                     <button
                                         className="btn eliminar"
                                         onClick={() => manejarEliminar(solicitud.id)}
