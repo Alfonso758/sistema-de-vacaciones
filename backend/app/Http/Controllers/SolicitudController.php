@@ -135,7 +135,7 @@ class SolicitudController extends Controller
     public function decision(Request $request, $id)
     {
         $request->validate([
-            'decision' => 'required|in:2,3', // ahora acepta 2 (aprobada) o 3 (rechazada)
+            'decision' => 'required|in:2,3',
             'comentario' => 'nullable|string|max:500',
         ]);
 
@@ -152,12 +152,16 @@ class SolicitudController extends Controller
                 $solicitud->comentario = $request->comentario;
             }
 
-            if (auth()->check()) {
-                $solicitud->revisor_id = auth()->id();
+            if ($request->revisor_id) {
+                $solicitud->revisado_por = $request->revisor_id;
             }
+
 
             $solicitud->fecha_respuesta = now();
             $solicitud->save();
+
+            // Cargar relación del revisor para devolverlo al frontend
+            $solicitud->load('revisor');
 
             return response()->json($solicitud);
         } catch (\Exception $e) {

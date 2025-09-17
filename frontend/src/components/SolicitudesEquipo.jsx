@@ -62,7 +62,7 @@ export default function SolicitudesEquipo({ userID }) {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
                 body: JSON.stringify({
                     decision, // 2 o 3
@@ -76,14 +76,16 @@ export default function SolicitudesEquipo({ userID }) {
             const data = await res.json();
             console.log('Solicitud actualizada', data);
 
-            // Actualizar estado en la UI
+            // Actualizar estado en la UI, incluyendo revisor si viene en la respuesta
             setSolicitudes(solicitudes.map(s =>
-                s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "" } : s
+                s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "", revisor: data.revisor } : s
             ));
         } catch (error) {
             console.error(error);
         }
     };
+
+
 
     // ----------------- CARGA DE SOLICITUDES DE EMPLEADOS -----------------
     useEffect(() => {
@@ -156,7 +158,7 @@ export default function SolicitudesEquipo({ userID }) {
                         {/* Comentarios existentes */}
                         {solicitud.comentario && (
                             <div className="comentario-contenedor">
-                                <label>Comentario previo:</label>
+                                <label>Comentarios:</label>
                                 <div className="comentario">
                                     <FaComment style={{ marginRight: '5px' }} /> {solicitud.comentario}
                                 </div>
