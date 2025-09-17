@@ -96,10 +96,11 @@
 /* Items del submenú: icono y texto alineados horizontalmente */
 .sub-menu li {
   display: flex;
-  align-items: center;
-  /* centrado vertical */
   gap: 8px;
+  margin-left: 40px; 
+  justify-content: flex-start; 
 }
+
 
 
 .sub-menu li .icono {
