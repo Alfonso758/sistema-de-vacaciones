@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import Solicitudes from '../components/Solicitudes';
 import Calendario from '../components/Calendario';
@@ -29,16 +29,16 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
     "Solicitudes": {
-      icono: <FaListAlt />, // Icono del título
+      icono: <FaListAlt />,
       opciones: [
-        { nombre: "Nueva solicitud" },
-        { nombre: "Mis solicitudes" }
+        { nombre: "Nueva solicitud"},
+        { nombre: "Mis solicitudes"}
       ]
     },
     "Calendario": {
       icono: <FaCalendarAlt />,
       opciones: [
-        { nombre: "Ver calendario" }
+        { nombre: "Ver calendario"}
       ]
     },
     "Notificaciones": {
@@ -49,17 +49,57 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
     }
   };
 
-
-  // Estado del menú abierto y pestaña seleccionada
+  // Estados del acordeón
   const [desgloceAbierto, setDesgloceAbierto] = useState("Solicitudes");
   const [pestañaSeleccionada, setPestañaSeleccionada] = useState(menu["Solicitudes"].opciones[0].nombre);
 
+  // Control de transición secuencial (cerrar -> abrir)
+  const ANIMATION_MS = 300; // debe coincidir con CSS
+  const switchingTimeoutRef = useRef(null);
+  const endSwitchTimeoutRef = useRef(null);
+  const [isSwitching, setIsSwitching] = useState(false);
+
+  // Manejo del toggle con cierre primero si hay otro abierto
   const toggleDesgloce = (titulo) => {
-    if (desgloceAbierto === titulo) return; // si ya está abierto, no hace nada
-    setDesgloceAbierto(titulo); // abrir la nueva sección
-    setPestañaSeleccionada(menu[titulo].opciones[0].nombre); // seleccionar la primera opción por defecto
+    if (isSwitching) return; // evita clicks durante la animación
+    // si clic en el mismo: cerrar
+    if (desgloceAbierto === titulo) {
+      setDesgloceAbierto(null);
+      return;
+    }
+    // si no hay ninguno abierto: abrir inmediatamente
+    if (desgloceAbierto === null) {
+      setDesgloceAbierto(titulo);
+      setPestañaSeleccionada(menu[titulo].opciones[0].nombre);
+      return;
+    }
+
+    // hay otro abierto: cerrar primero, luego abrir el nuevo
+    setIsSwitching(true);
+    // cerrar actual
+    setDesgloceAbierto(null);
+
+    // despues de la animación de cierre, abrir el nuevo
+    clearTimeout(switchingTimeoutRef.current);
+    switchingTimeoutRef.current = setTimeout(() => {
+      setDesgloceAbierto(titulo);
+      setPestañaSeleccionada(menu[titulo].opciones[0].nombre);
+
+      // permitir nuevas acciones cuando termine la apertura
+      clearTimeout(endSwitchTimeoutRef.current);
+      endSwitchTimeoutRef.current = setTimeout(() => {
+        setIsSwitching(false);
+      }, ANIMATION_MS);
+    }, ANIMATION_MS);
   };
 
+  // limpiar timeouts al desmontar
+  useEffect(() => {
+    return () => {
+      clearTimeout(switchingTimeoutRef.current);
+      clearTimeout(endSwitchTimeoutRef.current);
+    };
+  }, []);
 
   // Key para forzar remonte cuando cambie la pestaña
   const [reloadKey, setReloadKey] = useState(0);
@@ -222,18 +262,36 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
         </div>
         <nav>
           <ul>
-            {Object.keys(menu).map((titulo) => (
-              <li key={titulo}>
-                <div
-                  className={`menu-titulo ${desgloceAbierto === titulo ? 'activo' : ''}`}
-                  onClick={() => toggleDesgloce(titulo)}
-                >
-                  <span className="icono-titulo">{menu[titulo].icono}</span>
-                  {!menuColapsado && titulo}
-                </div>
-                {desgloceAbierto === titulo && (
-                  <ul className="sub-menu">
-                    {menu[titulo].opciones.map(({ nombre, icono }) => (
+            {Object.keys(menu).map((titulo) => {
+              const opciones = menu[titulo].opciones;
+              const isOpen = desgloceAbierto === titulo;
+              // calcular altura dinámica del sub-menu (por item) para transición suave
+              const itemHeight = 40; // ajustar si tu li tiene otra altura
+              const maxHeight = `${opciones.length * itemHeight}px`;
+
+              return (
+                <li key={titulo}>
+                  <div
+                    className={`menu-titulo ${isOpen ? 'activo' : ''}`}
+                    onClick={() => toggleDesgloce(titulo)}
+                    role="button"
+                    tabIndex={0}
+                  >
+                    <span className="icono-titulo">{menu[titulo].icono}</span>
+                    {!menuColapsado && titulo}
+                  </div>
+
+                  {/* sub-menu siempre en DOM; controlamos apertura por estilo */}
+                  <ul
+                    className={`sub-menu ${isOpen ? 'abierto' : ''}`}
+                    style={{
+                      maxHeight: isOpen ? maxHeight : '0px',
+                      opacity: isOpen ? 1 : 0,
+                      transform: isOpen ? 'translateY(0)' : 'translateY(-6px)',
+                      transition: `max-height ${ANIMATION_MS}ms ease, opacity ${ANIMATION_MS / 1.6}ms ease, transform ${ANIMATION_MS}ms ease`
+                    }}
+                  >
+                    {opciones.map(({ nombre, icono }) => (
                       <li
                         key={nombre}
                         className={pestañaSeleccionada === nombre ? 'activo' : ''}
@@ -244,10 +302,9 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
                       </li>
                     ))}
                   </ul>
-                )}
-              </li>
-            ))}
-
+                </li>
+              );
+            })}
           </ul>
         </nav>
       </aside>

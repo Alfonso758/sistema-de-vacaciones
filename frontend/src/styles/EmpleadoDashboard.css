@@ -19,7 +19,7 @@
   width: 50px;
 }
 
-.barra-lateral.colapsada ~ .contenido-principal {
+.barra-lateral.colapsada~.contenido-principal {
   margin-left: 80px;
 }
 
@@ -68,11 +68,13 @@
   cursor: pointer;
   font-weight: 500;
   color: #555;
-  font-size: 1rem; /* tamaño de letra de título */
+  font-size: 1rem;
+  /* tamaño de letra de título */
 }
 
 .menu-titulo .icono-titulo {
-  font-size: 1.2rem; /* icono más grande que la letra */
+  font-size: 1.2rem;
+  /* icono más grande que la letra */
 }
 
 .menu-titulo:hover,
@@ -94,7 +96,8 @@
 /* Items del submenú: icono y texto alineados horizontalmente */
 .sub-menu li {
   display: flex;
-  align-items: center;  /* centrado vertical */
+  align-items: center;
+  /* centrado vertical */
   gap: 8px;
 }
 
@@ -108,9 +111,12 @@
 }
 
 .sub-menu li .icono svg {
-  vertical-align: middle; /* alinea el SVG con el texto */
-  height: 1em;             /* igual altura que el texto */
-  width: 1em;              /* igual ancho proporcional */
+  vertical-align: middle;
+  /* alinea el SVG con el texto */
+  height: 1em;
+  /* igual altura que el texto */
+  width: 1em;
+  /* igual ancho proporcional */
 }
 
 
@@ -118,12 +124,6 @@
 .sub-menu li:hover,
 .sub-menu li.activo {
   color: #2daeff;
-}
-
-
-/* Mostrar submenú cuando está activo */
-li > .sub-menu {
-  max-height: 500px; /* suficiente para todos los items */
 }
 
 /* Colapsado */
