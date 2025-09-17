@@ -16,7 +16,6 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
   const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');
   const [mensajeError, setMensajeError] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
-  const [pestañaSeleccionada, setPestañaSeleccionada] = useState(pestañaActiva || 'Nueva solicitud');
   const [menuColapsado, setMenuColapsado] = useState(false);
 
   // Datos de vacaciones
@@ -26,6 +25,41 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
   const [fechaFinAnio, setFechaFinAnio] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [diasAnuales, setDiasAnuales] = useState(0);
+
+  // Menú tipo acordeón con iconos en títulos y opciones
+  const menu = {
+    "Solicitudes": {
+      icono: <FaListAlt />, // Icono del título
+      opciones: [
+        { nombre: "Nueva solicitud" },
+        { nombre: "Mis solicitudes" }
+      ]
+    },
+    "Calendario": {
+      icono: <FaCalendarAlt />,
+      opciones: [
+        { nombre: "Ver calendario" }
+      ]
+    },
+    "Notificaciones": {
+      icono: <FaBell />,
+      opciones: [
+        { nombre: "Ver notificaciones" }
+      ]
+    }
+  };
+
+
+  // Estado del menú abierto y pestaña seleccionada
+  const [desgloceAbierto, setDesgloceAbierto] = useState("Solicitudes");
+  const [pestañaSeleccionada, setPestañaSeleccionada] = useState(menu["Solicitudes"].opciones[0].nombre);
+
+  const toggleDesgloce = (titulo) => {
+    if (desgloceAbierto === titulo) return; // si ya está abierto, no hace nada
+    setDesgloceAbierto(titulo); // abrir la nueva sección
+    setPestañaSeleccionada(menu[titulo].opciones[0].nombre); // seleccionar la primera opción por defecto
+  };
+
 
   // Key para forzar remonte cuando cambie la pestaña
   const [reloadKey, setReloadKey] = useState(0);
@@ -38,7 +72,6 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
   // Incrementa reloadKey cada vez que cambia la pestaña (forzar remonte)
   useEffect(() => {
     setReloadKey(k => k + 1);
-    // al cambiar de pestaña, limpiar mensajes y form (si necesario)
     setMensajeError('');
     setMensajeExito('');
   }, [pestañaSeleccionada]);
@@ -48,7 +81,6 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
     if (!userID) return;
     try {
       const res = await axios.get(`http://localhost:8000/api/datos-vacaciones/${userID}`);
-      // Ajusta según la respuesta real de tu API
       setAnosTrabajados(res.data.anosTrabajados ?? 0);
       setDiasTomados(res.data.diasTomados ?? 0);
       setDiasDisponibles(res.data.diasDisponibles ?? 0);
@@ -63,14 +95,12 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
   // Cargar datos cuando entres a "Nueva solicitud" (o cuando cambie reloadKey)
   useEffect(() => {
     if (pestañaSeleccionada === 'Nueva solicitud') {
-      // resetear formulario al entrar
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
       setMensajeError('');
       setMensajeExito('');
       fetchDatosVacaciones();
     }
-    // si quisieras recargar otras pestañas, añade lógica aquí
   }, [pestañaSeleccionada, fetchDatosVacaciones, reloadKey]);
 
   // Enviar solicitud
@@ -88,31 +118,25 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
     const inicio = dayjs(fechaInicioVacaciones, 'YYYY-MM-DD');
     const fin = dayjs(fechaFinVacaciones, 'YYYY-MM-DD');
 
-    // Validación: fecha fin mayor que fecha inicio
     if (fin.isBefore(inicio, 'day')) {
       setMensajeError('La fecha de fin no puede ser anterior a la fecha de inicio.');
       return;
     }
 
-    // Validación: solicitud al menos 2 meses antes
     if (inicio.diff(hoy, 'month') < 2) {
       setMensajeError('Las vacaciones deben solicitarse al menos con 2 meses de anticipación.');
       return;
     }
 
-    // Calcular días hábiles entre inicio y fin (inclusive)
     let diasSolicitados = 0;
     let diaActual = inicio.clone();
-    const finInclusive = fin.clone().add(1, 'day'); // punto de parada
+    const finInclusive = fin.clone().add(1, 'day');
     while (diaActual.isBefore(finInclusive)) {
-      const diaSemana = diaActual.day(); // 0 = domingo, 6 = sábado
-      if (diaSemana !== 0 && diaSemana !== 6) {
-        diasSolicitados++;
-      }
+      const diaSemana = diaActual.day();
+      if (diaSemana !== 0 && diaSemana !== 6) diasSolicitados++;
       diaActual = diaActual.add(1, 'day');
     }
 
-    // Validación: no exceder días disponibles
     if (diasSolicitados > diasDisponibles) {
       setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
       return;
@@ -140,8 +164,6 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
       setMensajeExito('Solicitud de vacaciones enviada correctamente.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
-
-      // recargar datos (por ejemplo, para actualizar diasDisponibles)
       await fetchDatosVacaciones();
 
     } catch (err) {
@@ -149,7 +171,7 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
     }
   };
 
-  // Contenido según pestaña (sin key aquí; el wrapper tendrá la key)
+  // Contenido según pestaña
   const mostrarContenido = () => {
     switch (pestañaSeleccionada) {
       case 'Nueva solicitud':
@@ -171,13 +193,13 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
           />
         );
 
-      case 'Solicitudes':
+      case 'Mis solicitudes':
         return <Solicitudes userID={userID} />;
 
-      case 'Calendario':
+      case 'Ver calendario':
         return <Calendario userID={userID} />;
 
-      case 'Notificaciones':
+      case 'Ver notificaciones':
         return <Notificaciones userID={userID} />;
 
       default:
@@ -200,27 +222,37 @@ export default function EmpleadoDashboard({ userID, userName, userSurname, pesta
         </div>
         <nav>
           <ul>
-            {[
-              { nombre: 'Nueva solicitud', icono: <FaPlusCircle /> },
-              { nombre: 'Solicitudes', icono: <FaListAlt /> },
-              { nombre: 'Calendario', icono: <FaCalendarAlt /> },
-              { nombre: 'Notificaciones', icono: <FaBell /> }
-            ].map(({ nombre, icono }) => (
-              <li
-                key={nombre}
-                className={pestañaSeleccionada === nombre ? 'activo' : ''}
-                onClick={() => setPestañaSeleccionada(nombre)}
-              >
-                <span className="icono">{icono}</span>
-                {!menuColapsado && <span className="texto">{nombre}</span>}
+            {Object.keys(menu).map((titulo) => (
+              <li key={titulo}>
+                <div
+                  className={`menu-titulo ${desgloceAbierto === titulo ? 'activo' : ''}`}
+                  onClick={() => toggleDesgloce(titulo)}
+                >
+                  <span className="icono-titulo">{menu[titulo].icono}</span>
+                  {!menuColapsado && titulo}
+                </div>
+                {desgloceAbierto === titulo && (
+                  <ul className="sub-menu">
+                    {menu[titulo].opciones.map(({ nombre, icono }) => (
+                      <li
+                        key={nombre}
+                        className={pestañaSeleccionada === nombre ? 'activo' : ''}
+                        onClick={() => setPestañaSeleccionada(nombre)}
+                      >
+                        <span className="icono">{icono}</span>
+                        {!menuColapsado && <span className="texto">{nombre}</span>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </li>
             ))}
+
           </ul>
         </nav>
       </aside>
 
       <main className="contenido-principal">
-        {/* wrapper con key que cambia para forzar remonte completo al cambiar pestaña */}
         <div key={`${pestañaSeleccionada}-${reloadKey}`}>
           {mostrarContenido()}
         </div>
