@@ -5,21 +5,19 @@ export default function Calendario({ userID }) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [vacaciones, setVacaciones] = useState([]);
     const [diasInhabiles, setDiasInhabiles] = useState([]);
+    const [cargando, setCargando] = useState(true); // <-- Estado de carga
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
 
     const firstOfMonth = new Date(year, month, 1);
-    let firstDayWeekIndex = firstOfMonth.getDay();
-    firstDayWeekIndex = (firstDayWeekIndex + 6) % 7;
-
+    let firstDayWeekIndex = (firstOfMonth.getDay() + 6) % 7; // lunes = 0
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const leadingBlanks = Array.from({ length: firstDayWeekIndex }, () => null);
     const monthDays = Array.from({ length: daysInMonth }, (_, i) => i + 1);
-    const cells = [...leadingBlanks, ...monthDays];
     const totalCells = 42;
-    const trailingBlanks = Array.from({ length: totalCells - cells.length }, () => null);
-    const fullCells = [...cells, ...trailingBlanks];
+    const trailingBlanks = Array.from({ length: totalCells - leadingBlanks.length - monthDays.length }, () => null);
+    const fullCells = [...leadingBlanks, ...monthDays, ...trailingBlanks];
 
     const today = new Date();
     const isCurrentMonth = today.getMonth() === month && today.getFullYear() === year;
@@ -35,33 +33,30 @@ export default function Calendario({ userID }) {
 
     // 🔹 Traer vacaciones aprobadas del backend
     useEffect(() => {
-        const fetchVacaciones = async () => {
+        const fetchDatos = async () => {
+            setCargando(true); // iniciar carga
             try {
-                const res = await fetch(`http://localhost:8000/api/vacaciones/${userID}`);
-                const data = await res.json();
-                setVacaciones(data);
+                let vacData = [];
+                if (userID) {
+                    const resVac = await fetch(`http://localhost:8000/api/vacaciones/${userID}`);
+                    vacData = await resVac.json();
+                    setVacaciones(vacData);
+                }
+
+                const resDias = await fetch(`http://localhost:8000/api/dias-inhabiles`);
+                const diasData = await resDias.json();
+                setDiasInhabiles(diasData);
+
             } catch (error) {
-                console.error("Error cargando vacaciones:", error);
+                console.error("Error cargando calendario:", error);
+            } finally {
+                setCargando(false); // terminar carga
             }
         };
-        if (userID) fetchVacaciones();
+
+        fetchDatos();
     }, [userID]);
 
-    // 🔹 Traer días inhábiles del backend
-    useEffect(() => {
-        const fetchDiasInhabiles = async () => {
-            try {
-                const res = await fetch(`http://localhost:8000/api/dias-inhabiles`);
-                const data = await res.json();
-                setDiasInhabiles(data);
-            } catch (error) {
-                console.error("Error cargando días inhábiles:", error);
-            }
-        };
-        fetchDiasInhabiles();
-    }, []);
-
-    // 🔹 Función para saber si un día está en vacaciones aprobadas
     const isVacacionDay = (day) => {
         if (!day) return false;
         const date = new Date(year, month, day);
@@ -72,25 +67,20 @@ export default function Calendario({ userID }) {
         });
     };
 
-    // 🔹 Función para saber si un día es inhábil
     const isDiaInhabilDay = (day) => {
         if (!day) return false;
         const date = new Date(year, month, day);
-
         return diasInhabiles.some(d => {
             const dDate = new Date(d.fecha);
             if (d.siempre) {
-                // Comparar solo día y mes
                 return dDate.getDate() === date.getDate() && dDate.getMonth() === date.getMonth();
             } else {
-                // Comparar día, mes y año
                 return dDate.getDate() === date.getDate() &&
                     dDate.getMonth() === date.getMonth() &&
                     dDate.getFullYear() === date.getFullYear();
             }
         });
     };
-
 
     // 🔹 Atajos teclado
     useEffect(() => {
@@ -104,59 +94,54 @@ export default function Calendario({ userID }) {
 
     return (
         <main className="calendario-wrap">
-            <header className="calendario-header">
-                <button onClick={prevMonth}>&lt;</button>
-                <h1 className="calendario-title">{monthName}</h1>
-                <button onClick={nextMonth}>&gt;</button>
-            </header>
-
-            <section className="calendario-table">
-                <div className="calendario-weekdays">
-                    {weekdayShort.map((wd) => (
-                        <div key={wd} className="calendario-weekday">{wd}</div>
-                    ))}
+            {cargando ? (
+                <div className="cargando-calendario">
+                    <p className="cargando-texto_calendario">Cargando calendario...</p>
                 </div>
+            ) : (
+                <>
+                    <header className="calendario-header">
+                        <button onClick={prevMonth}>&lt;</button>
+                        <h1 className="calendario-title">{monthName}</h1>
+                        <button onClick={nextMonth}>&gt;</button>
+                    </header>
 
-                <div className="calendario-grid">
-                    {fullCells.map((day, idx) => {
-                        // Calcular la columna (0 = lunes, 6 = domingo)
-                        const colIndex = idx % 7;
-                        const isWeekendColumn = colIndex === 5 || colIndex === 6; // Sábado o Domingo
+                    <section className="calendario-table">
+                        <div className="calendario-weekdays">
+                            {weekdayShort.map((wd) => (
+                                <div key={wd} className="calendario-weekday">{wd}</div>
+                            ))}
+                        </div>
 
-                        if (!day) {
-                            // Celda vacía pero con fondo amarillo si es fin de semana
-                            return (
-                                <div
-                                    key={idx}
-                                    className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}
-                                ></div>
-                            );
-                        }
+                        <div className="calendario-grid">
+                            {fullCells.map((day, idx) => {
+                                const colIndex = idx % 7;
+                                const isWeekendColumn = colIndex === 5 || colIndex === 6;
 
-                        const date = new Date(year, month, day);
-                        const isToday = isCurrentMonth && day === today.getDate();
-                        const isInhabil = isDiaInhabilDay(day);
-                        const isVacacion = !isInhabil && !isWeekendColumn && isVacacionDay(day); // solo entre semana y si no es inhábil
+                                if (!day) {
+                                    return <div key={idx} className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}></div>;
+                                }
 
-                        return (
-                            <div
-                                key={idx}
-                                className={`calendario-cell 
-                            ${isInhabil ? "inhabil" : ""} 
-                            ${isVacacion ? "vacacion" : ""} 
-                            ${isWeekendColumn && !isInhabil ? "fin-de-semana" : ""}`}
-                            >
-                                <span className={`${isToday ? "hoy" : ""}`}>
-                                    {day}
-                                </span>
-                            </div>
-                        );
-                    })}
-                </div>
+                                const isToday = isCurrentMonth && day === today.getDate();
+                                const isInhabil = isDiaInhabilDay(day);
+                                const isVacacion = !isInhabil && !isWeekendColumn && isVacacionDay(day);
 
-
-
-            </section>
+                                return (
+                                    <div
+                                        key={idx}
+                                        className={`calendario-cell 
+                                        ${isInhabil ? "inhabil" : ""} 
+                                        ${isVacacion ? "vacacion" : ""} 
+                                        ${isWeekendColumn && !isInhabil ? "fin-de-semana" : ""}`}
+                                    >
+                                        <span className={`${isToday ? "hoy" : ""}`}>{day}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+                </>
+            )}
         </main>
     );
 }

@@ -104,10 +104,24 @@
 
 
 .inhabil {
-    background-color: rgba(255, 0, 0, 0.264); /* rojo suave */
+    background-color: rgba(255, 0, 0, 0.264);
+    /* rojo suave */
     border-radius: 8%;
 }
 
 .fin-de-semana {
-    background-color: rgba(255, 255, 152, 0.275); /* amarillo suave */
+    background-color: rgba(255, 255, 152, 0.275);
+    /* amarillo suave */
+}
+
+
+.cargando-calendario {
+    display: flex;
+    min-height: 100px;
+    margin-top: -40px;
+}
+
+.cargando-texto_calendario {
+    font-size: 1rem;
+    color: #333;
 }

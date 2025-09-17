@@ -20,7 +20,9 @@ export default function Notificaciones({ userID }) {
                         mensaje: n.mensaje,
                         fecha: n.fecha_envio,
                         visto: n.leido === 1
-                    }));
+                    }))
+                    // Ordenar de la más nueva a la más antigua
+                    .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
                 setNotificaciones(notis);
             } catch (error) {
@@ -102,11 +104,9 @@ export default function Notificaciones({ userID }) {
                             </div>
                             <p>{noti.mensaje}</p>
                         </div>
-
                     ))}
                 </>
             )}
         </div>
     );
 }
-

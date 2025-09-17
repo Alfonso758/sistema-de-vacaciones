@@ -99,7 +99,7 @@
 .cargando-container {
   display: flex;
   min-height: 100px;
-  /* espacio consistente */
+  margin-top: -10px;
 }
 
 .cargando-texto {
