@@ -6,7 +6,7 @@ export default function SolicitudesEquipo({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [comentarios, setComentarios] = useState({});
-    const [filtro, setFiltro] = useState(''); 
+    const [filtro, setFiltro] = useState('1');
 
     const estados = {
         1: "Pendiente",
@@ -161,6 +161,15 @@ export default function SolicitudesEquipo({ userID }) {
                                     <strong>Fin:</strong> {formatDateSinHora(solicitud.fecha_fin)}
                                 </span>
                             </div>
+
+                            {/* Fecha de respuesta si fue aprobada o rechazada */}
+                            {(solicitud.estado_solicitud === 2 || solicitud.estado_solicitud === 3) && (
+                                <div className="fecha-respuesta">
+                                    <FaCalendarAlt style={{ marginRight: '5px' }} />
+                                    <strong>Respuesta:</strong> {formatDate(solicitud.fecha_respuesta || solicitud.updated_at)}
+                                </div>
+                            )}
+
 
                             {/* Comentarios existentes */}
                             {solicitud.comentario && (
