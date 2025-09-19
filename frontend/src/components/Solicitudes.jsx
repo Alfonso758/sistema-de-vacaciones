@@ -204,25 +204,27 @@ export default function Solicitudes({ userID }) {
 
                         </div>
 
-                        {/* Revisión y respuesta */}
-                        {(solicitud.revisor || solicitud.fecha_respuesta) && (
-                            <>
-                                <label>Revisado por: </label>
-                                <div className="revision-respuesta">
-                                    {solicitud.revisor && (
-                                        <span>
-                                            <FaUser style={{ marginRight: '5px' }} />
-                                            {solicitud.revisor.name} {solicitud.revisor.surnames}
-                                        </span>
-                                    )}
-                                    {solicitud.fecha_respuesta && (
-                                        <span className="fecha-respuesta">
-                                            {formatDate(solicitud.fecha_respuesta)}
-                                        </span>
-                                    )}
-                                </div>
-                            </>
-                        )}
+{/* Revisión y respuesta */}
+{(solicitud.revisor || solicitud.fecha_respuesta) && (
+    <div className="revision-respuesta">
+        {/* Revisor a la izquierda */}
+        {solicitud.revisor && (
+            <span className="revisor-info">
+                <FaUser style={{ marginRight: '5px' }} />
+                <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
+            </span>
+        )}
+
+        {/* Fecha de respuesta a la derecha */}
+        {solicitud.fecha_respuesta && (
+            <span className="fecha-respuesta">
+                <FaCalendarAlt style={{ marginRight: '5px' }} />
+                {formatDate(solicitud.fecha_respuesta)}
+            </span>
+        )}
+    </div>
+)}
+
 
 
                         {/* Comentario */}

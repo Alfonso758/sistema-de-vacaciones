@@ -125,11 +125,12 @@ class SolicitudController extends Controller
 
         // 2. Buscar solicitudes de esos empleados (todas: pendientes, aprobadas, rechazadas)
         $solicitudes = solicitudesVacaciones::whereIn('usuario_id', $empleados)
-            ->with('usuario') // para traer info del empleado
+            ->with(['usuario', 'revisor']) // ahora trae info del empleado y del revisor
             ->get();
 
         return response()->json($solicitudes);
     }
+
 
 
     public function decision(Request $request, $id)

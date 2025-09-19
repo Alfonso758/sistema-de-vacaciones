@@ -5,13 +5,15 @@ import SolicitudesEquipo from '../components/SolicitudesEquipo';
 import Calendario from '../components/Calendario';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
-import {FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog} from 'react-icons/fa';
+//import Reportes from '../components/Reportes';
+//import Estadisticas from '../components/Estadisticas';
+import { FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-export default function SupervisorDashboard({ userID, userName, userSurname, pestañaActiva }) {
+export default function SupervisorDashboard({ userID, pestañaActiva }) {
   // Form / UI
   const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
   const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');
@@ -255,8 +257,17 @@ export default function SupervisorDashboard({ userID, userName, userSurname, pes
       case 'Solic. de mi equipo':
         return <SolicitudesEquipo userID={userID} />;
 
-      case 'Ver calendario':
+      case 'Mi calendario':
         return <Calendario userID={userID} />;
+
+      case 'Cal. de mi equipo':
+        return <Calendario userID={userID} />;
+
+      //case 'Reportes':
+        //return <Reportes userID={userID} />;
+
+      //case 'Estadísticas':
+        //return <Estadisticas userID={userID} />;
 
       case 'Ver notificaciones':
         return <Notificaciones userID={userID} />;

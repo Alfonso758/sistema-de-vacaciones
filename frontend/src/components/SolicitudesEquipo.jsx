@@ -162,13 +162,24 @@ export default function SolicitudesEquipo({ userID }) {
                                 </span>
                             </div>
 
-                            {/* Fecha de respuesta si fue aprobada o rechazada */}
                             {(solicitud.estado_solicitud === 2 || solicitud.estado_solicitud === 3) && (
-                                <div className="fecha-respuesta">
-                                    <FaCalendarAlt style={{ marginRight: '5px' }} />
-                                    <strong>Respuesta:</strong> {formatDate(solicitud.fecha_respuesta || solicitud.updated_at)}
+                                <div className="revision-respuesta">
+                                    {/* Revisor a la izquierda */}
+                                    {solicitud.revisor && (
+                                        <span className="revisor-info">
+                                            <FaUser style={{ marginRight: '5px' }} />
+                                            <strong>Revisado por:</strong> {solicitud.revisor.name}
+                                        </span>
+                                    )}
+
+                                    {/* Fecha de respuesta a la derecha */}
+                                    <span className="fecha-respuesta">
+                                        <FaCalendarAlt style={{ marginRight: '5px' }} />
+                                        {formatDate(solicitud.fecha_respuesta || solicitud.updated_at)}
+                                    </span>
                                 </div>
                             )}
+
 
 
                             {/* Comentarios existentes */}
