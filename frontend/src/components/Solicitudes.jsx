@@ -204,26 +204,26 @@ export default function Solicitudes({ userID }) {
 
                         </div>
 
-{/* Revisión y respuesta */}
-{(solicitud.revisor || solicitud.fecha_respuesta) && (
-    <div className="revision-respuesta">
-        {/* Revisor a la izquierda */}
-        {solicitud.revisor && (
-            <span className="revisor-info">
-                <FaUser style={{ marginRight: '5px' }} />
-                <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
-            </span>
-        )}
+                        {/* Revisión y respuesta */}
+                        {(solicitud.revisor || solicitud.fecha_respuesta) && (
+                            <div className="revision-respuesta">
+                                {/* Revisor a la izquierda */}
+                                {solicitud.revisor && (
+                                    <span className="revisor-info">
+                                        <FaUser style={{ marginRight: '5px' }} />
+                                        <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
+                                    </span>
+                                )}
 
-        {/* Fecha de respuesta a la derecha */}
-        {solicitud.fecha_respuesta && (
-            <span className="fecha-respuesta">
-                <FaCalendarAlt style={{ marginRight: '5px' }} />
-                {formatDate(solicitud.fecha_respuesta)}
-            </span>
-        )}
-    </div>
-)}
+                                {/* Fecha de respuesta a la derecha */}
+                                {solicitud.fecha_respuesta && (
+                                    <span className="fecha-respuesta">
+                                        <FaCalendarAlt style={{ marginRight: '5px' }} />
+                                        {formatDate(solicitud.fecha_respuesta)}
+                                    </span>
+                                )}
+                            </div>
+                        )}
 
 
 
@@ -256,13 +256,13 @@ export default function Solicitudes({ userID }) {
                                 </>
                             )}
                             {(estados[solicitud.estado_solicitud] === 'Cancelada') && (
-                                    <button
-                                        className="btn eliminar"
-                                        onClick={() => manejarEliminar(solicitud.id)}
-                                    >
-                                        Eliminar
-                                    </button>
-                                )}
+                                <button
+                                    className="btn eliminar"
+                                    onClick={() => manejarEliminar(solicitud.id)}
+                                >
+                                    Eliminar
+                                </button>
+                            )}
                         </div>
 
                     </div>
