@@ -47,9 +47,9 @@ class SolicitudController extends Controller
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
         ]);
 
-        // Sumar 1 día si quieres (como en tu código original)
-        $fechaInicio = Carbon::parse($request->fecha_inicio)->addDay()->format('Y-m-d');
-        $fechaFin = Carbon::parse($request->fecha_fin)->addDay()->format('Y-m-d');
+        $fechaInicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
+        $fechaFin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
+
 
         $solicitud = Solicitud::create([
             'usuario_id' => $request->usuario_id,

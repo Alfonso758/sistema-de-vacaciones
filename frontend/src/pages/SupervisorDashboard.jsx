@@ -6,7 +6,7 @@ import Calendario from '../components/Calendario';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
 //import Reportes from '../components/Reportes';
-//import Estadisticas from '../components/Estadisticas';
+import Estadisticas from '../components/Estadisticas';
 import { FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -266,8 +266,8 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       //case 'Reportes':
         //return <Reportes userID={userID} />;
 
-      //case 'Estadísticas':
-        //return <Estadisticas userID={userID} />;
+      case 'Estadísticas':
+        return <Estadisticas userID={userID} />;
 
       case 'Ver notificaciones':
         return <Notificaciones userID={userID} />;

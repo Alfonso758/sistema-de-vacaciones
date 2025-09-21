@@ -9,6 +9,7 @@ use App\Http\Controllers\DiaInhabilController;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Auth\GoogleCalendarController;
 use App\Http\Controllers\NotificacionController;
+use App\Http\Controllers\EstadisticasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,9 @@ Route::prefix('notificaciones')->group(function () {
     Route::put('/{id}', [NotificacionController::class, 'update']);
     Route::delete('/{id}', [NotificacionController::class, 'destroy']);
 });
+
+// Estadisticas}
+Route::get('/estadisticas/{anio}', [EstadisticasController::class, 'mostrarPorAnio']);
 
 // 🔹 Otras rutas públicas
 Route::get('/usuarios/{usuario_id}/solicitudes', [SolicitudController::class, 'index']);
