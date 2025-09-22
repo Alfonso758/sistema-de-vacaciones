@@ -147,7 +147,7 @@ export default function SolicitudesEquipo({ userID }) {
 
                             {/* Info del empleado */}
                             {solicitud.usuario && (
-                                <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name}</strong></p>
+                                <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name} {solicitud.usuario.surnames}</strong></p>
                             )}
 
                             {/* Fechas de inicio y fin */}
@@ -168,7 +168,7 @@ export default function SolicitudesEquipo({ userID }) {
                                     {solicitud.revisor && (
                                         <span className="revisor-info">
                                             <FaUser style={{ marginRight: '5px' }} />
-                                            <strong>Revisado por:</strong> {solicitud.revisor.name}
+                                            <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
                                         </span>
                                     )}
 
