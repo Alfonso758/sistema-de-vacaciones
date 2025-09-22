@@ -195,11 +195,13 @@ export default function SolicitudesEquipo({ userID }) {
                             {/* Acciones solo si está pendiente */}
                             {solicitud.estado_solicitud === 1 && (
                                 <div className="acciones-solicitud">
-                                    <textarea
-                                        placeholder="Agregar un comentario (opcional)"
-                                        value={comentarios[solicitud.id] || ""}
-                                        onChange={(e) => setComentarios({ ...comentarios, [solicitud.id]: e.target.value })}
-                                    />
+                                    <div className="comentario-container">
+                                        <textarea
+                                            id="comentario"
+                                            placeholder="Agrega un comentario (opcional)"
+                                        />
+                                    </div>
+
 
                                     <button
                                         className="btn aprobar"
