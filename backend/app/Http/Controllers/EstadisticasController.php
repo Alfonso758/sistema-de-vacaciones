@@ -25,7 +25,7 @@ class EstadisticasController extends Controller
             ];
 
             // Función para aplicar filtro de empleados
-            $filtrarEmpleados = function($q) use ($jefeId) {
+            $filtrarEmpleados = function ($q) use ($jefeId) {
                 $q->where('jefe_directo', $jefeId);
             };
 
@@ -45,7 +45,7 @@ class EstadisticasController extends Controller
                 ];
             }
 
-            $meses = ["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+            $meses = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
 
             // 2️⃣ Solicitudes aprobadas por mes
             $aprobadasRaw = solicitudesVacaciones::selectRaw('MONTH(fecha_inicio) as mes_num, COUNT(*) as total')
@@ -86,8 +86,13 @@ class EstadisticasController extends Controller
             }
 
             // 4️⃣ Uso de vacaciones
-            $totalUsadas = VacacionesUser::whereHas('usuario', $filtrarEmpleados)->sum('dias_tomados');
-            $totalDisponibles = VacacionesUser::whereHas('usuario', $filtrarEmpleados)->sum('dias_acumulados');
+            $totalUsadas = VacacionesUser::whereHas('usuario', $filtrarEmpleados)
+                ->sum('dias_tomados');
+
+            // Total de días disponibles: se suma desde vacaciones_anuales.dias
+            $totalDisponibles = VacacionesUser::whereHas('usuario', $filtrarEmpleados)
+                ->join('vacaciones_anuales', 'vacaciones_user.id_dias', '=', 'vacaciones_anuales.id')
+                ->sum('vacaciones_anuales.dias');
 
             $usoVacaciones = [
                 ['name' => 'Usadas', 'value' => (int) ($totalUsadas ?? 0)],
@@ -100,7 +105,6 @@ class EstadisticasController extends Controller
                 'rechazadasPorMes' => $rechazadasPorMes,
                 'usoVacaciones' => $usoVacaciones
             ]);
-
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

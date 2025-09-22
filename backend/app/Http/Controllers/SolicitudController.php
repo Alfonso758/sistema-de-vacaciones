@@ -50,17 +50,27 @@ class SolicitudController extends Controller
         $fechaInicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
         $fechaFin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
 
+        // Buscar el usuario
+        $usuario = Usuario::findOrFail($request->usuario_id);
+
+        // Si el rol_id del usuario es 2 -> estado_solicitud = 2
+        $estado = ($usuario->rol_id == 2) ? 2 : 1;
 
         $solicitud = Solicitud::create([
-            'usuario_id' => $request->usuario_id,
+            'usuario_id' => $usuario->id,
             'fecha_inicio' => $fechaInicio,
             'fecha_fin' => $fechaFin,
             'fecha_solicitud' => now(),
-            'estado_solicitud' => 1
+            'estado_solicitud' => $estado
         ]);
 
-        return response()->json(['message' => 'Solicitud registrada', 'solicitud' => $solicitud], 201);
+        return response()->json([
+            'message' => 'Solicitud registrada',
+            'solicitud' => $solicitud
+        ], 201);
     }
+
+
 
     /**
      * Actualizar una solicitud

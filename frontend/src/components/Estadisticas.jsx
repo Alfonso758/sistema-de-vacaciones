@@ -53,7 +53,7 @@ export default function Estadisticas({ userID }) {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [focusedButton]);
 
-    const hasData = (array, key = "value") => 
+    const hasData = (array, key = "value") =>
         array.some(item => Number(item[key]) > 0);
 
     return (
@@ -145,7 +145,8 @@ export default function Estadisticas({ userID }) {
 
                     {/* Uso promedio de vacaciones */}
                     <div className="grafica-pastel">
-                        <h3>Uso promedio de vacaciones</h3>
+                        <h3>Uso promedio de vacaciones en el año actual</h3>
+                        <p>Porcentaje de los días de vacaciones que han usado los usuarios de tu área del total que les toca</p>
                         {hasData(datos.usoVacaciones) ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
@@ -156,16 +157,22 @@ export default function Estadisticas({ userID }) {
                                         cx="50%"
                                         cy="50%"
                                         outerRadius={100}
-                                        label
+                                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
                                     >
                                         {datos.usoVacaciones.map((entry, index) => (
                                             <Cell key={`cell-uso-${index}`} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip />
+                                    <Tooltip
+                                        formatter={(value, name, props) => [
+                                            `${((props.percent) * 100).toFixed(1)}%`,
+                                            name
+                                        ]}
+                                    />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
+
                         ) : (
                             <p style={{ textAlign: 'center', color: '#666', padding: '80px 0' }}>
                                 No hay datos disponibles para este año.
