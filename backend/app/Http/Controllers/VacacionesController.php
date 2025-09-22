@@ -58,9 +58,32 @@ class VacacionesController extends Controller
 
     public function aprobadas($usuario_id)
     {
-        $solicitudes = solicitudesVacaciones::where('usuario_id', $usuario_id)
-            ->where('estado_solicitud', 2)
-            ->get(['fecha_inicio', 'fecha_fin']); // solo fechas para el calendario
+        // Buscamos el usuario
+        $usuario = Usuario::findOrFail($usuario_id);
+
+        if ($usuario->rol_id == 2) {
+            // Si es jefe, traemos los IDs de sus empleados
+            $empleadosIds = Usuario::where('jefe_directo', $usuario->id)->pluck('id');
+
+            // Consultamos todas las solicitudes aprobadas de sus empleados, incluyendo info del usuario
+            $solicitudes = solicitudesVacaciones::with('usuario')
+                ->whereIn('usuario_id', $empleadosIds)
+                ->where('estado_solicitud', 2)
+                ->get(['usuario_id', 'fecha_inicio', 'fecha_fin']);
+        } else {
+            // Si no es jefe, solo traemos las suyas, con info del usuario
+            $solicitudes = solicitudesVacaciones::with('usuario')
+                ->where('usuario_id', $usuario->id)
+                ->where('estado_solicitud', 2)
+                ->get(['usuario_id', 'fecha_inicio', 'fecha_fin']);
+        }
+
+        // Agregamos el nombre completo de cada usuario para usar en React
+        $solicitudes->transform(function ($solicitud) {
+            $solicitud->nombre = $solicitud->usuario->name . ' ' .
+                $solicitud->usuario->surnames;
+            return $solicitud;
+        });
 
         return response()->json($solicitudes);
     }

@@ -3,6 +3,7 @@ import '../styles/EmpleadoDashboard.css';
 import Solicitudes from '../components/Solicitudes';
 import SolicitudesEquipo from '../components/SolicitudesEquipo';
 import Calendario from '../components/Calendario';
+import CalendarioEquipo from '../components/CalendarioEquipo';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
 //import Reportes from '../components/Reportes';
@@ -261,7 +262,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
         return <Calendario userID={userID} />;
 
       case 'Cal. de mi equipo':
-        return <Calendario userID={userID} />;
+        return <CalendarioEquipo userID={userID} />;
 
       //case 'Reportes':
         //return <Reportes userID={userID} />;

@@ -70,8 +70,6 @@ class SolicitudController extends Controller
         ], 201);
     }
 
-
-
     /**
      * Actualizar una solicitud
      */
