@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import logoSoko from '../assets/soko.png';
 import '../styles/Reportes.css';
 
 export default function Reportes({ userID }) {
@@ -59,19 +60,31 @@ export default function Reportes({ userID }) {
     const descargarPDF = () => {
         const doc = new jsPDF();
 
+        // --- Agregar logo ---
+        const logoWidth = 40;
+        const logoHeight = 10; // ajusta según quieras
+        doc.addImage(logoSoko, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 14, 10, logoWidth, logoHeight);
+
+        // --- Generar contenido del PDF ---
+        generarContenidoPDF(doc);
+    };
+
+
+    // Función separada para todo el contenido del PDF
+    const generarContenidoPDF = (doc) => {
         doc.setFontSize(16);
         doc.text("Reporte de solicitudes", 14, 22);
 
         let startY = 30;
 
-        // Si es reporte por usuario, agrega datos del empleado
+        // Datos del empleado
         if (selectedEmpleado !== "general" && empleadoSeleccionado) {
             doc.setFont("helvetica", "normal");
-            doc.setFontSize(12);               
+            doc.setFontSize(12);
             doc.text(`Nombre: ${nombreCompleto(empleadoSeleccionado)}`, 14, startY);
-            startY += 6;                        
+            startY += 6;
             doc.text(`Correo: ${empleadoSeleccionado.email}`, 14, startY);
-            startY += 10;     
+            startY += 10;
         }
 
         // --- Pendientes ---
@@ -141,7 +154,6 @@ export default function Reportes({ userID }) {
 
         doc.save(nombreArchivo);
     };
-
 
     return (
         <div className="reportes-wrap">
