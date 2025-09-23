@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import '../styles/Reportes.css';
 
 export default function Reportes({ userID }) {
@@ -54,6 +56,93 @@ export default function Reportes({ userID }) {
     const aprobadasFiltradas = filtrarPorEmpleado(solicitudes.aprobadas);
     const rechazadasFiltradas = filtrarPorEmpleado(solicitudes.rechazadas);
 
+    const descargarPDF = () => {
+        const doc = new jsPDF();
+
+        doc.setFontSize(16);
+        doc.text("Reporte de solicitudes", 14, 22);
+
+        let startY = 30;
+
+        // Si es reporte por usuario, agrega datos del empleado
+        if (selectedEmpleado !== "general" && empleadoSeleccionado) {
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(12);               
+            doc.text(`Nombre: ${nombreCompleto(empleadoSeleccionado)}`, 14, startY);
+            startY += 6;                        
+            doc.text(`Correo: ${empleadoSeleccionado.email}`, 14, startY);
+            startY += 10;     
+        }
+
+        // --- Pendientes ---
+        const columnasPend = selectedEmpleado === "general"
+            ? ["Empleado", "Fecha solicitud", "Inicio", "Fin"]
+            : ["Fecha solicitud", "Inicio", "Fin", "Estado"];
+
+        const dataPend = pendientesFiltradas.map(s =>
+            selectedEmpleado === "general"
+                ? [nombreCompleto(s.usuario), s.fecha_solicitud, s.fecha_inicio, s.fecha_fin]
+                : [s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, "Pendiente"]
+        );
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(12);
+        doc.text("Solicitudes pendientes", 14, startY);
+        autoTable(doc, {
+            head: [columnasPend],
+            body: dataPend,
+            startY: startY + 5,
+        });
+
+        let finalY1 = doc.lastAutoTable.finalY + 10;
+
+        // --- Aprobadas ---
+        const columnasAprob = selectedEmpleado === "general"
+            ? ["Empleado", "Fecha solicitud", "Inicio", "Fin", "Revisado por", "Fecha revisión"]
+            : ["Fecha solicitud", "Inicio", "Fin", "Revisado por", "Fecha revisión"];
+
+        const dataAprob = aprobadasFiltradas.map(s =>
+            selectedEmpleado === "general"
+                ? [nombreCompleto(s.usuario), s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                : [s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+        );
+
+        doc.text("Solicitudes aprobadas", 14, finalY1);
+        autoTable(doc, {
+            head: [columnasAprob],
+            body: dataAprob,
+            startY: finalY1 + 5,
+        });
+
+        let finalY2 = doc.lastAutoTable.finalY + 10;
+
+        // --- Rechazadas ---
+        const columnasRech = selectedEmpleado === "general"
+            ? ["Empleado", "Fecha solicitud", "Inicio", "Fin", "Revisado por", "Fecha revisión"]
+            : ["Fecha solicitud", "Inicio", "Fin", "Revisado por", "Fecha revisión"];
+
+        const dataRech = rechazadasFiltradas.map(s =>
+            selectedEmpleado === "general"
+                ? [nombreCompleto(s.usuario), s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                : [s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+        );
+
+        doc.text("Solicitudes rechazadas", 14, finalY2);
+        autoTable(doc, {
+            head: [columnasRech],
+            body: dataRech,
+            startY: finalY2 + 5,
+        });
+
+        // Guardar PDF
+        const nombreArchivo = selectedEmpleado === "general"
+            ? "reporte_general.pdf"
+            : `reporte_${nombreCompleto(empleadoSeleccionado)}.pdf`;
+
+        doc.save(nombreArchivo);
+    };
+
+
     return (
         <div className="reportes-wrap">
             <h2>Reportes</h2>
@@ -74,9 +163,14 @@ export default function Reportes({ userID }) {
 
             </label>
 
+            <div className="botones-pdf">
+                <button onClick={descargarPDF}>Descargar pdf</button>
+            </div>
+
+
             {selectedEmpleado !== "general" && empleadoSeleccionado && (
                 <section className="reporte-empleado">
-                    <h2>Datos del empleado</h2>
+                    <h2>Reporte por empleado de solicitudes</h2>
                     <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
                     <p><strong>Correo:</strong> {empleadoSeleccionado.email}</p>
 

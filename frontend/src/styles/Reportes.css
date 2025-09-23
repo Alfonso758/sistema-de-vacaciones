@@ -138,6 +138,22 @@ tbody tr:hover {
     background-color: #f1f5f9;
 }
 
+.botones-pdf button {
+    background: linear-gradient(90deg, #d93838, #a10d0d);
+    color: white; 
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600; 
+    border: none; 
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.botones-pdf button:hover {
+    background: linear-gradient(90deg, #a10d0d, #d93838);
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
   .reportes-wrap {
