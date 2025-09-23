@@ -10,7 +10,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-export default function EmpleadoDashboard({ userID, userName, userSurname, pestañaActiva }) {
+export default function EmpleadoDashboard({ userID, pestañaActiva }) {
   // Form / UI
   const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
   const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');

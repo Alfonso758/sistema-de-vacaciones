@@ -37,14 +37,14 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       opciones: [
         { nombre: "Nueva solicitud" },
         { nombre: "Mis solicitudes" },
-        { nombre: "Solic. de mi equipo" }
+        { nombre: "S. Empleados" }
       ]
     },
     "Calendario": {
       icono: <FaCalendarAlt />,
       opciones: [
         { nombre: "Mi calendario" },
-        { nombre: "Cal. de mi equipo" }
+        { nombre: "C. Empleados" }
       ]
     },
     "Reportes y estadísticas": {
@@ -255,13 +255,13 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       case 'Mis solicitudes':
         return <Solicitudes userID={userID} />;
 
-      case 'Solic. de mi equipo':
+      case 'S. Empleados':
         return <SolicitudesEquipo userID={userID} />;
 
       case 'Mi calendario':
         return <Calendario userID={userID} />;
 
-      case 'Cal. de mi equipo':
+      case 'C. Empleados':
         return <CalendarioEquipo userID={userID} />;
 
       case 'Reportes':
