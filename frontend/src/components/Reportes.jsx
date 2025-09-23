@@ -56,10 +56,10 @@ export default function Reportes({ userID }) {
 
     return (
         <div className="reportes-wrap">
-            <h1>Reportes de Vacaciones</h1>
+            <h2>Reportes</h2>
 
             <label className="selector-empleado">
-                Seleccionar empleado:
+                Seleccionar reporte:
                 <select
                     value={selectedEmpleado}
                     onChange={(e) => setSelectedEmpleado(e.target.value)}
@@ -67,7 +67,7 @@ export default function Reportes({ userID }) {
                     <option value="general">Reporte general</option>
                     {empleados.map(e => (
                         <option key={e.id} value={e.id}>
-                            {e.name} {e.surnames}  {/* ← aquí estaba e.nombre, se cambia a e.name */}
+                            Reporte de {e.name} {e.surnames}  {/* ← aquí estaba e.nombre, se cambia a e.name */}
                         </option>
                     ))}
                 </select>
@@ -80,7 +80,7 @@ export default function Reportes({ userID }) {
                     <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
                     <p><strong>Correo:</strong> {empleadoSeleccionado.email}</p>
 
-                    <h3>Solicitudes Pendientes</h3>
+                    <h3>Solicitudes pendientes</h3>
                     <table>
                         <thead>
                             <tr>
@@ -102,7 +102,7 @@ export default function Reportes({ userID }) {
                         </tbody>
                     </table>
 
-                    <h3>Solicitudes Aprobadas</h3>
+                    <h3>Solicitudes aprobadas</h3>
                     <table>
                         <thead>
                             <tr>
@@ -126,7 +126,7 @@ export default function Reportes({ userID }) {
                         </tbody>
                     </table>
 
-                    <h3>Solicitudes Rechazadas</h3>
+                    <h3>Solicitudes rechazadas</h3>
                     <table>
                         <thead>
                             <tr>
@@ -156,7 +156,7 @@ export default function Reportes({ userID }) {
                 <section className="reporte-general">
                     <h2>Reporte general de solicitudes</h2>
 
-                    <h3>Pendientes</h3>
+                    <h3>Solicitudes pendientes</h3>
                     <table>
                         <thead>
                             <tr>
@@ -178,7 +178,7 @@ export default function Reportes({ userID }) {
                         </tbody>
                     </table>
 
-                    <h3>Aprobadas</h3>
+                    <h3>Solicitudes aprobadas</h3>
                     <table>
                         <thead>
                             <tr>
@@ -204,7 +204,7 @@ export default function Reportes({ userID }) {
                         </tbody>
                     </table>
 
-                    <h3>Rechazadas</h3>
+                    <h3>Solicitudes rechazadas</h3>
                     <table>
                         <thead>
                             <tr>
