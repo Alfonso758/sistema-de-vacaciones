@@ -37,6 +37,7 @@ Route::prefix('solicitudes')->group(function () {
 
     // 🔹 Cargar solicitudes de empleados a jefes
     Route::get('/equipo/{jefeId}', [SolicitudController::class, 'solicitudesEquipo']);
+    Route::get('/jefes/{jefeId}', [SolicitudController::class, 'solicitudesJefes']);
     Route::get('/reporte/{jefeId}', [SolicitudController::class, 'solicitudesReporte']);
 });
 

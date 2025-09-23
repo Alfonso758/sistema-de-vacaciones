@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import '../styles/SolicitudesEquipo.css';
 import { FaCalendarAlt, FaClock, FaUser, FaComment } from 'react-icons/fa';
 
-export default function SolicitudesEquipo({ userID }) {
+export default function SolicitudesJefes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [comentarios, setComentarios] = useState({});
@@ -85,7 +85,7 @@ export default function SolicitudesEquipo({ userID }) {
     useEffect(() => {
         if (!userID) return;
 
-        fetch(`http://localhost:8000/api/solicitudes/equipo/${userID}`, {
+        fetch(`http://localhost:8000/api/solicitudes/jefes/${userID}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -110,7 +110,7 @@ export default function SolicitudesEquipo({ userID }) {
     // ----------------- RENDER -----------------
     return (
         <div className="seccion-lista">
-            <h2>Solicitudes de empleados</h2>
+            <h2>Solicitudes de jefes de área</h2>
 
             {/* Filtros */}
             <div className="filtros-solicitudes">

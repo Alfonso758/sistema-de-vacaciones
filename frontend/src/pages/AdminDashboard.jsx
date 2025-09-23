@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import SolicitudesEquipo from '../components/SolicitudesEquipo';
+import SolicitudesJefes from '../components/SolicitudesJefes';
 import Calendario from '../components/Calendario';
 import Notificaciones from '../components/Notificaciones';
 import { FaUsers, FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
@@ -122,8 +123,8 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
       case 'Empleados':
         return <SolicitudesEquipo userID={userID} />;
 
-      case 'Todas las solicitudes':
-        return <SolicitudesEquipo userID={userID} />;
+      case 'Jefes de área':
+        return <SolicitudesJefes userID={userID} />;
 
       case 'Ver calendario':
         return <Calendario userID={userID} />;

@@ -137,8 +137,8 @@ class SolicitudController extends Controller
 
         // 2. Obtener IDs de empleados según rol
         if ($jefe->rol_id == 3) {
-            // rol_id 3: todos los empleados
-            $empleados = Usuario::pluck('id');
+            // rol_id 3: solo empleados (rol_id == 1)
+            $empleados = Usuario::where('rol_id', 1)->pluck('id');
         } else {
             // otros jefes: solo empleados bajo su supervisión
             $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
@@ -152,6 +152,29 @@ class SolicitudController extends Controller
         return response()->json($solicitudes);
     }
 
+    public function solicitudesJefes($jefeId)
+    {
+        // 1. Verificar que el usuario sea administrador
+        $jefe = Usuario::find($jefeId);
+
+        if (!$jefe) {
+            return response()->json(['error' => 'Administrador no encontrado'], 404);
+        }
+
+        if ($jefe->rol_id != 3) {
+            return response()->json(['error' => 'No autorizado'], 403);
+        }
+
+        // 2. Obtener IDs de usuarios que sean jefes (rol_id == 2)
+        $jefes = Usuario::where('rol_id', 2)->pluck('id');
+
+        // 3. Obtener solicitudes de esos jefes
+        $solicitudes = solicitudesVacaciones::whereIn('usuario_id', $jefes)
+            ->with(['usuario', 'revisor']) // trae info de jefe y revisor
+            ->get();
+
+        return response()->json($solicitudes);
+    }
 
     public function solicitudesReporte($jefeId)
     {
