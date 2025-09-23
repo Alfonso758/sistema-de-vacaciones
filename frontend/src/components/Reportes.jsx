@@ -61,8 +61,8 @@ export default function Reportes({ userID }) {
         const doc = new jsPDF();
 
         // --- Agregar logo ---
-        const logoWidth = 40;
-        const logoHeight = 10; // ajusta según quieras
+        const logoWidth = 50;
+        const logoHeight = 12.5; // ajusta según quieras
         doc.addImage(logoSoko, "PNG", doc.internal.pageSize.getWidth() - logoWidth - 14, 10, logoWidth, logoHeight);
 
         // --- Generar contenido del PDF ---
