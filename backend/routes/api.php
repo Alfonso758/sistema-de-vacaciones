@@ -21,6 +21,7 @@ use App\Http\Controllers\EstadisticasController;
 Route::post('/google-login', [GoogleController::class, 'login']);
 Route::post('/login', [UsuarioController::class, 'login']);
 Route::post('/register', [UsuarioController::class, 'register']);
+Route::get('/empleados/{jefeId}', [UsuarioController::class, 'empleadosDelJefe']);
 
 // 🔹 Solicitudes
 Route::prefix('solicitudes')->group(function () {
@@ -36,6 +37,7 @@ Route::prefix('solicitudes')->group(function () {
 
     // 🔹 Cargar solicitudes de empleados a jefes
     Route::get('/equipo/{jefeId}', [SolicitudController::class, 'solicitudesEquipo']);
+    Route::get('/reporte/{jefeId}', [SolicitudController::class, 'solicitudesReporte']);
 });
 
 // 🔹 Días inhábiles

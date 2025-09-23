@@ -249,4 +249,13 @@ class UsuarioController extends Controller
             ]
         ]);
     }
+
+    public function empleadosDelJefe($jefeId)
+    {
+        $empleados = Usuario::where('jefe_directo', $jefeId)
+            ->select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso')
+            ->get();
+
+        return response()->json($empleados);
+    }
 }

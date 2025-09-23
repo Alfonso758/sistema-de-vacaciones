@@ -139,6 +139,27 @@ class SolicitudController extends Controller
         return response()->json($solicitudes);
     }
 
+    public function solicitudesReporte($jefeId)
+    {
+        $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
+
+        $solicitudes = Solicitud::whereIn('usuario_id', $empleados)
+            ->with(['usuario', 'revisor']) // usuario y revisor cargados
+            ->get();
+
+        // Separar por estado
+        $pendientes  = $solicitudes->where('estado_solicitud', 1)->values();
+        $aprobadas   = $solicitudes->where('estado_solicitud', 2)->values();
+        $rechazadas  = $solicitudes->where('estado_solicitud', 3)->values();
+
+        return response()->json([
+            'pendientes' => $pendientes,
+            'aprobadas'  => $aprobadas,
+            'rechazadas' => $rechazadas,
+        ]);
+    }
+
+
 
 
     public function decision(Request $request, $id)

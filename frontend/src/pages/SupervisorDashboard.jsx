@@ -6,7 +6,7 @@ import Calendario from '../components/Calendario';
 import CalendarioEquipo from '../components/CalendarioEquipo';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
-//import Reportes from '../components/Reportes';
+import Reportes from '../components/Reportes';
 import Estadisticas from '../components/Estadisticas';
 import { FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
 import axios from 'axios';
@@ -264,8 +264,8 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       case 'Cal. de mi equipo':
         return <CalendarioEquipo userID={userID} />;
 
-      //case 'Reportes':
-        //return <Reportes userID={userID} />;
+      case 'Reportes':
+        return <Reportes userID={userID} />;
 
       case 'Estadísticas':
         return <Estadisticas userID={userID} />;
