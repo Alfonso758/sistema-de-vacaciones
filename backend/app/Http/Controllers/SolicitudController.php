@@ -170,11 +170,20 @@ class SolicitudController extends Controller
 
         // 3. Obtener solicitudes de esos jefes
         $solicitudes = solicitudesVacaciones::whereIn('usuario_id', $jefes)
-            ->with(['usuario', 'revisor']) // trae info de jefe y revisor
-            ->get();
+            ->with(['usuario', 'revisor'])
+            ->get()
+            ->map(function ($solicitud) {
+                // si está aprobada, eliminamos revisor y fecha_revision
+                if ($solicitud->estado === 'aprobada') {
+                    unset($solicitud->revisor);
+                    unset($solicitud->fecha_revision);
+                }
+                return $solicitud;
+            });
 
         return response()->json($solicitudes);
     }
+
 
     public function solicitudesReporte($jefeId)
     {

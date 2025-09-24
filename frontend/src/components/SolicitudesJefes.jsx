@@ -5,14 +5,12 @@ import { FaCalendarAlt, FaClock, FaUser, FaComment } from 'react-icons/fa';
 export default function SolicitudesJefes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [comentarios, setComentarios] = useState({});
-    const [filtro, setFiltro] = useState('1');
+    const [filtro, setFiltro] = useState('2'); // por defecto aprobadas
+    const [comentarios, setComentarios] = useState({}); // comentarios temporales
 
     const estados = {
-        1: "Pendiente",
         2: "Aprobada",
-        3: "Rechazada",
-        4: "Cancelada"
+        3: "Rechazada"
     };
 
     // ----------------- FORMATEO DE FECHAS -----------------
@@ -52,36 +50,7 @@ export default function SolicitudesJefes({ userID }) {
         return formatoFecha.charAt(0).toUpperCase() + formatoFecha.slice(1);
     };
 
-    // ----------------- APROBAR O RECHAZAR -----------------
-    const manejarDecision = async (id, decision) => {
-        try {
-            const res = await fetch(`http://localhost:8000/api/solicitudes/${id}/decision`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: JSON.stringify({
-                    decision,
-                    comentario: comentarios[id] || "",
-                    revisor_id: userID
-                }),
-            });
-
-            if (!res.ok) throw new Error('Error al actualizar la solicitud');
-
-            const data = await res.json();
-            console.log('Solicitud actualizada', data);
-
-            setSolicitudes(solicitudes.map(s =>
-                s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "", revisor: data.revisor } : s
-            ));
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    // ----------------- CARGA DE SOLICITUDES DE EMPLEADOS -----------------
+    // ----------------- CARGA DE SOLICITUDES DE JEFES -----------------
     useEffect(() => {
         if (!userID) return;
 
@@ -92,7 +61,7 @@ export default function SolicitudesJefes({ userID }) {
         })
             .then(res => res.json())
             .then(data => {
-                console.log("Solicitudes de empleados:", data);
+                console.log("Solicitudes de jefes:", data);
                 const lista = Array.isArray(data) ? data : [];
                 setSolicitudes(lista);
                 setLoading(false);
@@ -105,16 +74,56 @@ export default function SolicitudesJefes({ userID }) {
     }, [userID]);
 
     // ----------------- FILTRADO -----------------
-    const solicitudesFiltradas = filtro ? solicitudes.filter(s => String(s.estado_solicitud) === filtro) : solicitudes;
+    const solicitudesFiltradas = filtro
+        ? solicitudes.filter(s => String(s.estado_solicitud) === filtro)
+        : solicitudes;
+
+    // ----------------- VALIDAR 48 HORAS -----------------
+    const dentroDe48Horas = (fechaSolicitud) => {
+        const fecha = new Date(fechaSolicitud);
+        const ahora = new Date();
+        const diffHoras = (ahora - fecha) / (1000 * 60 * 60);
+        return diffHoras <= 48;
+    };
+
+    // ----------------- RECHAZAR SOLICITUD -----------------
+    const rechazarSolicitud = async (id) => {
+        try {
+            const res = await fetch(`http://localhost:8000/api/solicitudes/${id}/decision`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    decision: 3, // 3 = Rechazada
+                    comentario: comentarios[id] || "",
+                    revisor_id: userID
+                }),
+            });
+
+            if (!res.ok) throw new Error('Error al rechazar la solicitud');
+
+            const data = await res.json();
+            console.log('Solicitud rechazada', data);
+
+            setSolicitudes(solicitudes.map(s =>
+                s.id === id ? { ...s, estado_solicitud: 3, comentario: comentarios[id] || "", revisor: data.revisor } : s
+            ));
+        } catch (error) {
+            console.error(error);
+            alert("Error al rechazar la solicitud.");
+        }
+    };
+
 
     // ----------------- RENDER -----------------
     return (
         <div className="seccion-lista">
             <h2>Solicitudes de jefes de área</h2>
 
-            {/* Filtros */}
+            {/* Filtros (solo aprobadas y rechazadas) */}
             <div className="filtros-solicitudes">
-                <button onClick={() => setFiltro('1')} className={filtro === '1' ? 'activo' : ''}>Pendientes</button>
                 <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
                 <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
             </div>
@@ -145,12 +154,12 @@ export default function SolicitudesJefes({ userID }) {
                                 </div>
                             </div>
 
-                            {/* Info del empleado */}
+                            {/* Info del jefe */}
                             {solicitud.usuario && (
                                 <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name} {solicitud.usuario.surnames}</strong></p>
                             )}
 
-                            {/* Fechas de inicio y fin */}
+                            {/* Fechas */}
                             <div className="fechas-solicitud">
                                 <span>
                                     <FaClock style={{ marginRight: '5px' }} />
@@ -162,17 +171,15 @@ export default function SolicitudesJefes({ userID }) {
                                 </span>
                             </div>
 
-                            {(solicitud.estado_solicitud === 2 || solicitud.estado_solicitud === 3) && (
+                            {/* Revisor y fecha respuesta (solo en rechazadas) */}
+                            {solicitud.estado_solicitud === 3 && (
                                 <div className="revision-respuesta">
-                                    {/* Revisor a la izquierda */}
                                     {solicitud.revisor && (
                                         <span className="revisor-info">
                                             <FaUser style={{ marginRight: '5px' }} />
                                             <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
                                         </span>
                                     )}
-
-                                    {/* Fecha de respuesta a la derecha */}
                                     <span className="fecha-respuesta">
                                         <FaCalendarAlt style={{ marginRight: '5px' }} />
                                         {formatDate(solicitud.fecha_respuesta || solicitud.updated_at)}
@@ -180,38 +187,22 @@ export default function SolicitudesJefes({ userID }) {
                                 </div>
                             )}
 
-
-
-                            {/* Comentarios existentes */}
-                            {solicitud.comentario && (
-                                <div className="comentario-contenedor">
-                                    <label>Comentarios:</label>
-                                    <div className="comentario">
-                                        <FaComment style={{ marginRight: '5px' }} /> {solicitud.comentario}
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Acciones solo si está pendiente */}
-                            {solicitud.estado_solicitud === 1 && (
+                            {/* Acciones para aprobadas dentro de 48h */}
+                            {solicitud.estado_solicitud === 2 && dentroDe48Horas(solicitud.fecha_solicitud) && (
                                 <div className="acciones-solicitud">
                                     <div className="comentario-container">
                                         <textarea
-                                            id="comentario"
                                             placeholder="Agrega un comentario (opcional)"
+                                            value={comentarios[solicitud.id] || ""}
+                                            onChange={(e) =>
+                                                setComentarios({ ...comentarios, [solicitud.id]: e.target.value })
+                                            }
+                                            style={{ flex: 1, marginRight: '8px', minHeight: '40px', borderRadius: '16px', padding: '5px' }}
                                         />
                                     </div>
-
-
-                                    <button
-                                        className="btn aprobar"
-                                        onClick={() => manejarDecision(solicitud.id, 2)}
-                                    >
-                                        Aprobar
-                                    </button>
                                     <button
                                         className="btn rechazar"
-                                        onClick={() => manejarDecision(solicitud.id, 3)}
+                                        onClick={() => rechazarSolicitud(solicitud.id)}
                                     >
                                         Rechazar
                                     </button>
@@ -224,3 +215,4 @@ export default function SolicitudesJefes({ userID }) {
         </div>
     );
 }
+
