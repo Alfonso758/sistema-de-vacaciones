@@ -5,16 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\solicitudesVacaciones;
 use App\Models\VacacionesUser;
+use App\Models\Usuario;
 
 class EstadisticasController extends Controller
 {
     public function mostrarPorAnio(Request $request, $anio)
     {
         try {
-            $jefeId = $request->query('userID'); // ID del jefe enviado desde React
+            $userId = $request->query('userID'); // ID enviado desde React
 
-            if (!$jefeId) {
-                return response()->json(['error' => 'Falta el ID del jefe'], 400);
+            if (!$userId) {
+                return response()->json(['error' => 'Falta el ID de usuario'], 400);
+            }
+
+            // 🔹 Obtener rol del usuario
+            $usuario = Usuario::find($userId);
+            if (!$usuario) {
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
             }
 
             // 🔹 Estados posibles de solicitudes
@@ -24,10 +31,21 @@ class EstadisticasController extends Controller
                 3 => 'Rechazadas'
             ];
 
-            // Función para aplicar filtro de empleados
-            $filtrarEmpleados = function ($q) use ($jefeId) {
-                $q->where('jefe_directo', $jefeId);
-            };
+            // 🔹 Función de filtrado según rol
+            if ($usuario->rol_id == 2) {
+                // Jefe: solo empleados a su cargo
+                $filtrarEmpleados = function ($q) use ($userId) {
+                    $q->where('jefe_directo', $userId);
+                };
+            } elseif ($usuario->rol_id == 3) {
+                // Administrador: todos los usuarios con rol 1 y 2
+                $filtrarEmpleados = function ($q) {
+                    $q->whereIn('rol_id', [1, 2]);
+                };
+            } else {
+                // Otro rol no tiene acceso
+                return response()->json(['error' => 'No autorizado'], 403);
+            }
 
             // 1️⃣ Estados de solicitudes
             $estadosRaw = solicitudesVacaciones::selectRaw('estado_solicitud as estado, COUNT(*) as value')
@@ -89,7 +107,6 @@ class EstadisticasController extends Controller
             $totalUsadas = VacacionesUser::whereHas('usuario', $filtrarEmpleados)
                 ->sum('dias_tomados');
 
-            // Total de días disponibles: se suma desde vacaciones_anuales.dias
             $totalDisponibles = VacacionesUser::whereHas('usuario', $filtrarEmpleados)
                 ->join('vacaciones_anuales', 'vacaciones_user.id_dias', '=', 'vacaciones_anuales.id')
                 ->sum('vacaciones_anuales.dias');

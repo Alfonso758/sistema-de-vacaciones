@@ -5,7 +5,7 @@ import SolicitudesJefes from '../components/SolicitudesJefes';
 import CalendarioEquipo from '../components/CalendarioEquipo';
 import CalendarioJefes from '../components/CalendarioJefes';
 import ReportesTodos from '../components/ReportesTodos';
-import Estadisticas from '../components/Estadisticas';
+import EstadisticasTodas from '../components/EstadisticasTodas';
 import Notificaciones from '../components/Notificaciones';
 import { FaUsers, FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
 import axios from 'axios';
@@ -140,7 +140,7 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
         return <ReportesTodos userID={userID} />;
 
       case 'Estadísticas':
-        return <Estadisticas userID={userID} />;
+        return <EstadisticasTodas userID={userID} />;
 
       case 'Ver notificaciones':
         return <Notificaciones userID={userID} />;
