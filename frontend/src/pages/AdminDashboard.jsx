@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import SolicitudesEquipo from '../components/SolicitudesEquipo';
 import SolicitudesJefes from '../components/SolicitudesJefes';
-import Calendario from '../components/Calendario';
+import CalendarioEquipo from '../components/CalendarioEquipo';
+import CalendarioJefes from '../components/CalendarioJefes';
 import Notificaciones from '../components/Notificaciones';
 import { FaUsers, FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
 import axios from 'axios';
@@ -19,8 +20,8 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
     "Solicitudes": {
       icono: <FaListAlt />,
       opciones: [
-        { nombre: "Empleados" },
-        { nombre: "Jefes de área" }
+        { nombre: "S. Empleados" },
+        { nombre: "S. Jefes de área" }
       ]
     },
     "Usuarios": {
@@ -33,7 +34,8 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
     "Calendario": {
       icono: <FaCalendarAlt />,
       opciones: [
-        { nombre: "Ver calendario" }
+        { nombre: "C. Empleados" },
+        { nombre: "C. Jefes de área" }
       ]
     },
     "Reportes y estadísticas": {
@@ -120,14 +122,17 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
   // Contenido según pestaña
   const mostrarContenido = () => {
     switch (pestañaSeleccionada) {
-      case 'Empleados':
+      case 'S. Empleados':
         return <SolicitudesEquipo userID={userID} />;
 
-      case 'Jefes de área':
+      case 'S. Jefes de área':
         return <SolicitudesJefes userID={userID} />;
 
-      case 'Ver calendario':
-        return <Calendario userID={userID} />;
+      case 'C. Empleados':
+        return <CalendarioEquipo userID={userID} />;
+
+      case 'C. Jefes de área':
+        return <CalendarioJefes userID={userID} />;
 
       case 'Ver notificaciones':
         return <Notificaciones userID={userID} />;

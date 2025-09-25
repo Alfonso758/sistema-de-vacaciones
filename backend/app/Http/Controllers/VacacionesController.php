@@ -56,6 +56,25 @@ class VacacionesController extends Controller
         ]);
     }
 
+    public function aprobadasPropias($usuario_id)
+    {
+        // Buscamos el usuario
+        $usuario = Usuario::findOrFail($usuario_id);
+
+        $solicitudes = solicitudesVacaciones::with('usuario')
+            ->where('usuario_id', $usuario->id)
+            ->where('estado_solicitud', 2)
+            ->get(['usuario_id', 'fecha_inicio', 'fecha_fin']);
+
+        // Agregamos el nombre completo de cada usuario para usar en React
+        $solicitudes->transform(function ($solicitud) {
+            $solicitud->nombre = $solicitud->usuario->name . ' ' . $solicitud->usuario->surnames;
+            return $solicitud;
+        });
+
+        return response()->json($solicitudes);
+    }
+
     public function aprobadas($usuario_id)
     {
         // Buscamos el usuario
@@ -70,8 +89,16 @@ class VacacionesController extends Controller
                 ->whereIn('usuario_id', $empleadosIds)
                 ->where('estado_solicitud', 2)
                 ->get(['usuario_id', 'fecha_inicio', 'fecha_fin']);
+        } elseif ($usuario->rol_id == 3) {
+            // Si es administrador, traemos todas las solicitudes aprobadas de empleados (rol_id = 1)
+            $empleadosIds = Usuario::where('rol_id', 1)->pluck('id');
+
+            $solicitudes = solicitudesVacaciones::with('usuario')
+                ->whereIn('usuario_id', $empleadosIds)
+                ->where('estado_solicitud', 2)
+                ->get(['usuario_id', 'fecha_inicio', 'fecha_fin']);
         } else {
-            // Si no es jefe, solo traemos las suyas, con info del usuario
+            // Si no es jefe ni admin, solo traemos sus propias solicitudes aprobadas
             $solicitudes = solicitudesVacaciones::with('usuario')
                 ->where('usuario_id', $usuario->id)
                 ->where('estado_solicitud', 2)
@@ -80,8 +107,25 @@ class VacacionesController extends Controller
 
         // Agregamos el nombre completo de cada usuario para usar en React
         $solicitudes->transform(function ($solicitud) {
-            $solicitud->nombre = $solicitud->usuario->name . ' ' .
-                $solicitud->usuario->surnames;
+            $solicitud->nombre = $solicitud->usuario->name . ' ' . $solicitud->usuario->surnames;
+            return $solicitud;
+        });
+
+        return response()->json($solicitudes);
+    }
+
+    public function aprobadasJefes($usuario_id)
+    {
+        $jefesIds = Usuario::where('rol_id', 2)->pluck('id');
+
+        $solicitudes = solicitudesVacaciones::with('usuario')
+            ->whereIn('usuario_id', $jefesIds)
+            ->where('estado_solicitud', 2)
+            ->get(['usuario_id', 'fecha_inicio', 'fecha_fin']);
+
+        // Agregamos el nombre completo de cada usuario para usar en React
+        $solicitudes->transform(function ($solicitud) {
+            $solicitud->nombre = $solicitud->usuario->name . ' ' . $solicitud->usuario->surnames;
             return $solicitud;
         });
 

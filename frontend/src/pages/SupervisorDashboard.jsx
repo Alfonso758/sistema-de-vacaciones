@@ -8,7 +8,7 @@ import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
 import Reportes from '../components/Reportes';
 import Estadisticas from '../components/Estadisticas';
-import { FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
+import { FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog, FaUsers} from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -38,6 +38,13 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
         { nombre: "Nueva solicitud" },
         { nombre: "Mis solicitudes" },
         { nombre: "S. Empleados" }
+      ]
+    },
+    "Usuarios": {
+      icono: <FaUsers />,
+      opciones: [
+        { nombre: "Empleados pendientes" },
+        { nombre: "Lista de empleados" }
       ]
     },
     "Calendario": {
@@ -256,6 +263,12 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
         return <Solicitudes userID={userID} />;
 
       case 'S. Empleados':
+        return <SolicitudesEquipo userID={userID} />;
+
+      case 'Empleados pendientes':
+        return <SolicitudesEquipo userID={userID} />;
+
+      case 'Lista de empleados':
         return <SolicitudesEquipo userID={userID} />;
 
       case 'Mi calendario':

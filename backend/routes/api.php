@@ -66,7 +66,9 @@ Route::get('/estadisticas/{anio}', [EstadisticasController::class, 'mostrarPorAn
 Route::get('/usuarios/{usuario_id}/solicitudes', [SolicitudController::class, 'index']);
 Route::get('/jefes', [UsuarioController::class, 'getJefes']);
 Route::get('/datos-vacaciones/{usuario}', [VacacionesController::class, 'getDatos']);
+Route::get('/vacacionesPropias/{usuario_id}', [VacacionesController::class, 'aprobadasPropias']);
 Route::get('/vacaciones/{usuario_id}', [VacacionesController::class, 'aprobadas']);
+Route::get('/vacacionesJefes/{usuario_id}', [VacacionesController::class, 'aprobadasJefes']);
 Route::get('/google-auth', [GoogleCalendarController::class, 'redirectToGoogle']);
 Route::get('/callback', [GoogleCalendarController::class, 'handleCallback']);
 
