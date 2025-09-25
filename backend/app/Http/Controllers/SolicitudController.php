@@ -184,14 +184,19 @@ class SolicitudController extends Controller
         return response()->json($solicitudes);
     }
 
-
     public function solicitudesReporte($jefeId)
     {
-        $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
+        if ($jefeId == 3) {
+            // Administrador: traer todas las solicitudes con usuario, jefe y revisor
+            $solicitudes = Solicitud::with(['usuario.jefe', 'revisor'])->get();
+        } else {
+            // Jefe: solo de sus empleados
+            $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
 
-        $solicitudes = Solicitud::whereIn('usuario_id', $empleados)
-            ->with(['usuario', 'revisor']) // usuario y revisor cargados
-            ->get();
+            $solicitudes = Solicitud::whereIn('usuario_id', $empleados)
+                ->with(['usuario.jefe', 'revisor'])
+                ->get();
+        }
 
         // Separar por estado
         $pendientes  = $solicitudes->where('estado_solicitud', 1)->values();
@@ -204,9 +209,6 @@ class SolicitudController extends Controller
             'rechazadas' => $rechazadas,
         ]);
     }
-
-
-
 
     public function decision(Request $request, $id)
     {

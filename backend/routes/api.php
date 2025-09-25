@@ -22,6 +22,7 @@ Route::post('/google-login', [GoogleController::class, 'login']);
 Route::post('/login', [UsuarioController::class, 'login']);
 Route::post('/register', [UsuarioController::class, 'register']);
 Route::get('/empleados/{jefeId}', [UsuarioController::class, 'empleadosDelJefe']);
+Route::get('/usuarios', [UsuarioController::class, 'usuarios']);
 
 // 🔹 Solicitudes
 Route::prefix('solicitudes')->group(function () {

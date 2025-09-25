@@ -154,6 +154,31 @@ tbody tr:hover {
     background: linear-gradient(90deg, #a10d0d, #d93838);
 }
 
+/* Filtros */
+.filtros-solicitudes {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.filtros-solicitudes button {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: #444;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.filtros-solicitudes button:hover {
+    color: #000;
+}
+
+.filtros-solicitudes button.activo {
+    font-weight: bold;
+    color: #000;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
   .reportes-wrap {

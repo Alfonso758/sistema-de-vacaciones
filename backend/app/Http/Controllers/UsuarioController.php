@@ -258,4 +258,22 @@ class UsuarioController extends Controller
 
         return response()->json($empleados);
     }
+
+    public function usuarios()
+    {
+        try {
+            // Traemos usuarios cuyo rol_id sea 1 (Empleado) o 2 (Jefe)
+            $usuarios = Usuario::select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso')
+                ->whereIn('rol_id', [1, 2])
+                ->orderBy('name', 'asc')
+                ->get();
+
+            return response()->json($usuarios, 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'No se pudieron obtener los usuarios',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
