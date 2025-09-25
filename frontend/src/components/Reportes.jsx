@@ -179,7 +179,6 @@ export default function Reportes({ userID }) {
                 <button onClick={descargarPDF}>Descargar pdf</button>
             </div>
 
-
             {selectedEmpleado !== "general" && empleadoSeleccionado && (
                 <section className="reporte-empleado">
                     <h2>Reporte por empleado de solicitudes</h2>
