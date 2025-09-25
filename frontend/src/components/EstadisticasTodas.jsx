@@ -9,30 +9,43 @@ const COLORS = ["#f0ad4e", "#5cb85c", "#d9534f"];
 
 export default function Estadisticas({ userID }) {
     const [datos, setDatos] = useState({
-        estados: [],
-        aprobadasPorMes: [],
-        rechazadasPorMes: [],
-        usoVacaciones: []
+        todos: { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] },
+        empleados: { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] },
+        jefes: { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] }
     });
     const [loading, setLoading] = useState(true);
     const [year, setYear] = useState(new Date().getFullYear());
-    const [focusedButton, setFocusedButton] = useState(null);
+    const [pestania, setPestania] = useState("todos");
 
     const fetchDatos = async (anio) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8000/api/estadisticas/${anio}?userID=${userID}`, {
-                headers: {
-                    "Content-Type": "application/json",
-                    "Accept": "application/json",
-                },
+            const response = await fetch(`http://localhost:8000/api/estadisticasTodas/${anio}?userID=${userID}`, {
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 credentials: "include"
             });
 
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error || "Error desconocido");
+            }
+
             const data = await response.json();
-            setDatos(data);
+
+            // 🔹 Asegurar que siempre exista la estructura completa
+            setDatos({
+                todos: data.todos || { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] },
+                empleados: data.empleados || { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] },
+                jefes: data.jefes || { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] }
+            });
+
         } catch (error) {
             console.error("❌ Error cargando estadísticas:", error);
+            setDatos({
+                todos: { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] },
+                empleados: { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] },
+                jefes: { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] }
+            });
         } finally {
             setLoading(false);
         }
@@ -42,43 +55,44 @@ export default function Estadisticas({ userID }) {
         if (userID) fetchDatos(year);
     }, [userID, year]);
 
-    const handleKeyDown = (e) => {
-        if (focusedButton === null) return;
-        if (e.key === "ArrowLeft") setYear(prev => prev - 1);
-        if (e.key === "ArrowRight") setYear(prev => prev + 1);
-    };
-
-    useEffect(() => {
-        window.addEventListener("keydown", handleKeyDown);
-        return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [focusedButton]);
+    const datosActuales = datos[pestania] || { estados: [], aprobadasPorMes: [], rechazadasPorMes: [], usoVacaciones: [] };
 
     const hasData = (array, key = "value") =>
-        array.some(item => Number(item[key]) > 0);
+        Array.isArray(array) && array.some(item => Number(item[key]) > 0);
 
     return (
         <div className="estadisticas">
-            {/* Título y selector de año siempre visibles */}
             <h2>Estadísticas</h2>
-            <div className="selector-anio" tabIndex={0} onFocus={() => setFocusedButton(true)} onBlur={() => setFocusedButton(null)}>
-                <button onClick={() => setYear(year - 1)}>⬅️ {year - 1}</button>
+            <div className="selector-anio">
+                <button onClick={() => setYear(prev => prev - 1)}>⬅️ {year - 1}</button>
                 <span className="anio-actual">{year}</span>
-                <button onClick={() => setYear(year + 1)}>{year + 1} ➡️</button>
+                <button onClick={() => setYear(prev => prev + 1)}>{year + 1} ➡️</button>
             </div>
 
-            {/* Contenido de las gráficas */}
+            <div className="filtros-solicitudes">
+                {["todos", "empleados", "jefes"].map(tab => (
+                    <button
+                        key={tab}
+                        className={pestania === tab ? "activo" : ""}
+                        onClick={() => setPestania(tab)}
+                    >
+                        {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                    </button>
+                ))}
+            </div>
+
             {loading ? (
                 <p style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>Cargando estadísticas...</p>
             ) : (
                 <>
-                    {/* Gráfica de estados de solicitudes */}
+                    {/* Gráfica de estados */}
                     <div className="grafica-pastel">
                         <h3>Estados de solicitudes</h3>
-                        {hasData(datos.estados) ? (
+                        {hasData(datosActuales.estados) ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie
-                                        data={datos.estados}
+                                        data={datosActuales.estados}
                                         dataKey="value"
                                         nameKey="name"
                                         cx="50%"
@@ -86,27 +100,23 @@ export default function Estadisticas({ userID }) {
                                         outerRadius={100}
                                         label
                                     >
-                                        {datos.estados.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        {datosActuales.estados.map((entry, index) => (
+                                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
                                     <Tooltip />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
-                        ) : (
-                            <p style={{ textAlign: 'center', color: '#666', padding: '80px 0' }}>
-                                No hay datos disponibles para este año.
-                            </p>
-                        )}
+                        ) : <p style={{ textAlign: 'center', color: '#666', padding: '80px 0' }}>No hay datos disponibles</p>}
                     </div>
 
-                    {/* Tendencia aprobadas por mes */}
+                    {/* Aprobadas por mes */}
                     <div className="grafica-linea">
                         <h3>Solicitudes aprobadas por mes</h3>
-                        {hasData(datos.aprobadasPorMes, "total") ? (
+                        {hasData(datosActuales.aprobadasPorMes, "total") ? (
                             <ResponsiveContainer width="100%" height={250}>
-                                <LineChart data={datos.aprobadasPorMes}>
+                                <LineChart data={datosActuales.aprobadasPorMes}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="mes" />
                                     <YAxis />
@@ -115,19 +125,15 @@ export default function Estadisticas({ userID }) {
                                     <Line type="monotone" dataKey="total" stroke="#5cb85c" />
                                 </LineChart>
                             </ResponsiveContainer>
-                        ) : (
-                            <p style={{ textAlign: 'center', color: '#666', padding: '60px 0' }}>
-                                No hay datos disponibles para este año.
-                            </p>
-                        )}
+                        ) : <p style={{ textAlign: 'center', color: '#666', padding: '60px 0' }}>No hay datos disponibles</p>}
                     </div>
 
-                    {/* Tendencia rechazadas por mes */}
+                    {/* Rechazadas por mes */}
                     <div className="grafica-linea">
                         <h3>Solicitudes rechazadas por mes</h3>
-                        {hasData(datos.rechazadasPorMes, "total") ? (
+                        {hasData(datosActuales.rechazadasPorMes, "total") ? (
                             <ResponsiveContainer width="100%" height={250}>
-                                <LineChart data={datos.rechazadasPorMes}>
+                                <LineChart data={datosActuales.rechazadasPorMes}>
                                     <CartesianGrid strokeDasharray="3 3" />
                                     <XAxis dataKey="mes" />
                                     <YAxis />
@@ -136,22 +142,17 @@ export default function Estadisticas({ userID }) {
                                     <Line type="monotone" dataKey="total" stroke="#d9534f" />
                                 </LineChart>
                             </ResponsiveContainer>
-                        ) : (
-                            <p style={{ textAlign: 'center', color: '#666', padding: '60px 0' }}>
-                                No hay datos disponibles para este año.
-                            </p>
-                        )}
+                        ) : <p style={{ textAlign: 'center', color: '#666', padding: '60px 0' }}>No hay datos disponibles</p>}
                     </div>
 
-                    {/* Uso promedio de vacaciones */}
+                    {/* Uso vacaciones */}
                     <div className="grafica-pastel">
-                        <h3>Uso promedio de vacaciones en el año actual</h3>
-                        <p>Porcentaje de los días de vacaciones que han usado los usuarios de tu área del total que les toca</p>
-                        {hasData(datos.usoVacaciones) ? (
+                        <h3>Uso promedio de vacaciones</h3>
+                        {hasData(datosActuales.usoVacaciones) ? (
                             <ResponsiveContainer width="100%" height={300}>
                                 <PieChart>
                                     <Pie
-                                        data={datos.usoVacaciones}
+                                        data={datosActuales.usoVacaciones}
                                         dataKey="value"
                                         nameKey="name"
                                         cx="50%"
@@ -159,25 +160,15 @@ export default function Estadisticas({ userID }) {
                                         outerRadius={100}
                                         label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
                                     >
-                                        {datos.usoVacaciones.map((entry, index) => (
-                                            <Cell key={`cell-uso-${index}`} fill={COLORS[index % COLORS.length]} />
+                                        {datosActuales.usoVacaciones.map((entry, index) => (
+                                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
-                                    <Tooltip
-                                        formatter={(value, name, props) => [
-                                            `${((props.percent) * 100).toFixed(1)}%`,
-                                            name
-                                        ]}
-                                    />
+                                    <Tooltip formatter={(value, name, props) => [`${(props.percent * 100).toFixed(1)}%`, name]} />
                                     <Legend />
                                 </PieChart>
                             </ResponsiveContainer>
-
-                        ) : (
-                            <p style={{ textAlign: 'center', color: '#666', padding: '80px 0' }}>
-                                No hay datos disponibles para este año.
-                            </p>
-                        )}
+                        ) : <p style={{ textAlign: 'center', color: '#666', padding: '80px 0' }}>No hay datos disponibles</p>}
                     </div>
                 </>
             )}

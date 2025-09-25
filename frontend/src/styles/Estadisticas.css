@@ -49,3 +49,28 @@
     min-width: 60px;
     text-align: center;
 }
+
+/* Filtros */
+.filtros-solicitudes {
+    display: flex;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.filtros-solicitudes button {
+    background: none;
+    border: none;
+    font-size: 15px;
+    color: #444;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.filtros-solicitudes button:hover {
+    color: #000;
+}
+
+.filtros-solicitudes button.activo {
+    font-weight: bold;
+    color: #000;
+}

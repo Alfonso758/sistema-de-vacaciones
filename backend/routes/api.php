@@ -62,6 +62,7 @@ Route::prefix('notificaciones')->group(function () {
 
 // Estadisticas}
 Route::get('/estadisticas/{anio}', [EstadisticasController::class, 'mostrarPorAnio']);
+Route::get('/estadisticasTodas/{anio}', [EstadisticasController::class, 'mostrarPorAnioTodas']);
 
 // 🔹 Otras rutas públicas
 Route::get('/usuarios/{usuario_id}/solicitudes', [SolicitudController::class, 'index']);
