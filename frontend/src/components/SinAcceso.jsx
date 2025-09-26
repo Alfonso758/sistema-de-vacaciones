@@ -63,9 +63,8 @@ function SinAcceso({ usuario }) {
                                 <select
                                     value={jefeDirecto}
                                     onChange={(e) => setJefeDirecto(e.target.value)}
-                                    required
                                 >
-                                    <option value="">Selecciona tu jefe</option>
+                                    <option value="">Selecciona tu jefe (si aplica)</option>
                                     {jefes.map(j => (
                                         <option key={j.id} value={j.id}>
                                             {j.name} {j.surnames}
