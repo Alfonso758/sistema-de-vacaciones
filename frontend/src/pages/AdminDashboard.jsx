@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import SolicitudesEquipo from '../components/SolicitudesEquipo';
 import SolicitudesJefes from '../components/SolicitudesJefes';
+import UsuariosPend from '../components/UsuariosPend';
+import Usuarios from '../components/Usuarios';
 import CalendarioEquipo from '../components/CalendarioEquipo';
 import CalendarioJefes from '../components/CalendarioJefes';
 import ReportesTodos from '../components/ReportesTodos';
@@ -129,6 +131,12 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
 
       case 'S. Jefes de área':
         return <SolicitudesJefes userID={userID} />;
+
+      case 'Usuarios pendientes':
+        return <Usuarios userID={userID} />;
+
+      case 'Lista de usuarios':
+        return <UsuariosPend userID={userID} />;
 
       case 'C. Empleados':
         return <CalendarioEquipo userID={userID} />;
