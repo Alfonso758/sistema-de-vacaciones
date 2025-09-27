@@ -268,10 +268,10 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
         return <SolicitudesEquipo userID={userID} />;
 
       case 'Empleados pendientes':
-        return <Usuarios userID={userID} />;
+        return <UsuariosPend userID={userID} />;
 
       case 'Lista de empleados':
-        return <UsuariosPend userID={userID} />;
+        return <Usuarios userID={userID} />;
 
       case 'Mi calendario':
         return <Calendario userID={userID} />;

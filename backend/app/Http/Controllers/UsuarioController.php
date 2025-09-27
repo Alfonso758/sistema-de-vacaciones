@@ -276,4 +276,48 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
+
+    public function usuariosPend()
+    {
+        try {
+            // Busca usuarios con rol_id = 5
+            $usuarios = Usuario::where('rol_id', 5)->get();
+
+            if ($usuarios->isEmpty()) {
+                return response()->json([
+                    'message' => 'No hay usuarios pendientes',
+                    'data' => []
+                ], 200);
+            }
+
+            return response()->json([
+                'message' => 'Usuarios pendientes encontrados',
+                'data' => $usuarios
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al obtener usuarios pendientes',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function asignarRol(Request $request, $id)
+    {
+        try {
+            $usuario = Usuario::findOrFail($id);
+            $usuario->rol_id = $request->rol_id;
+            $usuario->save();
+
+            return response()->json([
+                'message' => 'Rol asignado correctamente',
+                'usuario' => $usuario
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al asignar rol',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

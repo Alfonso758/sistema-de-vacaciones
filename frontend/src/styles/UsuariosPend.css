@@ -1,0 +1,48 @@
+
+.usuarios-lista {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.usuario-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  background: #ffffff;
+  border: 1px solid #d1d9e6;
+  border-radius: 10px;
+  padding: 15px 20px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.icono-usuario {
+  color: #1976d2;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.usuario-item span {
+  flex-grow: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: #1a237e;
+}
+
+.usuario-item select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #1976d2;
+  background-color: #ffffff;
+  color: #1976d2;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.usuario-item select:hover {
+  background-color: #e3f2fd;
+}

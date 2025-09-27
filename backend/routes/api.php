@@ -23,6 +23,8 @@ Route::post('/login', [UsuarioController::class, 'login']);
 Route::post('/register', [UsuarioController::class, 'register']);
 Route::get('/empleados/{jefeId}', [UsuarioController::class, 'empleadosDelJefe']);
 Route::get('/usuarios', [UsuarioController::class, 'usuarios']);
+Route::get('/usuarios/pendientes', [UsuarioController::class, 'usuariosPend']);
+Route::put('/usuarios/{id}/rol', [UsuarioController::class, 'asignarRol']);
 
 // 🔹 Solicitudes
 Route::prefix('solicitudes')->group(function () {
