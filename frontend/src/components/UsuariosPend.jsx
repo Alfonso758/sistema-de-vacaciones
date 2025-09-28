@@ -5,7 +5,7 @@ import { FaUser } from 'react-icons/fa';
 export default function UsuariosPend({ userID }) {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [usuarioActual, setUsuarioActual] = useState(null); // datos completos del usuario logueado
+    const [usuarioActual, setUsuarioActual] = useState(null);
 
     useEffect(() => {
         fetchUsuarioActual();
@@ -20,12 +20,11 @@ export default function UsuariosPend({ userID }) {
             });
             if (!res.ok) throw new Error("Error al obtener usuario actual");
             const data = await res.json();
-            setUsuarioActual(data); // ya tienes rol_id, jefe_directo, etc
+            setUsuarioActual(data);
         } catch (err) {
             console.error("Error cargando usuario actual:", err);
         }
     };
-
 
     const fetchUsuarios = async () => {
         try {
@@ -52,11 +51,9 @@ export default function UsuariosPend({ userID }) {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ rol_id: 1 }) // empleado por defecto
+                body: JSON.stringify({ rol_id: 1 })
             });
-
             if (!response.ok) throw new Error("Error al aprobar usuario");
-
             const data = await response.json();
             alert(data.message);
             fetchUsuarios();
@@ -76,9 +73,7 @@ export default function UsuariosPend({ userID }) {
                 },
                 body: JSON.stringify({ rol_id: nuevoRol })
             });
-
             if (!response.ok) throw new Error("Error al asignar rol");
-
             const data = await response.json();
             alert(data.message);
             fetchUsuarios();
@@ -90,23 +85,26 @@ export default function UsuariosPend({ userID }) {
     if (loading) return <p>Cargando usuarios pendientes...</p>;
     if (!usuarioActual) return <p>Cargando usuario actual...</p>;
 
+    // Filtramos los usuarios según rol y jefe
+    const usuariosFiltrados = usuarios.filter(u => {
+        if (usuarioActual.rol_id === 2) return u.rol_id === 5 && u.jefe_directo === usuarioActual.id;
+        if (usuarioActual.rol_id === 3) return u.rol_id === 5;
+        return false;
+    });
+
     return (
         <div className="usuarios-pend-wrapper">
             <h2>Usuarios pendientes</h2>
-            {usuarios.length === 0 ? (
+            {usuariosFiltrados.length === 0 ? (
                 <p>No hay usuarios pendientes.</p>
             ) : (
                 <ul className="usuarios-lista">
-                    {usuarios.map((u) => {
-                        // Filtrado según rol del usuario actual
-                        if (usuarioActual.rol_id === 2 && !(u.rol_id === 5 && u.jefe_directo === usuarioActual.id)) return null;
-                        if (usuarioActual.rol_id === 3 && !(u.rol_id === 5)) return null;
-
+                    {usuariosFiltrados.map((u) => {
                         const mostrarBotonAprobar =
-                            (usuarioActual.rol_id === 2 && u.rol_id === 5 && u.jefe_directo === usuarioActual.id) ||
-                            (usuarioActual.rol_id === 3 && u.rol_id === 5 && u.jefe_directo);
+                            (usuarioActual.rol_id === 2 && u.jefe_directo === usuarioActual.id) ||
+                            (usuarioActual.rol_id === 3 && u.jefe_directo);
 
-                        const mostrarSelectAsignar = usuarioActual.rol_id === 3 && u.rol_id === 5 && !u.jefe_directo;
+                        const mostrarSelectAsignar = usuarioActual.rol_id === 3 && !u.jefe_directo;
 
                         return (
                             <li key={u.id} className="usuario-item">
@@ -116,20 +114,23 @@ export default function UsuariosPend({ userID }) {
                                         <p><strong>Nombre:</strong> {u.name} {u.surnames}</p>
                                         <p><strong>Email:</strong> {u.email}</p>
                                         <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                        {u.jefe_directo && <p><strong>Jefe:</strong> {u.jefe_name || 'No asignado'}</p>}
+
+                                        {/* Mostrar jefe solo si el usuario no tiene jefe o el usuario logueado NO es supervisor */}
+                                        {(u.jefe_directo && usuarioActual.rol_id !== 2) && (
+                                            <p><strong>Jefe:</strong> {u.jefe_name || 'No asignado'}</p>
+                                        )}
                                     </div>
+
                                 </div>
 
                                 <div className="usuario-actions">
                                     {mostrarBotonAprobar && (
                                         <button onClick={() => aprobarUsuario(u.id)}>Aprobar</button>
                                     )}
-
                                     {mostrarSelectAsignar && (
                                         <select onChange={(e) => asignarRol(u.id, e.target.value)} defaultValue="">
                                             <option value="" disabled>Asignar rol</option>
-                                            <option value="1">Empleado</option>
-                                            <option value="2">Jefe</option>
+                                            <option value="2">Jefe de área</option>
                                             <option value="3">Administrador</option>
                                         </select>
                                     )}

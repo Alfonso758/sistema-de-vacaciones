@@ -321,7 +321,7 @@ class UsuarioController extends Controller
             $usuario->save();
 
             return response()->json([
-                'message' => 'Rol asignado correctamente',
+                'message' => 'Usuario aprobado',
                 'usuario' => $usuario
             ], 200);
         } catch (\Exception $e) {
