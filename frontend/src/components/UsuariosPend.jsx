@@ -83,7 +83,7 @@ export default function UsuariosPend({ userID }) {
     };
 
     if (loading) return <p>Cargando usuarios pendientes...</p>;
-    //if (!usuarioActual) return <p>Cargando usuario actual...</p>;
+    if (!usuarioActual) return <p>Cargando usuarios pendientes...</p>;
 
     // Filtramos los usuarios según rol y jefe
     const usuariosFiltrados = usuarios.filter(u => {

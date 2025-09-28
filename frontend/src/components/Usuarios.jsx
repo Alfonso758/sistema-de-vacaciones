@@ -22,7 +22,6 @@ export default function Usuarios({ userID }) {
             });
             if (!res.ok) throw new Error("Error al obtener usuario actual");
             const data = await res.json();
-            console.log("Usuario actual:", data); // <<-- VERIFICA LOS DATOS
             setUsuarioActual(data);
         } catch (err) {
             console.error("Error cargando usuario actual:", err);
@@ -39,8 +38,6 @@ export default function Usuarios({ userID }) {
             });
             if (!res.ok) throw new Error("Error al obtener usuarios");
             const data = await res.json();
-            console.log("Usuarios recibidos:", data); // <<-- VERIFICA LOS DATOS
-            // Ajustar según cómo tu API devuelva los datos
             if (Array.isArray(data)) setUsuarios(data);
             else if (Array.isArray(data.data)) setUsuarios(data.data);
             else setUsuarios([]);
@@ -57,18 +54,15 @@ export default function Usuarios({ userID }) {
     };
 
     if (loading) return <p>Cargando usuarios...</p>;
-    //if (!usuarioActual) return <p>Cargando usuario actual...</p>;
+    if (!usuarioActual) return <p>Cargando usuarios...</p>;
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
     // Filtrar usuarios según rol del usuario logueado
     const usuariosFiltrados = usuarios.filter(u => {
-        console.log("Comparando usuario:", u.id, "Jefe:", u.jefe_directo, "Usuario actual:", usuarioActual.id);
         if (usuarioActual.rol_id === 3) return true; // Administrador ve todo
         if (usuarioActual.rol_id === 2 && Number(u.jefe_directo) === Number(usuarioActual.id)) return true; // Jefe ve solo sus empleados
         return false;
     });
-
-    console.log("Usuarios filtrados:", usuariosFiltrados);
 
     return (
         <div className="usuarios-wrapper">
@@ -94,10 +88,18 @@ export default function Usuarios({ userID }) {
                                         }
                                     })()}</p>
 
-                                    <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                    {usuarioActual.rol_id !== 2 && u.jefe_name && (
-                                        <p><strong>Jefe:</strong> {u.jefe_name}</p>
+                                    {usuarioActual.rol_id === 3 && u.jefe_name && (
+                                        <p><strong>Jefe directo:</strong> {u.jefe_name}</p>
                                     )}
+
+                                    <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                    <p>Usuario {(() => {
+                                        switch (u.activo) {
+                                            case true: return 'Activo';
+                                            case false: return 'Inactivo';
+                                            default: return 'No disponible';
+                                        }
+                                    })()}</p>
                                 </div>
                             </div>
 
