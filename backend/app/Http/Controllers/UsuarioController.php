@@ -280,8 +280,12 @@ class UsuarioController extends Controller
     public function usuariosPend()
     {
         try {
-            // Busca usuarios con rol_id = 5
-            $usuarios = Usuario::where('rol_id', 5)->get();
+            // Busca usuarios con rol_id = 5 e incluye los datos del jefe
+            $usuarios = Usuario::where('rol_id', 5)
+                ->with(['jefe' => function ($query) {
+                    $query->select('id', 'name', 'surnames'); // solo los campos que necesitas
+                }])
+                ->get();
 
             if ($usuarios->isEmpty()) {
                 return response()->json([
@@ -289,6 +293,12 @@ class UsuarioController extends Controller
                     'data' => []
                 ], 200);
             }
+
+            // Añadir un campo jefe_name para que React lo pueda usar
+            $usuarios->transform(function ($u) {
+                $u->jefe_name = $u->jefe ? $u->jefe->name . ' ' . $u->jefe->surnames : null;
+                return $u;
+            });
 
             return response()->json([
                 'message' => 'Usuarios pendientes encontrados',
@@ -301,6 +311,7 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
+
 
     public function asignarRol(Request $request, $id)
     {

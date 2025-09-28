@@ -2,78 +2,143 @@ import { useEffect, useState } from "react";
 import '../styles/UsuariosPend.css';
 import { FaUser } from 'react-icons/fa';
 
-export default function UsuariosPend(userID) {
-  const [usuarios, setUsuarios] = useState([]);
-  const [loading, setLoading] = useState(true);
+export default function UsuariosPend({ userID }) {
+    const [usuarios, setUsuarios] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [usuarioActual, setUsuarioActual] = useState(null); // datos completos del usuario logueado
 
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
+    useEffect(() => {
+        fetchUsuarioActual();
+        fetchUsuarios();
+    }, []);
 
-  const fetchUsuarios = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:8000/api/usuarios/pendientes", {
-        headers: { "Authorization": `Bearer ${token}` }
-      });
-      if (!response.ok) throw new Error("Error al obtener usuarios");
-      const data = await response.json();
-      setUsuarios(data.data || []);
-    } catch (err) {
-      console.error("Error cargando usuarios:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    const fetchUsuarioActual = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`http://localhost:8000/api/user`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error("Error al obtener usuario actual");
+            const data = await res.json();
+            setUsuarioActual(data); // ya tienes rol_id, jefe_directo, etc
+        } catch (err) {
+            console.error("Error cargando usuario actual:", err);
+        }
+    };
 
-  const asignarRol = async (id, nuevoRol) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`http://localhost:8000/api/usuarios/${id}/rol`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ rol_id: nuevoRol })
-      });
 
-      if (!response.ok) throw new Error("Error al asignar rol");
+    const fetchUsuarios = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch("http://localhost:8000/api/usuarios/pendientes", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!response.ok) throw new Error("Error al obtener usuarios");
+            const data = await response.json();
+            setUsuarios(data.data || []);
+        } catch (err) {
+            console.error("Error cargando usuarios:", err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-      const data = await response.json();
-      alert(data.message);
+    const aprobarUsuario = async (id) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8000/api/usuarios/${id}/rol`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ rol_id: 1 }) // empleado por defecto
+            });
 
-      // refrescar lista
-      fetchUsuarios();
+            if (!response.ok) throw new Error("Error al aprobar usuario");
 
-    } catch (err) {
-      console.error("Error asignando rol:", err);
-    }
-  };
+            const data = await response.json();
+            alert(data.message);
+            fetchUsuarios();
+        } catch (err) {
+            console.error("Error aprobando usuario:", err);
+        }
+    };
 
-  if (loading) return <p>Cargando usuarios pendientes...</p>;
+    const asignarRol = async (id, nuevoRol) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`http://localhost:8000/api/usuarios/${id}/rol`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ rol_id: nuevoRol })
+            });
 
-  return (
-    <div className="usuarios-pend-wrapper">
-      <h2>Usuarios pendientes</h2>
-      {usuarios.length === 0 ? (
-        <p>No hay usuarios pendientes.</p>
-      ) : (
-        <ul className="usuarios-lista">
-          {usuarios.map((u) => (
-            <li key={u.id} className="usuario-item">
-              <FaUser className="icono-usuario" />
-              <span>{u.name} {u.surnames}</span>
-              <select onChange={(e) => asignarRol(u.id, e.target.value)} defaultValue="">
-                <option value="" disabled>Asignar rol</option>
-                <option value="2">Jefe</option>
-                <option value="3">Empleado</option>
-                <option value="4">Administrador</option>
-              </select>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
+            if (!response.ok) throw new Error("Error al asignar rol");
+
+            const data = await response.json();
+            alert(data.message);
+            fetchUsuarios();
+        } catch (err) {
+            console.error("Error asignando rol:", err);
+        }
+    };
+
+    if (loading) return <p>Cargando usuarios pendientes...</p>;
+    if (!usuarioActual) return <p>Cargando usuario actual...</p>;
+
+    return (
+        <div className="usuarios-pend-wrapper">
+            <h2>Usuarios pendientes</h2>
+            {usuarios.length === 0 ? (
+                <p>No hay usuarios pendientes.</p>
+            ) : (
+                <ul className="usuarios-lista">
+                    {usuarios.map((u) => {
+                        // Filtrado según rol del usuario actual
+                        if (usuarioActual.rol_id === 2 && !(u.rol_id === 5 && u.jefe_directo === usuarioActual.id)) return null;
+                        if (usuarioActual.rol_id === 3 && !(u.rol_id === 5)) return null;
+
+                        const mostrarBotonAprobar =
+                            (usuarioActual.rol_id === 2 && u.rol_id === 5 && u.jefe_directo === usuarioActual.id) ||
+                            (usuarioActual.rol_id === 3 && u.rol_id === 5 && u.jefe_directo);
+
+                        const mostrarSelectAsignar = usuarioActual.rol_id === 3 && u.rol_id === 5 && !u.jefe_directo;
+
+                        return (
+                            <li key={u.id} className="usuario-item">
+                                <div className="usuario-header">
+                                    <FaUser className="icono-usuario" />
+                                    <div className="info-usuarios">
+                                        <p><strong>Nombre:</strong> {u.name} {u.surnames}</p>
+                                        <p><strong>Email:</strong> {u.email}</p>
+                                        <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                        {u.jefe_directo && <p><strong>Jefe:</strong> {u.jefe_name || 'No asignado'}</p>}
+                                    </div>
+                                </div>
+
+                                <div className="usuario-actions">
+                                    {mostrarBotonAprobar && (
+                                        <button onClick={() => aprobarUsuario(u.id)}>Aprobar</button>
+                                    )}
+
+                                    {mostrarSelectAsignar && (
+                                        <select onChange={(e) => asignarRol(u.id, e.target.value)} defaultValue="">
+                                            <option value="" disabled>Asignar rol</option>
+                                            <option value="1">Empleado</option>
+                                            <option value="2">Jefe</option>
+                                            <option value="3">Administrador</option>
+                                        </select>
+                                    )}
+                                </div>
+                            </li>
+                        );
+                    })}
+                </ul>
+            )}
+        </div>
+    );
 }

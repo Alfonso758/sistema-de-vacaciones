@@ -133,10 +133,10 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
         return <SolicitudesJefes userID={userID} />;
 
       case 'Usuarios pendientes':
-        return <Usuarios userID={userID} />;
+        return <UsuariosPend userID={userID} />;
 
       case 'Lista de usuarios':
-        return <UsuariosPend userID={userID} />;
+        return <Usuarios userID={userID} />;
 
       case 'C. Empleados':
         return <CalendarioEquipo userID={userID} />;
