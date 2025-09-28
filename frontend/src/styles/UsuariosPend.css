@@ -52,23 +52,24 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  justify-content: flex-end;
   margin-top: 10px;
 }
 
 .usuario-actions button {
-  background-color: #22c55e;
+  background: linear-gradient(90deg, #1976d2, #0d47a1);
   color: #ffffff;
   border: none;
   padding: 10px 20px;
   border-radius: 10px;
   font-weight: 600;
   cursor: pointer;
+  width: 120px;
   transition: all 0.2s ease;
 }
 
 .usuario-actions button:hover {
-  background-color: #16a34a;
-  transform: translateY(-2px);
+    background: linear-gradient(90deg, #0d47a1, #1976d2);
 }
 
 .usuario-actions select {

@@ -263,7 +263,7 @@ class UsuarioController extends Controller
     {
         try {
             // Traemos usuarios cuyo rol_id sea 1 (Empleado) o 2 (Jefe)
-            $usuarios = Usuario::select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso')
+            $usuarios = Usuario::select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso', 'jefe_directo')
                 ->whereIn('rol_id', [1, 2])
                 ->orderBy('name', 'asc')
                 ->get();
