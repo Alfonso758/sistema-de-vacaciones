@@ -14,7 +14,8 @@ class VacacionesUser extends Model
         'id_usuario',
         'id_dias',
         'dias_acumulados',
-        'dias_tomados'
+        'dias_tomados',
+        'fecha_inicio_periodo'
     ];
 
     // Relación con el usuario
