@@ -31,14 +31,14 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
     "Solicitudes": {
       icono: <FaListAlt />,
       opciones: [
-        { nombre: "Nueva solicitud"},
-        { nombre: "Mis solicitudes"}
+        { nombre: "Nueva solicitud" },
+        { nombre: "Mis solicitudes" }
       ]
     },
     "Calendario": {
       icono: <FaCalendarAlt />,
       opciones: [
-        { nombre: "Ver calendario"}
+        { nombre: "Ver calendario" }
       ]
     },
     "Notificaciones": {
@@ -187,14 +187,14 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           usuario_id: userID,
           fecha_inicio: fechaInicioVacaciones,
           fecha_fin: fechaFinVacaciones,
-          total_dias: diasSolicitados 
-        })
+          total_dias: diasSolicitados
+        }),
       });
 
       if (!respuesta.ok) {

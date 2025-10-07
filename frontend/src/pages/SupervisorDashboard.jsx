@@ -220,7 +220,8 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
         body: JSON.stringify({
           usuario_id: userID,
           fecha_inicio: fechaInicioVacaciones,
-          fecha_fin: fechaFinVacaciones
+          fecha_fin: fechaFinVacaciones,
+          total_dias: diasSolicitados
         })
       });
 

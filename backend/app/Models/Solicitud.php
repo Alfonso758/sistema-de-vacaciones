@@ -17,6 +17,7 @@ class Solicitud extends Model
         'fecha_inicio',
         'fecha_fin',
         'fecha_solicitud',
+        'total_dias', 
         'estado_solicitud',
         'comentario',
         'revisado_por',

@@ -46,7 +46,7 @@ class SolicitudController extends Controller
         $request->validate([
             'usuario_id' => 'required|integer|exists:users,id',
             'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio'
         ]);
 
         $fechaInicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
@@ -59,6 +59,7 @@ class SolicitudController extends Controller
         // Si el rol_id del usuario es 2 -> estado_solicitud = 2
         $estado = ($usuario->rol_id == 2) ? 2 : 1;
 
+        // Crear la solicitud
         $solicitud = Solicitud::create([
             'usuario_id' => $usuario->id,
             'fecha_inicio' => $fechaInicio,
@@ -67,6 +68,22 @@ class SolicitudController extends Controller
             'total_dias' => $total_diass,
             'estado_solicitud' => $estado
         ]);
+
+        // Si el usuario es rol_id 2, actualizar vacaciones_user
+        if ($usuario->rol_id == 2) {
+            $vacacionesUser = VacacionesUser::where('id_usuario', $usuario->id)
+                ->orderBy('fecha_inicio_periodo', 'desc')
+                ->first();
+
+            if ($vacacionesUser) {
+                $vacacionesUser->dias_tomados += $solicitud->total_diass;
+                $vacacionesUser->save();
+            } else {
+                Log::warning('No se encontró registro de vacaciones_user', [
+                    'usuario_id' => $usuario->id
+                ]);
+            }
+        }
 
         return response()->json([
             'message' => 'Solicitud registrada',
