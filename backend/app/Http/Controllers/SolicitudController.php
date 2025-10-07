@@ -51,7 +51,7 @@ class SolicitudController extends Controller
 
         $fechaInicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
         $fechaFin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
-        $total_diass = $request->total_dias;
+        $total_dias = $request->total_dias;
 
         // Buscar el usuario
         $usuario = Usuario::findOrFail($request->usuario_id);
@@ -65,7 +65,7 @@ class SolicitudController extends Controller
             'fecha_inicio' => $fechaInicio,
             'fecha_fin' => $fechaFin,
             'fecha_solicitud' => now(),
-            'total_dias' => $total_diass,
+            'total_dias' => $total_dias,
             'estado_solicitud' => $estado
         ]);
 
@@ -76,8 +76,9 @@ class SolicitudController extends Controller
                 ->first();
 
             if ($vacacionesUser) {
-                $vacacionesUser->dias_tomados += $solicitud->total_diass;
+                $vacacionesUser->dias_tomados += $solicitud->total_dias;
                 $vacacionesUser->save();
+
             } else {
                 Log::warning('No se encontró registro de vacaciones_user', [
                     'usuario_id' => $usuario->id
@@ -214,18 +215,8 @@ class SolicitudController extends Controller
                     ->first();
 
                 if ($vacacionesUser) {
-                    Log::info('VacacionesUser encontrado', [
-                        'id' => $vacacionesUser->id,
-                        'dias_tomados_antes' => $vacacionesUser->dias_tomados,
-                        'dias_a_sumar' => $solicitud->total_dias
-                    ]);
-
                     $vacacionesUser->dias_tomados += $solicitud->total_dias;
                     $vacacionesUser->save();
-
-                    Log::info('Dias tomados actualizados', [
-                        'dias_tomados_final' => $vacacionesUser->dias_tomados
-                    ]);
                 } else {
                     Log::warning('No se encontró registro de vacaciones_user', [
                         'usuario_id' => $solicitud->usuario_id
