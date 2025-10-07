@@ -51,6 +51,7 @@ class SolicitudController extends Controller
 
         $fechaInicio = Carbon::parse($request->fecha_inicio)->format('Y-m-d');
         $fechaFin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
+        $total_diass = $request->total_dias;
 
         // Buscar el usuario
         $usuario = Usuario::findOrFail($request->usuario_id);
@@ -63,6 +64,7 @@ class SolicitudController extends Controller
             'fecha_inicio' => $fechaInicio,
             'fecha_fin' => $fechaFin,
             'fecha_solicitud' => now(),
+            'total_dias' => $total_diass,
             'estado_solicitud' => $estado
         ]);
 
