@@ -5,6 +5,31 @@ import { FaCalendarAlt, FaClock, FaUser, FaComment } from 'react-icons/fa';
 export default function Solicitudes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [rolID, setRolID] = useState(null);
+
+    useEffect(() => {
+        if (!userID) return;
+
+        fetch(`http://localhost:8000/api/usuarios/${userID}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                setRolID(data.rol_id);
+            })
+            .catch(err => console.error("Error obteniendo rol del usuario:", err));
+    }, [userID]);
+
+    const menosDe48Horas = (fecha) => {
+        if (!fecha) return false;
+        const fechaSolicitud = new Date(fecha);
+        const ahora = new Date();
+        const diferenciaHoras = (ahora - fechaSolicitud) / (1000 * 60 * 60);
+        return diferenciaHoras < 48;
+    };
+
 
     const estados = {
         1: "Pendiente",
@@ -239,22 +264,28 @@ export default function Solicitudes({ userID }) {
 
                         {/* Botones de acción según estado */}
                         <div className="acciones-solicitud">
-                            {estados[solicitud.estado_solicitud] === 'Pendiente' && (
-                                <>
-                                    <button
-                                        className="btn editar"
-                                        onClick={() => manejarEditar(solicitud.id)}
-                                    >
-                                        Editar
-                                    </button>
-                                    <button
-                                        className="btn eliminar"
-                                        onClick={() => manejarCancelar(solicitud.id)}
-                                    >
-                                        Cancelar
-                                    </button>
-                                </>
-                            )}
+                            {(estados[solicitud.estado_solicitud] === 'Pendiente' ||
+                                (estados[solicitud.estado_solicitud] === 'Aprobada' &&
+                                    rolID === 2 &&
+                                    menosDe48Horas(solicitud.fecha_solicitud))) && (
+                                    <>
+                                        {estados[solicitud.estado_solicitud] === 'Pendiente' && (
+                                            <button
+                                                className="btn editar"
+                                                onClick={() => manejarEditar(solicitud.id)}
+                                            >
+                                                Editar
+                                            </button>
+                                        )}
+                                        <button
+                                            className="btn eliminar"
+                                            onClick={() => manejarCancelar(solicitud.id)}
+                                        >
+                                            Cancelar
+                                        </button>
+                                    </>
+                                )}
+
                             {(estados[solicitud.estado_solicitud] === 'Cancelada') && (
                                 <button
                                     className="btn eliminar"
