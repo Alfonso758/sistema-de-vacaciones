@@ -113,7 +113,17 @@ export default function UsuariosPend({ userID }) {
                                     <div className="info-usuarios">
                                         <p><strong>Nombre:</strong> {u.name} {u.surnames}</p>
                                         <p><strong>Email:</strong> {u.email}</p>
-                                        <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                                        <p>
+                                            <strong>Fecha ingreso:</strong>{" "}
+                                            {u.fecha_ingreso
+                                                ? new Date(u.fecha_ingreso).toLocaleDateString('es-MX', {
+                                                    day: 'numeric',
+                                                    month: 'long',
+                                                    year: 'numeric'
+                                                })
+                                                : 'No registrada'}
+                                        </p>
+
 
                                         {/* Mostrar jefe solo si el usuario no tiene jefe o el usuario logueado NO es supervisor */}
                                         {(u.jefe_directo && usuarioActual.rol_id !== 2) && (
