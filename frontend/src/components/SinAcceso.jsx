@@ -48,6 +48,9 @@ function SinAcceso({ usuario }) {
 
     return (
         <div className="sin-acceso-wrapper">
+            <h2>
+                Bienvenido al sistema de vaciones Soko Labs
+            </h2>
             <label className="main-label">
                 No tienes acceso al sistema hasta que tu jefe directo o un administrador apruebe tu registro.
             </label>
