@@ -65,7 +65,7 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
 
   // Estados del acordeón
   const [desgloceAbierto, setDesgloceAbierto] = useState("Solicitudes");
-  const [pestañaSeleccionada, setPestañaSeleccionada] = useState(menu["Solicitudes"].opciones[0].nombre);
+  const [pestañaSeleccionada, setPestañaSeleccionada] = useState("S. Empleados");
 
   // Control de transición secuencial (cerrar -> abrir)
   const ANIMATION_MS = 300; // debe coincidir con CSS
@@ -75,31 +75,24 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
 
   // Manejo del toggle con cierre primero si hay otro abierto
   const toggleDesgloce = (titulo) => {
-    if (isSwitching) return; // evita clicks durante la animación
-    // si clic en el mismo: cerrar
+    if (isSwitching) return;
+
     if (desgloceAbierto === titulo) {
       setDesgloceAbierto(null);
       return;
     }
-    // si no hay ninguno abierto: abrir inmediatamente
+
     if (desgloceAbierto === null) {
       setDesgloceAbierto(titulo);
-      setPestañaSeleccionada(menu[titulo].opciones[0].nombre);
       return;
     }
 
-    // hay otro abierto: cerrar primero, luego abrir el nuevo
     setIsSwitching(true);
-    // cerrar actual
     setDesgloceAbierto(null);
 
-    // despues de la animación de cierre, abrir el nuevo
     clearTimeout(switchingTimeoutRef.current);
     switchingTimeoutRef.current = setTimeout(() => {
       setDesgloceAbierto(titulo);
-      setPestañaSeleccionada(menu[titulo].opciones[0].nombre);
-
-      // permitir nuevas acciones cuando termine la apertura
       clearTimeout(endSwitchTimeoutRef.current);
       endSwitchTimeoutRef.current = setTimeout(() => {
         setIsSwitching(false);
@@ -163,11 +156,7 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
       <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
         <div className="encabezado-barra">
           <h3>{!menuColapsado && 'Panel'}</h3>
-          <button
-            className="boton-colapsar"
-            onClick={() => setMenuColapsado(!menuColapsado)}
-            aria-label="Colapsar menú"
-          >
+          <button className="boton-colapsar" onClick={() => setMenuColapsado(!menuColapsado)} aria-label="Colapsar menú">
             <FaBars />
           </button>
         </div>
@@ -176,14 +165,15 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
             {Object.keys(menu).map((titulo) => {
               const opciones = menu[titulo].opciones;
               const isOpen = desgloceAbierto === titulo;
-              // calcular altura dinámica del sub-menu (por item) para transición suave
-              const itemHeight = 40; // ajustar si tu li tiene otra altura
+              const grupoActivo = isOpen || opciones.some(op => op.nombre === pestañaSeleccionada);
+
+              const itemHeight = 40;
               const maxHeight = `${opciones.length * itemHeight}px`;
 
               return (
                 <li key={titulo}>
                   <div
-                    className={`menu-titulo ${isOpen ? 'activo' : ''}`}
+                    className={`menu-titulo ${grupoActivo ? 'activo' : ''}`}
                     onClick={() => toggleDesgloce(titulo)}
                     role="button"
                     tabIndex={0}
@@ -192,7 +182,6 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
                     {!menuColapsado && titulo}
                   </div>
 
-                  {/* sub-menu siempre en DOM; controlamos apertura por estilo */}
                   <ul
                     className={`sub-menu ${isOpen ? 'abierto' : ''}`}
                     style={{
@@ -216,6 +205,7 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
                 </li>
               );
             })}
+
           </ul>
         </nav>
       </aside>
