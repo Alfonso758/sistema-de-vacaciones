@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import '../styles/SinAcceso.css';
 
 function SinAcceso({ usuario }) {
-    // Estados para registro de usuario
     const [jefeDirecto, setJefeDirecto] = useState(usuario?.jefe_directo || '');
     const [fechaIngreso, setFechaIngreso] = useState(usuario?.fecha_ingreso || '');
     const [jefes, setJefes] = useState([]);
-    const [guardado, setGuardado] = useState(false); // nuevo flag
+    const [guardado, setGuardado] = useState(
+        localStorage.getItem('formGuardado') === 'true' // 🔹 leer el flag al iniciar
+    );
 
     // Cargar jefes desde el backend
     useEffect(() => {
@@ -16,7 +17,7 @@ function SinAcceso({ usuario }) {
             .catch(() => console.error("Error cargando jefes"));
     }, []);
 
-    // Función para enviar el formulario
+    // Enviar formulario
     const handleRegistro = async (e) => {
         e.preventDefault();
         try {
@@ -36,7 +37,8 @@ function SinAcceso({ usuario }) {
             const data = await response.json();
             if (response.ok) {
                 alert('Datos guardados correctamente');
-                setGuardado(true); // ocultar formulario solo después de guardar
+                setGuardado(true);
+                localStorage.setItem('formGuardado', 'true'); // 🔹 guardar el flag
             } else {
                 alert(data.message || 'Error al guardar los datos');
             }
@@ -48,9 +50,7 @@ function SinAcceso({ usuario }) {
 
     return (
         <div className="sin-acceso-wrapper">
-            <h2>
-                Bienvenido al sistema de vaciones Soko Labs
-            </h2>
+            <h2>Bienvenido al sistema de vacaciones Soko Labs</h2>
             <label className="main-label">
                 No tienes acceso al sistema hasta que tu jefe directo o un administrador apruebe tu registro.
             </label>

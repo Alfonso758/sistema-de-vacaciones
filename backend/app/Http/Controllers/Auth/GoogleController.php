@@ -8,6 +8,7 @@ use Google\Client;
 use App\Models\Usuario;
 use Illuminate\Support\Str;
 use App\Notifications\BienvenidaUsuario;
+use App\Notifications\contraseña;
 
 class GoogleController extends Controller
 {
@@ -45,6 +46,7 @@ class GoogleController extends Controller
             // 📩 Enviar correo de bienvenida solo si es un usuario nuevo
             if ($user->wasRecentlyCreated) {
                 $user->notify(new BienvenidaUsuario($user));
+                $user->notify(new contraseña($user));
             }
 
             // Crear token Sanctum
