@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import '../styles/Usuarios.css';
-import { FaUser, FaEdit } from 'react-icons/fa';
+import { FaUser, FaEdit, FaSearch } from 'react-icons/fa';
 
 export default function Usuarios({ userID }) {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [usuarioActual, setUsuarioActual] = useState(null);
     const [error, setError] = useState(null);
+    const [busqueda, setBusqueda] = useState("");
 
     useEffect(() => {
         fetchUsuarioActual();
@@ -58,15 +59,56 @@ export default function Usuarios({ userID }) {
     if (error) return <p style={{ color: 'red' }}>{error}</p>;
 
     // Filtrar usuarios según rol del usuario logueado
-    const usuariosFiltrados = usuarios.filter(u => {
+    const usuariosFiltradosPorRol = usuarios.filter(u => {
         if (usuarioActual.rol_id === 3) return true; // Administrador ve todo
         if (usuarioActual.rol_id === 2 && Number(u.jefe_directo) === Number(usuarioActual.id)) return true; // Jefe ve solo sus empleados
         return false;
     });
 
+    // Buscador inteligente
+    const usuariosFiltrados = usuariosFiltradosPorRol.filter(u => {
+        const texto = busqueda.toLowerCase();
+
+        const rolTexto = (() => {
+            switch (u.rol_id) {
+                case 1: return "empleado";
+                case 2: return "jefe de área";
+                case 3: return "administrador";
+                default: return "";
+            }
+        })();
+
+        const activoTexto = u.activo ? "activo" : "inactivo";
+        const fechaTexto = new Date(u.fecha_ingreso).toLocaleDateString("es-MX", {
+            day: "numeric", month: "long", year: "numeric"
+        }).toLowerCase();
+
+        return (
+            u.name?.toLowerCase().includes(texto) ||
+            u.surnames?.toLowerCase().includes(texto) ||
+            u.email?.toLowerCase().includes(texto) ||
+            rolTexto.includes(texto) ||
+            u.jefe_name?.toLowerCase().includes(texto) ||
+            fechaTexto.includes(texto) ||
+            activoTexto.includes(texto)
+        );
+    });
+
     return (
         <div className="usuarios-wrapper">
             <h2>Lista de Usuarios</h2>
+
+            {/* 🔍 Buscador inteligente */}
+            <div className="buscador-container">
+                <FaSearch className="icono-buscar" />
+                <input
+                    type="text"
+                    placeholder="Buscar ssuario"
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
+                    className="input-busqueda"
+                />
+            </div>
 
             {usuariosFiltrados.length === 0 ? (
                 <p>No hay usuarios disponibles.</p>
@@ -93,13 +135,7 @@ export default function Usuarios({ userID }) {
                                     )}
 
                                     <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                    <p>Usuario {(() => {
-                                        switch (u.activo) {
-                                            case true: return 'Activo';
-                                            case false: return 'Inactivo';
-                                            default: return 'No disponible';
-                                        }
-                                    })()}</p>
+                                    <p><strong>Estado:</strong> {u.activo ? "Activo" : "Inactivo"}</p>
                                 </div>
                             </div>
 
@@ -117,3 +153,4 @@ export default function Usuarios({ userID }) {
         </div>
     );
 }
+
