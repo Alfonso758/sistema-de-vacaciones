@@ -262,14 +262,13 @@ class UsuarioController extends Controller
     public function usuarios()
     {
         try {
-            // Traemos usuarios cuyo rol_id sea 1 (Empleado) o 2 (Jefe)
-            $usuarios = Usuario::with('jefe') // 👈 asegura que se cargue la relación jefe
+            $usuarios = Usuario::with('jefe')
                 ->select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso', 'jefe_directo', 'activo')
-                ->whereIn('rol_id', [1, 2])
+                ->where('id', '<>', auth()->id()) // excluye al usuario logueado
                 ->orderBy('name', 'asc')
                 ->get();
 
-            // Añadir un campo jefe_name para que React lo pueda usar
+            // Añadir campo jefe_name
             $usuarios->transform(function ($u) {
                 $u->jefe_name = $u->jefe
                     ? $u->jefe->name . ' ' . $u->jefe->surnames
@@ -285,7 +284,6 @@ class UsuarioController extends Controller
             ], 500);
         }
     }
-
 
     public function usuariosPend()
     {
