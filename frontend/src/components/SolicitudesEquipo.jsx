@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import '../styles/SolicitudesEquipo.css';
-import { FaCalendarAlt, FaClock, FaUser, FaComment } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUser, FaComment, FaSync} from 'react-icons/fa';
 
 export default function SolicitudesEquipo({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
@@ -112,11 +112,37 @@ export default function SolicitudesEquipo({ userID }) {
         <div className="seccion-lista">
             <h2>Solicitudes de empleados</h2>
 
-            {/* Filtros */}
+            {/* Filtros y botón de recarga */}
             <div className="filtros-solicitudes">
                 <button onClick={() => setFiltro('1')} className={filtro === '1' ? 'activo' : ''}>Pendientes</button>
                 <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
                 <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
+
+                {/* Botón de recarga */}
+                <button
+                    className="btn-recargar"
+                    onClick={() => {
+                        setLoading(true);
+                        fetch(`http://localhost:8000/api/solicitudes/equipo/${userID}`, {
+                            headers: {
+                                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                            }
+                        })
+                            .then(res => res.json())
+                            .then(data => {
+                                const lista = Array.isArray(data) ? data : [];
+                                setSolicitudes(lista);
+                                setLoading(false);
+                            })
+                            .catch(err => {
+                                console.error("Error cargando solicitudes:", err);
+                                setSolicitudes([]);
+                                setLoading(false);
+                            });
+                    }}
+                >
+                    <FaSync style={{ marginRight: '5px' }} /> 
+                </button>
             </div>
 
             <div className="lista-solicitudes">
