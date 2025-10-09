@@ -27,6 +27,7 @@ function App() {
   const [loadingPassword, setLoadingPassword] = useState(false);
   const [campoEditable, setCampoEditable] = useState('');
   const [valorEditable, setValorEditable] = useState('');
+  const [jefe, setJefe] = useState(null);
 
   const toggleMostrarPassword = () => setMostrarPassword(prev => !prev);
 
@@ -78,6 +79,26 @@ function App() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+
+  useEffect(() => {
+    if (modalActivo === 'perfil' && usuario.rol_id === 1 && usuario.jefe_directo) {
+      const token = localStorage.getItem('token');
+      console.log('🔍 Obteniendo datos del jefe directo con ID:', usuario.jefe_directo);
+
+      fetch(`http://localhost:8000/api/usuarios/${usuario.jefe_directo}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          console.log('📦 Respuesta del backend del jefe:', data);
+          // Ajusta esto según cómo venga la estructura del backend
+          setJefe(data.usuario || data);
+        })
+        .catch(err => console.error('❌ Error al obtener jefe directo:', err));
+    }
+  }, [modalActivo, usuario]);
+
+
 
   const manejarLogout = () => {
     localStorage.removeItem('usuario');
@@ -361,11 +382,23 @@ function App() {
                       <label><b>Email:</b></label>
                       <div className="valor-display">{usuario.email || 'No registrado'}</div>
                     </div>
+
+                    {usuario.rol_id === 1 && (
+                      <div className="campo-perfil">
+                        <label><b>Jefe directo:</b></label>
+                        <div className="valor-display">
+                          {jefe
+                            ? `${jefe.name} ${jefe.surnames}`
+                            : usuario.jefe_directo
+                              ? 'Cargando...'
+                              : 'No asignado'}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
             )}
-
 
             {modalActivo === 'password' && (
               <div className="modal-password">
