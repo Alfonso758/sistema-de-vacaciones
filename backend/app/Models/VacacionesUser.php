@@ -12,10 +12,13 @@ class VacacionesUser extends Model
     protected $table = 'vacaciones_user';
     protected $fillable = [
         'id_usuario',
+        'fecha_inicio_periodo',
+        'fecha_fin_periodo',
         'id_dias',
+        'dias_otorgados',
         'dias_acumulados',
         'dias_tomados',
-        'fecha_inicio_periodo'
+        'pendiente'
     ];
 
     // Relación con el usuario

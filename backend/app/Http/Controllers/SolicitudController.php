@@ -292,4 +292,12 @@ class SolicitudController extends Controller
             ], 500);
         }
     }
+
+    public function diasAcumulables()
+    {
+        // Traer todos los registros donde pendiente > 0
+        $dias = VacacionesUser::where('pendiente', '>', 0)->get();
+
+        return response()->json($dias);
+    }
 }

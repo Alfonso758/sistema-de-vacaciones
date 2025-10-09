@@ -1,0 +1,66 @@
+.dias-acumulables-container {
+    padding: 20px;
+}
+
+.etiquetas-dias {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.etiqueta-dia {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ccc;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.etiqueta-dia p {
+    margin: 0 0 8px 0;
+}
+
+/* Botones a la derecha */
+.botones-acciones {
+    display: flex;
+    justify-content: flex-end; /* Empuja los botones a la derecha */
+    gap: 10px; /* Espacio entre botones */
+    margin-top: 8px;
+}
+
+/* Estilos generales de los botones */
+.botones-acciones button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-weight: 500;
+}
+
+/* Botón Acumular */
+.botones-acciones button:first-child {
+    background: linear-gradient(90deg, #1976d2, #0d47a1);
+}
+
+.botones-acciones button:first-child:hover {
+    background: linear-gradient(90deg, #0d47a1, #1976d2);
+}
+
+/* Botón Dejar perder */
+.botones-acciones button:last-child {
+    background: linear-gradient(90deg, #d93838, #a10d0d);
+}
+
+.botones-acciones button:last-child:hover {
+    background: linear-gradient(90deg, #a10d0d, #d93838);
+}
+
+/* Opcional: mejorar la visual de carga y sin datos */
+.cargando, .sin-datos {
+    font-style: italic;
+    color: #555;
+    margin-top: 10px;
+}

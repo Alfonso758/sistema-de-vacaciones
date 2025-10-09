@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import SolicitudesEquipo from '../components/SolicitudesEquipo';
 import SolicitudesJefes from '../components/SolicitudesJefes';
+import DiasAcumulables from '../components/DiasAcumulables';
 import UsuariosPend from '../components/UsuariosPend';
 import Usuarios from '../components/Usuarios';
 import CalendarioEquipo from '../components/CalendarioEquipo';
@@ -25,7 +26,8 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
       icono: <FaListAlt />,
       opciones: [
         { nombre: "S. Empleados" },
-        { nombre: "S. Jefes de área" }
+        { nombre: "S. Jefes de área" },
+        { nombre: "Días acumulables" }
       ]
     },
     "Usuarios": {
@@ -124,6 +126,9 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
 
       case 'S. Jefes de área':
         return <SolicitudesJefes userID={userID} />;
+
+      case 'Días acumulables':
+        return <DiasAcumulables userID={userID} />;
 
       case 'Usuarios pendientes':
         return <UsuariosPend userID={userID} />;
