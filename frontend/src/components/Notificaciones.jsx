@@ -91,6 +91,7 @@ export default function Notificaciones({ userID }) {
                             key={noti.id}
                             className={`tarjeta-notificacion ${noti.visto ? "visto" : "novista"}`}
                             onClick={() => marcarVisto(noti.id)}
+                            title={!noti.visto ? "Marcar como leído" : "Ya leída"}
                         >
                             <div className="cabecera-notificacion">
                                 <h3>{noti.titulo}</h3>
