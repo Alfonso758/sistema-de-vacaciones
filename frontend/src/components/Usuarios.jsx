@@ -54,10 +54,6 @@ export default function Usuarios({ userID }) {
         alert(`Editar usuario con ID: ${id}`);
     };
 
-    if (loading) return <p>Cargando usuarios...</p>;
-    if (!usuarioActual) return <p>Cargando usuarios...</p>;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
-
     // Filtrar usuarios según rol del usuario logueado
     const usuariosFiltradosPorRol = usuarios.filter(u => {
         if (usuarioActual.rol_id === 3) return true; // Administrador ve todo
@@ -103,16 +99,24 @@ export default function Usuarios({ userID }) {
                 <FaSearch className="icono-buscar" />
                 <input
                     type="text"
-                    placeholder="Buscar ssuario"
+                    placeholder="Buscar usuario"
                     value={busqueda}
                     onChange={(e) => setBusqueda(e.target.value)}
                     className="input-busqueda"
                 />
             </div>
 
-            {usuariosFiltrados.length === 0 ? (
+            {/* Mensajes de carga o error */}
+            {(loading || !usuarioActual) && <p>Cargando usuarios...</p>}
+            {!loading && error && <p style={{ color: 'red' }}>{error}</p>}
+
+            {/* Mensaje si no hay usuarios filtrados */}
+            {!loading && usuarioActual && !error && usuariosFiltrados.length === 0 && (
                 <p>No hay usuarios disponibles.</p>
-            ) : (
+            )}
+
+            {/* Lista de usuarios filtrados */}
+            {!loading && usuarioActual && !error && usuariosFiltrados.length > 0 && (
                 <ul className="usuarios-lista">
                     {usuariosFiltrados.map(u => (
                         <li key={u.id} className="usuario-item">
@@ -152,5 +156,6 @@ export default function Usuarios({ userID }) {
             )}
         </div>
     );
+
 }
 

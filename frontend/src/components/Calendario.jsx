@@ -93,55 +93,58 @@ export default function Calendario({ userID }) {
     }, [currentDate]);
 
     return (
-        <main className="calendario-wrap">
-            {cargando ? (
-                <div className="cargando-calendario">
-                    <p className="cargando-texto_calendario">Cargando calendario...</p>
-                </div>
-            ) : (
-                <>
-                    <header className="calendario-header">
-                        <button onClick={prevMonth}>&lt;</button>
-                        <h1 className="calendario-title">{monthName}</h1>
-                        <button onClick={nextMonth}>&gt;</button>
-                    </header>
+        <div>
+            <h2>Calendario</h2>
+            <main className="calendario-wrap">
+                {cargando ? (
+                    <div className="cargando-calendario">
+                        <p className="cargando-texto_calendario">Cargando calendario...</p>
+                    </div>
+                ) : (
+                    <>
+                        <header className="calendario-header">
+                            <button onClick={prevMonth}>&lt;</button>
+                            <h1 className="calendario-title">{monthName}</h1>
+                            <button onClick={nextMonth}>&gt;</button>
+                        </header>
 
-                    <section className="calendario-table">
-                        <div className="calendario-weekdays">
-                            {weekdayShort.map((wd) => (
-                                <div key={wd} className="calendario-weekday">{wd}</div>
-                            ))}
-                        </div>
+                        <section className="calendario-table">
+                            <div className="calendario-weekdays">
+                                {weekdayShort.map((wd) => (
+                                    <div key={wd} className="calendario-weekday">{wd}</div>
+                                ))}
+                            </div>
 
-                        <div className="calendario-grid">
-                            {fullCells.map((day, idx) => {
-                                const colIndex = idx % 7;
-                                const isWeekendColumn = colIndex === 5 || colIndex === 6;
+                            <div className="calendario-grid">
+                                {fullCells.map((day, idx) => {
+                                    const colIndex = idx % 7;
+                                    const isWeekendColumn = colIndex === 5 || colIndex === 6;
 
-                                if (!day) {
-                                    return <div key={idx} className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}></div>;
-                                }
+                                    if (!day) {
+                                        return <div key={idx} className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}></div>;
+                                    }
 
-                                const isToday = isCurrentMonth && day === today.getDate();
-                                const isInhabil = isDiaInhabilDay(day);
-                                const isVacacion = !isInhabil && !isWeekendColumn && isVacacionDay(day);
+                                    const isToday = isCurrentMonth && day === today.getDate();
+                                    const isInhabil = isDiaInhabilDay(day);
+                                    const isVacacion = !isInhabil && !isWeekendColumn && isVacacionDay(day);
 
-                                return (
-                                    <div
-                                        key={idx}
-                                        className={`calendario-cell 
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`calendario-cell 
                                         ${isInhabil ? "inhabil" : ""} 
                                         ${isVacacion ? "vacacion" : ""} 
                                         ${isWeekendColumn && !isInhabil ? "fin-de-semana" : ""}`}
-                                    >
-                                        <span className={`${isToday ? "hoy" : ""}`}>{day}</span>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    </section>
-                </>
-            )}
-        </main>
+                                        >
+                                            <span className={`${isToday ? "hoy" : ""}`}>{day}</span>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    </>
+                )}
+            </main>
+        </div>
     );
 }

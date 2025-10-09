@@ -37,8 +37,6 @@ export default function Reportes({ userID }) {
         fetchDatos();
     }, [userID]);
 
-    if (loading) return <p>Cargando reportes...</p>;
-
     const empleadoSeleccionado = empleados.find(
         e => e.id === parseInt(selectedEmpleado)
     );
@@ -159,197 +157,223 @@ export default function Reportes({ userID }) {
         <div className="reportes-wrap">
             <h2>Reportes</h2>
 
-            <label className="selector-empleado">
-                Seleccionar reporte:
-                <select
-                    value={selectedEmpleado}
-                    onChange={(e) => setSelectedEmpleado(e.target.value)}
-                >
-                    <option value="general">Reporte general</option>
-                    {empleados.map(e => (
-                        <option key={e.id} value={e.id}>
-                            Reporte de {e.name} {e.surnames}  {/* ← aquí estaba e.nombre, se cambia a e.name */}
-                        </option>
-                    ))}
-                </select>
+            {/* Mensaje de carga */}
+            {loading && <p>Cargando reportes...</p>}
 
-            </label>
+            {/* Selector de empleado y botón PDF solo si ya cargaron empleados */}
+            {!loading && empleados.length > 0 && (
+                <>
+                    <label className="selector-empleado">
+                        Seleccionar reporte:
+                        <select
+                            value={selectedEmpleado}
+                            onChange={(e) => setSelectedEmpleado(e.target.value)}
+                        >
+                            <option value="general">Reporte general</option>
+                            {empleados.map(e => (
+                                <option key={e.id} value={e.id}>
+                                    Reporte de {e.name} {e.surnames}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
 
-            <div className="botones-pdf">
-                <button onClick={descargarPDF}>Descargar pdf</button>
-            </div>
+                    <div className="botones-pdf">
+                        <button onClick={descargarPDF}>Descargar pdf</button>
+                    </div>
 
-            {selectedEmpleado !== "general" && empleadoSeleccionado && (
-                <section className="reporte-empleado">
-                    <h2>Reporte por empleado de solicitudes</h2>
-                    <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
-                    <p><strong>Correo:</strong> {empleadoSeleccionado.email}</p>
+                    {/* Reporte por empleado */}
+                    {!loading && selectedEmpleado !== "general" && empleadoSeleccionado && (
+                        <section className="reporte-empleado">
+                            <h2>Reporte por empleado de solicitudes</h2>
+                            <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
+                            <p><strong>Correo:</strong> {empleadoSeleccionado.email}</p>
 
-                    {/* Pendientes */}
-                    {pendientesFiltradas.length > 0 && (
-                        <>
-                            <h3>Solicitudes pendientes</h3>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha solicitud</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {pendientesFiltradas.map(s => (
-                                        <tr key={s.id}>
-                                            <td>{s.fecha_solicitud}</td>
-                                            <td>{s.fecha_inicio}</td>
-                                            <td>{s.fecha_fin}</td>
-                                            <td>Pendiente</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </>
+                            {/* Pendientes */}
+                            {pendientesFiltradas.length > 0 ? (
+                                <>
+                                    <h3>Solicitudes pendientes</h3>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {pendientesFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{s.fecha_inicio}</td>
+                                                    <td>{s.fecha_fin}</td>
+                                                    <td>Pendiente</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes pendientes.</p>}
+
+                            {/* Aprobadas */}
+                            {aprobadasFiltradas.length > 0 ? (
+                                <>
+                                    <h3>Solicitudes aprobadas</h3>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Revisado por</th>
+                                                <th>Fecha revisión</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {aprobadasFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{s.fecha_inicio}</td>
+                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{nombreCompleto(s.revisor)}</td>
+                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes aprobadas.</p>}
+
+                            {/* Rechazadas */}
+                            {rechazadasFiltradas.length > 0 ? (
+                                <>
+                                    <h3>Solicitudes rechazadas</h3>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Revisado por</th>
+                                                <th>Fecha revisión</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rechazadasFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{s.fecha_inicio}</td>
+                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{nombreCompleto(s.revisor)}</td>
+                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes rechazadas.</p>}
+                        </section>
                     )}
 
-                    {/* Aprobadas */}
-                    {aprobadasFiltradas.length > 0 && (
-                        <>
-                            <h3>Solicitudes aprobadas</h3>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha solicitud</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Revisado por</th>
-                                        <th>Fecha revisión</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {aprobadasFiltradas.map(s => (
-                                        <tr key={s.id}>
-                                            <td>{s.fecha_solicitud}</td>
-                                            <td>{s.fecha_inicio}</td>
-                                            <td>{s.fecha_fin}</td>
-                                            <td>{nombreCompleto(s.revisor)}</td>
-                                            <td>{s.fecha_respuesta || "-"}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </>
-                    )}
+                    {/* Reporte general */}
+                    {!loading && selectedEmpleado === "general" && (
+                        <section className="reporte-general">
+                            <h2>Reporte general de solicitudes</h2>
 
-                    {/* Rechazadas */}
-                    {rechazadasFiltradas.length > 0 && (
-                        <>
-                            <h3>Solicitudes rechazadas</h3>
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Fecha solicitud</th>
-                                        <th>Inicio</th>
-                                        <th>Fin</th>
-                                        <th>Revisado por</th>
-                                        <th>Fecha revisión</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {rechazadasFiltradas.map(s => (
-                                        <tr key={s.id}>
-                                            <td>{s.fecha_solicitud}</td>
-                                            <td>{s.fecha_inicio}</td>
-                                            <td>{s.fecha_fin}</td>
-                                            <td>{nombreCompleto(s.revisor)}</td>
-                                            <td>{s.fecha_respuesta || "-"}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </>
+                            {pendientesFiltradas.length > 0 ? (
+                                <>
+                                    <h3>Solicitudes pendientes</h3>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Empleado</th>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {pendientesFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{nombreCompleto(s.usuario)}</td>
+                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{s.fecha_inicio}</td>
+                                                    <td>{s.fecha_fin}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes pendientes.</p>}
+
+                            {aprobadasFiltradas.length > 0 ? (
+                                <>
+                                    <h3>Solicitudes aprobadas</h3>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Empleado</th>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Revisado por</th>
+                                                <th>Fecha revisión</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {aprobadasFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{nombreCompleto(s.usuario)}</td>
+                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{s.fecha_inicio}</td>
+                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{nombreCompleto(s.revisor)}</td>
+                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes aprobadas.</p>}
+
+                            {rechazadasFiltradas.length > 0 ? (
+                                <>
+                                    <h3>Solicitudes rechazadas</h3>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Empleado</th>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Revisado por</th>
+                                                <th>Fecha revisión</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rechazadasFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{nombreCompleto(s.usuario)}</td>
+                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{s.fecha_inicio}</td>
+                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{nombreCompleto(s.revisor)}</td>
+                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes rechazadas.</p>}
+                        </section>
                     )}
-                </section>
+                </>
             )}
 
-            {selectedEmpleado === "general" && (
-                <section className="reporte-general">
-                    <h2>Reporte general de solicitudes</h2>
-
-                    <h3>Solicitudes pendientes</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Empleado</th>
-                                <th>Fecha solicitud</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pendientesFiltradas.map(s => (
-                                <tr key={s.id}>
-                                    <td>{nombreCompleto(s.usuario)}</td>
-                                    <td>{s.fecha_solicitud}</td>
-                                    <td>{s.fecha_inicio}</td>
-                                    <td>{s.fecha_fin}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    <h3>Solicitudes aprobadas</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Empleado</th>
-                                <th>Fecha solicitud</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th>Revisado por</th>
-                                <th>Fecha revisión</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {aprobadasFiltradas.map(s => (
-                                <tr key={s.id}>
-                                    <td>{nombreCompleto(s.usuario)}</td>
-                                    <td>{s.fecha_solicitud}</td>
-                                    <td>{s.fecha_inicio}</td>
-                                    <td>{s.fecha_fin}</td>
-                                    <td>{nombreCompleto(s.revisor)}</td>
-                                    <td>{s.fecha_respuesta || "-"}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-
-                    <h3>Solicitudes rechazadas</h3>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Empleado</th>
-                                <th>Fecha solicitud</th>
-                                <th>Inicio</th>
-                                <th>Fin</th>
-                                <th>Revisado por</th>
-                                <th>Fecha revisión</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {rechazadasFiltradas.map(s => (
-                                <tr key={s.id}>
-                                    <td>{nombreCompleto(s.usuario)}</td>
-                                    <td>{s.fecha_solicitud}</td>
-                                    <td>{s.fecha_inicio}</td>
-                                    <td>{s.fecha_fin}</td>
-                                    <td>{nombreCompleto(s.revisor)}</td>
-                                    <td>{s.fecha_respuesta || "-"}</td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </section>
+            {/* Mensaje si no hay empleados */}
+            {!loading && empleados.length === 0 && (
+                <p>No hay empleados disponibles para mostrar reportes.</p>
             )}
         </div>
     );

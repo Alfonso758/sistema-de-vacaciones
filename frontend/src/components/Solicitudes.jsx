@@ -188,118 +188,103 @@ export default function Solicitudes({ userID }) {
             });
     }, [userID]);
 
-
-    if (loading) return <p>Cargando solicitudes...</p>;
-    if (!Array.isArray(solicitudes) || solicitudes.length === 0) return <p>No tienes solicitudes registradas.</p>;
-
     return (
         <div className="seccion-lista">
             <h2>Solicitudes</h2>
-            <div className="lista-solicitudes">
-                {solicitudes.slice().reverse().map((solicitud, index, arr) => (
-                    <div
-                        key={solicitud.id}
-                        className={`tarjeta-solicitud ${estados[solicitud.estado_solicitud]?.toLowerCase() === 'cancelada' ? 'cancelada' : ''}`}
-                    >
-                        {/* Cabecera */}
-                        <div className="cabecera-solicitud">
-                            <span className="numero">#{arr.length - index}</span>
-                            <div className="fecha-estado">
-                                <span className="fecha gris">
-                                    <FaCalendarAlt style={{ marginRight: '5px' }} />
-                                    {formatDate(solicitud.fecha_solicitud)}
-                                </span>
-                                <span className={`estado ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}>
-                                    <span className={`estado-indicador ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}></span>
-                                    {estados[solicitud.estado_solicitud] || 'Pendiente'}
-                                </span>
-                            </div>
-                        </div>
 
-                        {/* Fechas de inicio y fin */}
-                        <div className="fechas-solicitud">
-                            <span>
-                                <FaClock style={{ marginRight: '5px' }} />
-                                <strong>Inicio:</strong> {formatDateSinHora(solicitud.fecha_inicio)}
-                            </span>
-                            <span>
-                                <FaClock style={{ marginRight: '5px' }} />
-                                <strong>Fin:</strong> {formatDateSinHora(solicitud.fecha_fin)}
-                            </span>
+            {/* Mensaje de carga */}
+            {loading && <p>Cargando solicitudes...</p>}
 
-                        </div>
+            {/* Mensaje si no hay solicitudes */}
+            {!loading && (!Array.isArray(solicitudes) || solicitudes.length === 0) && (
+                <p>No tienes solicitudes registradas.</p>
+            )}
 
-                        {/* Revisión y respuesta */}
-                        {(solicitud.revisor || solicitud.fecha_respuesta) && (
-                            <div className="revision-respuesta">
-                                {/* Revisor a la izquierda */}
-                                {solicitud.revisor && (
-                                    <span className="revisor-info">
-                                        <FaUser style={{ marginRight: '5px' }} />
-                                        <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
-                                    </span>
-                                )}
-
-                                {/* Fecha de respuesta a la derecha */}
-                                {solicitud.fecha_respuesta && (
-                                    <span className="fecha-respuesta">
+            {/* Lista de solicitudes */}
+            {!loading && Array.isArray(solicitudes) && solicitudes.length > 0 && (
+                <div className="lista-solicitudes">
+                    {solicitudes.slice().reverse().map((solicitud, index, arr) => (
+                        <div
+                            key={solicitud.id}
+                            className={`tarjeta-solicitud ${estados[solicitud.estado_solicitud]?.toLowerCase() === 'cancelada' ? 'cancelada' : ''}`}
+                        >
+                            {/* Cabecera */}
+                            <div className="cabecera-solicitud">
+                                <span className="numero">#{arr.length - index}</span>
+                                <div className="fecha-estado">
+                                    <span className="fecha gris">
                                         <FaCalendarAlt style={{ marginRight: '5px' }} />
-                                        {formatDate(solicitud.fecha_respuesta)}
+                                        {formatDate(solicitud.fecha_solicitud)}
                                     </span>
-                                )}
-                            </div>
-                        )}
-
-
-
-                        {/* Comentario */}
-                        {solicitud.comentario && (
-                            <div className="comentario-contenedor">
-                                <label>Comentarios:</label>
-                                <div className="comentario">
-                                    <FaComment style={{ marginRight: '5px' }} /> {solicitud.comentario}
+                                    <span className={`estado ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}>
+                                        <span className={`estado-indicador ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}></span>
+                                        {estados[solicitud.estado_solicitud] || 'Pendiente'}
+                                    </span>
                                 </div>
                             </div>
-                        )}
 
-                        {/* Botones de acción según estado */}
-                        <div className="acciones-solicitud">
-                            {(estados[solicitud.estado_solicitud] === 'Pendiente' ||
-                                (estados[solicitud.estado_solicitud] === 'Aprobada' &&
-                                    rolID === 2 &&
-                                    menosDe48Horas(solicitud.fecha_solicitud))) && (
-                                    <>
-                                        {estados[solicitud.estado_solicitud] === 'Pendiente' && (
-                                            <button
-                                                className="btn editar"
-                                                onClick={() => manejarEditar(solicitud.id)}
-                                            >
-                                                Editar
-                                            </button>
-                                        )}
-                                        <button
-                                            className="btn eliminar"
-                                            onClick={() => manejarCancelar(solicitud.id)}
-                                        >
-                                            Cancelar
-                                        </button>
-                                    </>
-                                )}
+                            {/* Fechas de inicio y fin */}
+                            <div className="fechas-solicitud">
+                                <span>
+                                    <FaClock style={{ marginRight: '5px' }} />
+                                    <strong>Inicio:</strong> {formatDateSinHora(solicitud.fecha_inicio)}
+                                </span>
+                                <span>
+                                    <FaClock style={{ marginRight: '5px' }} />
+                                    <strong>Fin:</strong> {formatDateSinHora(solicitud.fecha_fin)}
+                                </span>
+                            </div>
 
-                            {(estados[solicitud.estado_solicitud] === 'Cancelada') && (
-                                <button
-                                    className="btn eliminar"
-                                    onClick={() => manejarEliminar(solicitud.id)}
-                                >
-                                    Eliminar
-                                </button>
+                            {/* Revisión y respuesta */}
+                            {(solicitud.revisor || solicitud.fecha_respuesta) && (
+                                <div className="revision-respuesta">
+                                    {solicitud.revisor && (
+                                        <span className="revisor-info">
+                                            <FaUser style={{ marginRight: '5px' }} />
+                                            <strong>Revisado por:</strong> {solicitud.revisor.name} {solicitud.revisor.surnames}
+                                        </span>
+                                    )}
+                                    {solicitud.fecha_respuesta && (
+                                        <span className="fecha-respuesta">
+                                            <FaCalendarAlt style={{ marginRight: '5px' }} />
+                                            {formatDate(solicitud.fecha_respuesta)}
+                                        </span>
+                                    )}
+                                </div>
                             )}
+
+                            {/* Comentario */}
+                            {solicitud.comentario && (
+                                <div className="comentario-contenedor">
+                                    <label>Comentarios:</label>
+                                    <div className="comentario">
+                                        <FaComment style={{ marginRight: '5px' }} /> {solicitud.comentario}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Botones de acción */}
+                            <div className="acciones-solicitud">
+                                {(estados[solicitud.estado_solicitud] === 'Pendiente' ||
+                                    (estados[solicitud.estado_solicitud] === 'Aprobada' &&
+                                        rolID === 2 &&
+                                        menosDe48Horas(solicitud.fecha_solicitud))) && (
+                                        <>
+                                            {estados[solicitud.estado_solicitud] === 'Pendiente' && (
+                                                <button className="btn editar" onClick={() => manejarEditar(solicitud.id)}>Editar</button>
+                                            )}
+                                            <button className="btn eliminar" onClick={() => manejarCancelar(solicitud.id)}>Cancelar</button>
+                                        </>
+                                    )}
+
+                                {estados[solicitud.estado_solicitud] === 'Cancelada' && (
+                                    <button className="btn eliminar" onClick={() => manejarEliminar(solicitud.id)}>Eliminar</button>
+                                )}
+                            </div>
                         </div>
-
-                    </div>
-                ))}
-            </div>
-
+                    ))}
+                </div>
+            )}
 
             {/* Modal de edición */}
             {modalEditarOpen && solicitudEditando && (

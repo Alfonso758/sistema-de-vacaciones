@@ -82,9 +82,6 @@ export default function UsuariosPend({ userID }) {
         }
     };
 
-    if (loading) return <p>Cargando usuarios pendientes...</p>;
-    if (!usuarioActual) return <p>Cargando usuarios pendientes...</p>;
-
     // Filtramos los usuarios según rol y jefe
     const usuariosFiltrados = usuarios.filter(u => {
         if (usuarioActual.rol_id === 2) return u.rol_id === 5 && u.jefe_directo === usuarioActual.id;
@@ -95,9 +92,19 @@ export default function UsuariosPend({ userID }) {
     return (
         <div className="usuarios-pend-wrapper">
             <h2>Usuarios pendientes</h2>
-            {usuariosFiltrados.length === 0 ? (
+
+            {/* Mensaje de carga */}
+            {loading || !usuarioActual ? (
+                <p>Cargando usuarios pendientes...</p>
+            ) : null}
+
+            {/* Mensaje si no hay usuarios filtrados */}
+            {!loading && usuarioActual && usuariosFiltrados.length === 0 && (
                 <p>No hay usuarios pendientes.</p>
-            ) : (
+            )}
+
+            {/* Lista de usuarios filtrados */}
+            {!loading && usuarioActual && usuariosFiltrados.length > 0 && (
                 <ul className="usuarios-lista">
                     {usuariosFiltrados.map((u) => {
                         const mostrarBotonAprobar =
@@ -124,13 +131,10 @@ export default function UsuariosPend({ userID }) {
                                                 : 'No registrada'}
                                         </p>
 
-
-                                        {/* Mostrar jefe solo si el usuario no tiene jefe o el usuario logueado NO es supervisor */}
                                         {(u.jefe_directo && usuarioActual.rol_id !== 2) && (
                                             <p><strong>Jefe:</strong> {u.jefe_name || 'No asignado'}</p>
                                         )}
                                     </div>
-
                                 </div>
 
                                 <div className="usuario-actions">
@@ -152,4 +156,5 @@ export default function UsuariosPend({ userID }) {
             )}
         </div>
     );
+
 }

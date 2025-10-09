@@ -79,13 +79,13 @@ export default function Notificaciones({ userID }) {
 
     return (
         <div className="seccion-notificaciones">
+            <h2>Notificaciones</h2>
             {cargando ? (
                 <div className="cargando-container">
                     <p className="cargando-texto">Cargando notificaciones...</p>
                 </div>
             ) : (
                 <>
-                    <h2>Notificaciones</h2>
                     {notificaciones.map((noti) => (
                         <div
                             key={noti.id}

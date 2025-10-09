@@ -101,87 +101,90 @@ export default function Calendario({ userID }) {
     };
 
     return (
-        <main className="calendario-wrap">
-            {cargando ? (
-                <div className="cargando-calendario">
-                    <p className="cargando-texto_calendario">Cargando calendario...</p>
-                </div>
-            ) : (
-                <>
-                    {/* 🔹 Leyenda de colores */}
-                    <div className="calendario-leyenda">
-                        {Object.entries(empleadoColors).map(([id, color]) => {
-                            const empleado = vacaciones.find(v => v.usuario_id == id);
-                            return (
-                                <div key={id} className="leyenda-item">
-                                    <span className="color-bolita" style={{ backgroundColor: color }}></span>
-                                    <span>{empleado?.nombre || `Empleado ${id}`}</span>
-                                </div>
-                            );
-                        })}
+        <div>
+            <h2>Calendario</h2>
+            <main className="calendario-wrap">
+                {cargando ? (
+                    <div className="cargando-calendario">
+                        <p className="cargando-texto_calendario">Cargando calendario...</p>
                     </div>
-
-                    <header className="calendario-header">
-                        <button onClick={prevMonth}>&lt;</button>
-                        <h1 className="calendario-title">{monthName}</h1>
-                        <button onClick={nextMonth}>&gt;</button>
-                    </header>
-
-                    <section className="calendario-table">
-                        <div className="calendario-weekdays">
-                            {weekdayShort.map((wd) => (
-                                <div key={wd} className="calendario-weekday">{wd}</div>
-                            ))}
-                        </div>
-
-                        <div className="calendario-grid">
-                            {fullCells.map((day, idx) => {
-                                const colIndex = idx % 7;
-                                const isWeekendColumn = colIndex === 5 || colIndex === 6;
-
-                                if (!day) {
-                                    return <div key={idx} className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}></div>;
-                                }
-
-                                const isToday = isCurrentMonth && day === today.getDate();
-                                const isInhabil = diasInhabiles.some(d => {
-                                    const dDate = new Date(d.fecha);
-                                    if (d.siempre) {
-                                        return dDate.getDate() === day && dDate.getMonth() === month;
-                                    } else {
-                                        return dDate.getDate() === day &&
-                                            dDate.getMonth() === month &&
-                                            dDate.getFullYear() === year;
-                                    }
-                                });
-
-                                const vacs = !isInhabil ? getVacacionesByDay(day) : [];
-
+                ) : (
+                    <>
+                        {/* 🔹 Leyenda de colores */}
+                        <div className="calendario-leyenda">
+                            {Object.entries(empleadoColors).map(([id, color]) => {
+                                const empleado = vacaciones.find(v => v.usuario_id == id);
                                 return (
-                                    <div
-                                        key={idx}
-                                        className={`calendario-cell 
-                      ${isInhabil ? "inhabil" : ""} 
-                      ${isWeekendColumn && !isInhabil ? "fin-de-semana" : ""}`}
-                                    >
-                                        <span className={`${isToday ? "hoy" : ""}`}>{day}</span>
-                                        <div className="bolitas-vacaciones">
-                                            {vacs.map((v, i) => (
-                                                <span
-                                                    key={i}
-                                                    className="bolita"
-                                                    style={{ backgroundColor: empleadoColors[v.usuario_id] }}
-                                                    title={v.nombre}
-                                                ></span>
-                                            ))}
-                                        </div>
+                                    <div key={id} className="leyenda-item">
+                                        <span className="color-bolita" style={{ backgroundColor: color }}></span>
+                                        <span>{empleado?.nombre || `Empleado ${id}`}</span>
                                     </div>
                                 );
                             })}
                         </div>
-                    </section>
-                </>
-            )}
-        </main>
+
+                        <header className="calendario-header">
+                            <button onClick={prevMonth}>&lt;</button>
+                            <h1 className="calendario-title">{monthName}</h1>
+                            <button onClick={nextMonth}>&gt;</button>
+                        </header>
+
+                        <section className="calendario-table">
+                            <div className="calendario-weekdays">
+                                {weekdayShort.map((wd) => (
+                                    <div key={wd} className="calendario-weekday">{wd}</div>
+                                ))}
+                            </div>
+
+                            <div className="calendario-grid">
+                                {fullCells.map((day, idx) => {
+                                    const colIndex = idx % 7;
+                                    const isWeekendColumn = colIndex === 5 || colIndex === 6;
+
+                                    if (!day) {
+                                        return <div key={idx} className={`calendario-cell ${isWeekendColumn ? "fin-de-semana" : ""}`}></div>;
+                                    }
+
+                                    const isToday = isCurrentMonth && day === today.getDate();
+                                    const isInhabil = diasInhabiles.some(d => {
+                                        const dDate = new Date(d.fecha);
+                                        if (d.siempre) {
+                                            return dDate.getDate() === day && dDate.getMonth() === month;
+                                        } else {
+                                            return dDate.getDate() === day &&
+                                                dDate.getMonth() === month &&
+                                                dDate.getFullYear() === year;
+                                        }
+                                    });
+
+                                    const vacs = !isInhabil ? getVacacionesByDay(day) : [];
+
+                                    return (
+                                        <div
+                                            key={idx}
+                                            className={`calendario-cell 
+                      ${isInhabil ? "inhabil" : ""} 
+                      ${isWeekendColumn && !isInhabil ? "fin-de-semana" : ""}`}
+                                        >
+                                            <span className={`${isToday ? "hoy" : ""}`}>{day}</span>
+                                            <div className="bolitas-vacaciones">
+                                                {vacs.map((v, i) => (
+                                                    <span
+                                                        key={i}
+                                                        className="bolita"
+                                                        style={{ backgroundColor: empleadoColors[v.usuario_id] }}
+                                                        title={v.nombre}
+                                                    ></span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </section>
+                    </>
+                )}
+            </main>
+        </div>
     );
 }

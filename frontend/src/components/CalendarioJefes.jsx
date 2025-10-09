@@ -100,7 +100,8 @@ export default function Calendario({ userID }) {
         });
     };
 
-    return (
+    return (<div>
+        <h2>Calendario</h2>
         <main className="calendario-wrap">
             {cargando ? (
                 <div className="cargando-calendario">
@@ -183,5 +184,6 @@ export default function Calendario({ userID }) {
                 </>
             )}
         </main>
+    </div>
     );
 }
