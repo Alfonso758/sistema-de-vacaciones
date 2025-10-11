@@ -98,19 +98,12 @@ export default function Usuarios({ userID }) {
         const usuarioData = {
             name: usuarioEditando.name?.trim() || "",
             rol_id: parseInt(usuarioEditando.rol_id) || 1,
-            fecha_ingreso:
-                usuarioEditando.fecha_ingreso?.split("T")[0] || null,
-            activo:
-                usuarioEditando.activo === 1 ||
-                    usuarioEditando.activo === "1"
-                    ? 1
-                    : 0,
+            fecha_ingreso: usuarioEditando.fecha_ingreso?.split("T")[0] || null,
+            activo: usuarioEditando.activo === 1 || usuarioEditando.activo === "1" ? 1 : 0,
             surnames: usuarioEditando.surnames?.trim() || "",
-            jefe_directo:
-                usuarioEditando.jefe_directo &&
-                    !isNaN(parseInt(usuarioEditando.jefe_directo))
-                    ? parseInt(usuarioEditando.jefe_directo)
-                    : null,
+            jefe_directo: usuarioEditando.jefe_directo
+                ? parseInt(usuarioEditando.jefe_directo)
+                : null,
         };
 
         try {
@@ -120,12 +113,20 @@ export default function Usuarios({ userID }) {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
+            // Actualizar la lista y recalcular el nombre del jefe
             setUsuarios((prev) =>
-                prev.map((u) =>
-                    u.id === usuarioEditando.id
-                        ? res.data.user || res.data
-                        : u
-                )
+                prev.map((u) => {
+                    if (u.id === usuarioEditando.id) {
+                        const actualizado = res.data.user || res.data;
+                        // Buscar el jefe en la lista de usuarios
+                        const jefe = prev.find((j) => j.id === actualizado.jefe_directo);
+                        return {
+                            ...actualizado,
+                            jefe_name: jefe ? `${jefe.name} ${jefe.surnames}` : null,
+                        };
+                    }
+                    return u;
+                })
             );
 
             setUsuarioEditando(null);
@@ -135,6 +136,7 @@ export default function Usuarios({ userID }) {
             console.error("Detalles del error:", error.response?.data || error.message);
         }
     };
+
 
     // Filtrado por rol
     const usuariosFiltradosPorRol = usuarios.filter((u) => {
@@ -229,9 +231,9 @@ export default function Usuarios({ userID }) {
                                                     : "Administrador"}
                                         </p>
 
-                                    {usuarioActual.rol_id === 3 && u.jefe_name && (
-                                        <p><strong>Jefe directo:</strong> {u.jefe_name}</p>
-                                    )}
+                                        {usuarioActual.rol_id === 3 && u.jefe_name && (
+                                            <p><strong>Jefe directo:</strong> {u.jefe_name}</p>
+                                        )}
 
                                         <p>
                                             <strong>Fecha ingreso:</strong>{" "}
