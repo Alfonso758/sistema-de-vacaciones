@@ -228,7 +228,7 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'nombre'    => 'required|string|max:255',
-            'apellidos' => 'required|string|max:255',
+            'apellidos' => 'string|max:255',
         ]);
 
         $usuario = auth()->user(); // obtiene el usuario autenticado
