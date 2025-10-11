@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
-import '../styles/Usuarios.css';
-import axios from 'axios';
-import { FaUser, FaEdit, FaSearch } from 'react-icons/fa';
+import "../styles/Usuarios.css";
+import axios from "axios";
+import { FaUser, FaEdit, FaSearch } from "react-icons/fa";
 
 export default function Usuarios({ userID }) {
     const [usuarios, setUsuarios] = useState([]);
+    const [jefes, setJefes] = useState([]); // ✅ lista de jefes disponibles
     const [loading, setLoading] = useState(true);
     const [usuarioActual, setUsuarioActual] = useState(null);
     const [error, setError] = useState(null);
     const [busqueda, setBusqueda] = useState("");
     const [usuarioEditando, setUsuarioEditando] = useState(null);
 
-    // Obtener token del localStorage
     const token = localStorage.getItem("token");
 
     useEffect(() => {
@@ -19,11 +19,11 @@ export default function Usuarios({ userID }) {
         fetchUsuarios();
     }, []);
 
-    // Obtener datos del usuario logueado
+    // Obtener usuario logueado
     const fetchUsuarioActual = async () => {
         try {
             const res = await fetch(`http://localhost:8000/api/user`, {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error("Error al obtener usuario actual");
             const data = await res.json();
@@ -38,13 +38,28 @@ export default function Usuarios({ userID }) {
     const fetchUsuarios = async () => {
         try {
             const res = await fetch("http://localhost:8000/api/usuarios", {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error("Error al obtener usuarios");
             const data = await res.json();
-            if (Array.isArray(data)) setUsuarios(data);
-            else if (Array.isArray(data.data)) setUsuarios(data.data);
-            else setUsuarios([]);
+
+            let usuariosData = Array.isArray(data)
+                ? data
+                : Array.isArray(data.data)
+                    ? data.data
+                    : [];
+
+            // ✅ Obtener nombre del jefe para cada usuario
+            usuariosData = usuariosData.map((u) => {
+                const jefe = usuariosData.find((j) => j.id === u.jefe_directo);
+                return { ...u, jefe_name: jefe ? jefe.name : null };
+            });
+
+            // ✅ Filtrar solo los jefes
+            const jefesList = usuariosData.filter((u) => u.rol_id === 2);
+            setJefes(jefesList);
+
+            setUsuarios(usuariosData);
         } catch (err) {
             console.error("Error cargando usuarios:", err);
             setError("No se pudieron cargar los usuarios.");
@@ -53,26 +68,21 @@ export default function Usuarios({ userID }) {
         }
     };
 
-    // Abrir modal con los datos del usuario seleccionado
+    // Abrir modal
     const editarUsuario = (id) => {
-        const usuarioSeleccionado = usuarios.find(u => u.id === id);
+        const usuarioSeleccionado = usuarios.find((u) => u.id === id);
         if (!usuarioSeleccionado) return;
 
         setUsuarioEditando({
             ...usuarioSeleccionado,
-            activo: Number(usuarioSeleccionado.activo)
+            activo: Number(usuarioSeleccionado.activo),
         });
     };
 
-    // Manejar cambios en el formulario
-    // Detectar cambios en los inputs del modal
+    // Cambios en formulario
     const handleChangeUsuarioEditando = (e) => {
-        const { name, value, type } = e.target;
-
-        // Si el campo es "activo", convertir el valor a número
-        const newValue = name === "activo"
-            ? (value === "1" || value === 1 ? 1 : 0)
-            : value;
+        const { name, value } = e.target;
+        const newValue = name === "activo" ? Number(value) : value;
 
         setUsuarioEditando((prev) => ({
             ...prev,
@@ -80,73 +90,82 @@ export default function Usuarios({ userID }) {
         }));
     };
 
-    // Enviar actualización al backend
+    // Actualizar usuario
     const handleActualizarUsuario = async (e) => {
         e.preventDefault();
         if (!usuarioEditando) return;
 
-        // Preparar datos a enviar al backend
         const usuarioData = {
             name: usuarioEditando.name?.trim() || "",
-            rol_id: !isNaN(parseInt(usuarioEditando.rol_id)) ? parseInt(usuarioEditando.rol_id) : 1,
-            fecha_ingreso: usuarioEditando.fecha_ingreso?.split('T')[0] || null,
-            activo: usuarioEditando.activo === 1 || usuarioEditando.activo === "1" ? 1 : 0,
-            surnames: usuarioEditando.surnames?.trim() || "", // si está vacío, se envía string vacío
-            jefe_directo: usuarioEditando.jefe_directo && !isNaN(parseInt(usuarioEditando.jefe_directo))
-                ? parseInt(usuarioEditando.jefe_directo)
-                : null,
+            rol_id: parseInt(usuarioEditando.rol_id) || 1,
+            fecha_ingreso:
+                usuarioEditando.fecha_ingreso?.split("T")[0] || null,
+            activo:
+                usuarioEditando.activo === 1 ||
+                    usuarioEditando.activo === "1"
+                    ? 1
+                    : 0,
+            surnames: usuarioEditando.surnames?.trim() || "",
+            jefe_directo:
+                usuarioEditando.jefe_directo &&
+                    !isNaN(parseInt(usuarioEditando.jefe_directo))
+                    ? parseInt(usuarioEditando.jefe_directo)
+                    : null,
         };
 
         try {
-            // Enviar PUT al backend
             const res = await axios.put(
                 `http://localhost:8000/api/usuarios/${usuarioEditando.id}`,
                 usuarioData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            // Actualizar lista de usuarios localmente
             setUsuarios((prev) =>
                 prev.map((u) =>
-                    u.id === usuarioEditando.id ? (res.data.user || res.data) : u
+                    u.id === usuarioEditando.id
+                        ? res.data.user || res.data
+                        : u
                 )
             );
 
             setUsuarioEditando(null);
             alert("Usuario actualizado correctamente");
-
         } catch (error) {
             alert("Error al actualizar usuario. Verifica que los datos sean correctos.");
             console.error("Detalles del error:", error.response?.data || error.message);
         }
     };
 
-
-    // Filtrar usuarios según rol del usuario logueado
-    const usuariosFiltradosPorRol = usuarios.filter(u => {
+    // Filtrado por rol
+    const usuariosFiltradosPorRol = usuarios.filter((u) => {
         if (!usuarioActual) return false;
-        if (usuarioActual.rol_id === 3) return true; // Administrador ve todo
-        if (usuarioActual.rol_id === 2 && Number(u.jefe_directo) === Number(usuarioActual.id)) return true; // Jefe ve solo sus empleados
+        if (usuarioActual.rol_id === 3) return true; // admin
+        if (
+            usuarioActual.rol_id === 2 &&
+            Number(u.jefe_directo) === Number(usuarioActual.id)
+        )
+            return true; // jefe
         return false;
     });
 
-    // Buscador inteligente
-    const usuariosFiltrados = usuariosFiltradosPorRol.filter(u => {
+    // Buscador
+    const usuariosFiltrados = usuariosFiltradosPorRol.filter((u) => {
         const texto = busqueda.toLowerCase();
-
-        const rolTexto = (() => {
-            switch (u.rol_id) {
-                case 1: return "empleado";
-                case 2: return "jefe de área";
-                case 3: return "administrador";
-                default: return "";
-            }
-        })();
+        const rolTexto =
+            u.rol_id === 1
+                ? "empleado"
+                : u.rol_id === 2
+                    ? "jefe de área"
+                    : "administrador";
 
         const activoTexto = u.activo ? "activo" : "inactivo";
-        const fechaTexto = new Date(u.fecha_ingreso).toLocaleDateString("es-MX", {
-            day: "numeric", month: "long", year: "numeric"
-        }).toLowerCase();
+        const fechaTexto = new Date(u.fecha_ingreso)
+            .toLocaleDateString("es-MX", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+            })
+            .toLowerCase();
 
         return (
             u.name?.toLowerCase().includes(texto) ||
@@ -163,7 +182,7 @@ export default function Usuarios({ userID }) {
         <div className="usuarios-wrapper">
             <h2>Lista de Usuarios</h2>
 
-            {/* 🔍 Buscador inteligente */}
+            {/* 🔍 Buscador */}
             <div className="buscador-container">
                 <FaSearch className="icono-buscar" />
                 <input
@@ -176,51 +195,81 @@ export default function Usuarios({ userID }) {
             </div>
 
             {(loading || !usuarioActual) && <p>Cargando usuarios...</p>}
-            {!loading && error && <p style={{ color: 'red' }}>{error}</p>}
-            {!loading && usuarioActual && !error && usuariosFiltrados.length === 0 && (
-                <p>No hay usuarios disponibles.</p>
-            )}
+            {!loading && error && <p style={{ color: "red" }}>{error}</p>}
+            {!loading &&
+                usuarioActual &&
+                !error &&
+                usuariosFiltrados.length === 0 && (
+                    <p>No hay usuarios disponibles.</p>
+                )}
 
-            {!loading && usuarioActual && !error && usuariosFiltrados.length > 0 && (
-                <ul className="usuarios-lista">
-                    {usuariosFiltrados.map(u => (
-                        <li key={u.id} className="usuario-item">
-                            <div className="usuario-header">
-                                <FaUser className="icono-usuario" />
-                                <div className="info-usuarios">
-                                    <p><strong>Nombre:</strong> {u.name} {u.surnames}</p>
-                                    <p><strong>Email:</strong> {u.email}</p>
-                                    <p><strong>Rol:</strong> {(() => {
-                                        switch (u.rol_id) {
-                                            case 1: return 'Empleado';
-                                            case 2: return 'Jefe de área';
-                                            case 3: return 'Administrador';
-                                            default: return 'No disponible';
-                                        }
-                                    })()}</p>
+            {!loading &&
+                usuarioActual &&
+                !error &&
+                usuariosFiltrados.length > 0 && (
+                    <ul className="usuarios-lista">
+                        {usuariosFiltrados.map((u) => (
+                            <li key={u.id} className="usuario-item">
+                                <div className="usuario-header">
+                                    <FaUser className="icono-usuario" />
+                                    <div className="info-usuarios">
+                                        <p>
+                                            <strong>Nombre:</strong> {u.name}{" "}
+                                            {u.surnames}
+                                        </p>
+                                        <p>
+                                            <strong>Email:</strong> {u.email}
+                                        </p>
+                                        <p>
+                                            <strong>Rol:</strong>{" "}
+                                            {u.rol_id === 1
+                                                ? "Empleado"
+                                                : u.rol_id === 2
+                                                    ? "Jefe de área"
+                                                    : "Administrador"}
+                                        </p>
 
                                     {usuarioActual.rol_id === 3 && u.jefe_name && (
                                         <p><strong>Jefe directo:</strong> {u.jefe_name}</p>
                                     )}
 
-                                    <p><strong>Fecha ingreso:</strong> {new Date(u.fecha_ingreso).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                                    <p><strong>Estado:</strong> {u.activo ? "Activo" : "Inactivo"}</p>
+                                        <p>
+                                            <strong>Fecha ingreso:</strong>{" "}
+                                            {new Date(
+                                                u.fecha_ingreso
+                                            ).toLocaleDateString("es-MX", {
+                                                day: "numeric",
+                                                month: "long",
+                                                year: "numeric",
+                                            })}
+                                        </p>
+                                        <p>
+                                            <strong>Estado:</strong>{" "}
+                                            {u.activo
+                                                ? "Activo"
+                                                : "Inactivo"}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {usuarioActual.rol_id === 3 && (
-                                <div className="usuario-actions">
-                                    <button onClick={() => editarUsuario(u.id)}>
-                                        <FaEdit style={{ marginRight: 6 }} /> Editar
-                                    </button>
-                                </div>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            )}
+                                {usuarioActual.rol_id === 3 && (
+                                    <div className="usuario-actions">
+                                        <button
+                                            onClick={() => editarUsuario(u.id)}
+                                        >
+                                            <FaEdit
+                                                style={{ marginRight: 6 }}
+                                            />{" "}
+                                            Editar
+                                        </button>
+                                    </div>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
+                )}
 
-            {/* 🧾 Modal de edición */}
+            {/* 🧾 Modal */}
             {usuarioEditando && (
                 <div className="modal-overlay">
                     <div className="modal-editar">
@@ -248,7 +297,6 @@ export default function Usuarios({ userID }) {
                                 name="email"
                                 title="El correo no es modificable"
                                 value={usuarioEditando.email}
-                                onChange={handleChangeUsuarioEditando}
                                 disabled
                             />
 
@@ -263,34 +311,38 @@ export default function Usuarios({ userID }) {
                                 <option value={3}>Administrador</option>
                             </select>
 
-                            <label>Jefe directo (ID):</label>
-                            <input
-                                type="number"
+                            {/* ✅ Select de jefes */}
+                            <label>Jefe directo:</label>
+                            <select
                                 name="jefe_directo"
                                 value={usuarioEditando.jefe_directo || ""}
-                                onChange={(e) =>
-                                    setUsuarioEditando({
-                                        ...usuarioEditando,
-                                        jefe_directo: e.target.value === "" ? null : e.target.value
-                                    })
-                                }
-                            />
-
+                                onChange={handleChangeUsuarioEditando}
+                            >
+                                <option value="">Sin jefe directo</option>
+                                {jefes.map((j) => (
+                                    <option key={j.id} value={j.id}>
+                                        {j.name} {j.surnames}
+                                    </option>
+                                ))}
+                            </select>
 
                             <label>Fecha de ingreso:</label>
                             <input
                                 type="date"
                                 name="fecha_ingreso"
-                                value={usuarioEditando.fecha_ingreso?.split('T')[0] || ""}
+                                value={
+                                    usuarioEditando.fecha_ingreso?.split(
+                                        "T"
+                                    )[0] || ""
+                                }
                                 onChange={handleChangeUsuarioEditando}
                             />
 
                             <label>Estado:</label>
                             <select
-                                value={usuarioEditando.activo} // será 1 o 0
-                                onChange={e =>
-                                    setUsuarioEditando({ ...usuarioEditando, activo: parseInt(e.target.value) })
-                                }
+                                name="activo"
+                                value={usuarioEditando.activo}
+                                onChange={handleChangeUsuarioEditando}
                             >
                                 <option value={1}>Activo</option>
                                 <option value={0}>Inactivo</option>
