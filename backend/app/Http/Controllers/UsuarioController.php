@@ -119,36 +119,56 @@ class UsuarioController extends Controller
     }
 
     // 🔹 Actualizar un usuario
-    public function update(Request $request, $id)
-    {
-        $usuario = Usuario::find($id);
-        if (!$usuario) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
-        }
-
+public function update(Request $request, $id)
+{
+    try {
         $validator = Validator::make($request->all(), [
             'name'          => 'sometimes|string|max:255',
-            'surnames'      => 'sometimes|string|max:255',
+            'surnames'      => 'sometimes|string|max:255|nullable',
             'email'         => 'sometimes|email|unique:users,email,' . $id,
             'password'      => 'sometimes|string|min:6|confirmed',
-            'activo'        => 'sometimes|boolean',
+            'activo'        => 'sometimes|in:0,1',
             'fecha_ingreso' => 'sometimes|date',
-            'jefe_directo'  => 'nullable|exists:users,id',
+            'jefe_directo'  => 'sometimes|nullable|exists:users,id',
+            'rol_id'        => 'sometimes|integer|in:1,2,3',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json([
+                'message' => 'Error de validación',
+                'errors' => $validator->errors()
+            ], 422);
         }
 
-        $data = $request->all();
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
+        $usuario = Usuario::findOrFail($id);
+        $data = $validator->validated();
+
+        // Si 'surnames' viene vacío, se guarda como null
+        if (array_key_exists('surnames', $data)) {
+            $data['surnames'] = $data['surnames'] === '' ? null : $data['surnames'];
+        }
+
+        // Encriptar contraseña si viene
+        if (!empty($data['password'])) {
+            $data['password'] = bcrypt($data['password']);
         }
 
         $usuario->update($data);
 
-        return response()->json(['message' => 'Usuario actualizado correctamente', 'user' => $usuario]);
+        return response()->json([
+            'message' => 'Usuario actualizado correctamente',
+            'user' => $usuario
+        ]);
+
+    } catch (\Exception $e) {
+
+        return response()->json([
+            'message' => 'Error interno del servidor',
+            'error' => $e->getMessage(),
+        ], 500);
     }
+}
+
 
     // 🔹 Eliminar un usuario
     public function destroy($id)
@@ -228,7 +248,7 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'nombre'    => 'required|string|max:255',
-            'apellidos' => 'string|max:255',
+            'apellidos' => 'nullable|string|max:255',
         ]);
 
         $usuario = auth()->user(); // obtiene el usuario autenticado

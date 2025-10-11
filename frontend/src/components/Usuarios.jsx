@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import '../styles/Usuarios.css';
+import axios from 'axios';
 import { FaUser, FaEdit, FaSearch } from 'react-icons/fa';
 
 export default function Usuarios({ userID }) {
@@ -10,6 +11,9 @@ export default function Usuarios({ userID }) {
     const [busqueda, setBusqueda] = useState("");
     const [usuarioEditando, setUsuarioEditando] = useState(null);
 
+    // Obtener token del localStorage
+    const token = localStorage.getItem("token");
+
     useEffect(() => {
         fetchUsuarioActual();
         fetchUsuarios();
@@ -18,7 +22,6 @@ export default function Usuarios({ userID }) {
     // Obtener datos del usuario logueado
     const fetchUsuarioActual = async () => {
         try {
-            const token = localStorage.getItem("token");
             const res = await fetch(`http://localhost:8000/api/user`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -34,7 +37,6 @@ export default function Usuarios({ userID }) {
     // Obtener todos los usuarios
     const fetchUsuarios = async () => {
         try {
-            const token = localStorage.getItem("token");
             const res = await fetch("http://localhost:8000/api/usuarios", {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -54,46 +56,71 @@ export default function Usuarios({ userID }) {
     // Abrir modal con los datos del usuario seleccionado
     const editarUsuario = (id) => {
         const usuarioSeleccionado = usuarios.find(u => u.id === id);
-        setUsuarioEditando({ ...usuarioSeleccionado });
+        if (!usuarioSeleccionado) return;
+
+        setUsuarioEditando({
+            ...usuarioSeleccionado,
+            activo: Number(usuarioSeleccionado.activo)
+        });
     };
 
     // Manejar cambios en el formulario
+    // Detectar cambios en los inputs del modal
     const handleChangeUsuarioEditando = (e) => {
-        const { name, value } = e.target;
-        setUsuarioEditando({
-            ...usuarioEditando,
-            [name]: value
-        });
+        const { name, value, type } = e.target;
+
+        // Si el campo es "activo", convertir el valor a número
+        const newValue = name === "activo"
+            ? (value === "1" || value === 1 ? 1 : 0)
+            : value;
+
+        setUsuarioEditando((prev) => ({
+            ...prev,
+            [name]: newValue,
+        }));
     };
 
     // Enviar actualización al backend
     const handleActualizarUsuario = async (e) => {
         e.preventDefault();
+        if (!usuarioEditando) return;
+
+        // Preparar datos a enviar al backend
+        const usuarioData = {
+            name: usuarioEditando.name?.trim() || "",
+            rol_id: !isNaN(parseInt(usuarioEditando.rol_id)) ? parseInt(usuarioEditando.rol_id) : 1,
+            fecha_ingreso: usuarioEditando.fecha_ingreso?.split('T')[0] || null,
+            activo: usuarioEditando.activo === 1 || usuarioEditando.activo === "1" ? 1 : 0,
+            surnames: usuarioEditando.surnames?.trim() || "", // si está vacío, se envía string vacío
+            jefe_directo: usuarioEditando.jefe_directo && !isNaN(parseInt(usuarioEditando.jefe_directo))
+                ? parseInt(usuarioEditando.jefe_directo)
+                : null,
+        };
+
         try {
-            const token = localStorage.getItem("token");
-            const res = await fetch(`http://localhost:8000/api/usuarios/${usuarioEditando.id}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify(usuarioEditando)
-            });
-
-            if (!res.ok) throw new Error("Error al actualizar usuario");
-
-            // Actualizar la lista local
-            const usuariosActualizados = usuarios.map(u =>
-                u.id === usuarioEditando.id ? usuarioEditando : u
+            // Enviar PUT al backend
+            const res = await axios.put(
+                `http://localhost:8000/api/usuarios/${usuarioEditando.id}`,
+                usuarioData,
+                { headers: { Authorization: `Bearer ${token}` } }
             );
-            setUsuarios(usuariosActualizados);
+
+            // Actualizar lista de usuarios localmente
+            setUsuarios((prev) =>
+                prev.map((u) =>
+                    u.id === usuarioEditando.id ? (res.data.user || res.data) : u
+                )
+            );
+
             setUsuarioEditando(null);
             alert("Usuario actualizado correctamente");
-        } catch (err) {
-            console.error("Error actualizando usuario:", err);
-            alert("No se pudo actualizar el usuario");
+
+        } catch (error) {
+            alert("Error al actualizar usuario. Verifica que los datos sean correctos.");
+            console.error("Detalles del error:", error.response?.data || error.message);
         }
     };
+
 
     // Filtrar usuarios según rol del usuario logueado
     const usuariosFiltradosPorRol = usuarios.filter(u => {
@@ -148,16 +175,12 @@ export default function Usuarios({ userID }) {
                 />
             </div>
 
-            {/* Mensajes de carga o error */}
             {(loading || !usuarioActual) && <p>Cargando usuarios...</p>}
             {!loading && error && <p style={{ color: 'red' }}>{error}</p>}
-
-            {/* Mensaje si no hay usuarios filtrados */}
             {!loading && usuarioActual && !error && usuariosFiltrados.length === 0 && (
                 <p>No hay usuarios disponibles.</p>
             )}
 
-            {/* Lista de usuarios filtrados */}
             {!loading && usuarioActual && !error && usuariosFiltrados.length > 0 && (
                 <ul className="usuarios-lista">
                     {usuariosFiltrados.map(u => (
@@ -215,7 +238,7 @@ export default function Usuarios({ userID }) {
                             <input
                                 type="text"
                                 name="surnames"
-                                value={usuarioEditando.surnames}
+                                value={usuarioEditando.surnames || ""}
                                 onChange={handleChangeUsuarioEditando}
                             />
 
@@ -234,9 +257,9 @@ export default function Usuarios({ userID }) {
                                 value={usuarioEditando.rol_id}
                                 onChange={handleChangeUsuarioEditando}
                             >
-                                <option value="1">Empleado</option>
-                                <option value="2">Jefe de área</option>
-                                <option value="3">Administrador</option>
+                                <option value={1}>Empleado</option>
+                                <option value={2}>Jefe de área</option>
+                                <option value={3}>Administrador</option>
                             </select>
 
                             <label>Jefe directo (ID):</label>
@@ -244,8 +267,14 @@ export default function Usuarios({ userID }) {
                                 type="number"
                                 name="jefe_directo"
                                 value={usuarioEditando.jefe_directo || ""}
-                                onChange={handleChangeUsuarioEditando}
+                                onChange={(e) =>
+                                    setUsuarioEditando({
+                                        ...usuarioEditando,
+                                        jefe_directo: e.target.value === "" ? null : e.target.value
+                                    })
+                                }
                             />
+
 
                             <label>Fecha de ingreso:</label>
                             <input
@@ -257,17 +286,13 @@ export default function Usuarios({ userID }) {
 
                             <label>Estado:</label>
                             <select
-                                name="activo"
-                                value={usuarioEditando.activo ? "1" : "0"}
-                                onChange={(e) =>
-                                    setUsuarioEditando({
-                                        ...usuarioEditando,
-                                        activo: e.target.value === "1"
-                                    })
+                                value={usuarioEditando.activo} // será 1 o 0
+                                onChange={e =>
+                                    setUsuarioEditando({ ...usuarioEditando, activo: parseInt(e.target.value) })
                                 }
                             >
-                                <option value="1">Activo</option>
-                                <option value="0">Inactivo</option>
+                                <option value={1}>Activo</option>
+                                <option value={0}>Inactivo</option>
                             </select>
 
                             <div className="modal-botones">
