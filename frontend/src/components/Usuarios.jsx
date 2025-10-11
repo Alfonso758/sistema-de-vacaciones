@@ -246,6 +246,7 @@ export default function Usuarios({ userID }) {
                             <input
                                 type="email"
                                 name="email"
+                                title="El correo no es modificable"
                                 value={usuarioEditando.email}
                                 onChange={handleChangeUsuarioEditando}
                                 disabled
