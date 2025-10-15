@@ -75,7 +75,9 @@ function LoginForm({ onLoginSuccess }) {
         <header className="login-header">
           <h1>Sistema de Solicitud de Vacaciones</h1>
           <img
-            src="https://vacaciones.sokodev.com/images/soko.png"
+            src={`${import.meta.env.VITE_IMAGE_URL}/soko.png`}
+            //src="http://localhost:8000/images/soko.png"
+            //src="https://vacaciones.sokodev.com/images/soko.png"
             alt="SokoLabs"
             className="login-header-image"
           />
