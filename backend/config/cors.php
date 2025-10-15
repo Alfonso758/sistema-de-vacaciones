@@ -1,38 +1,30 @@
 <?php
 
 return [
-
-    /*
-    |--------------------------------------------------------------------------
-    | Cross-Origin Resource Sharing (CORS) Configuration
-    |--------------------------------------------------------------------------
-    |
-    | Aquí se configuran los orígenes permitidos, métodos y cabeceras para
-    | solicitudes desde otros dominios (como tu frontend en React).
-    |
-    */
-
-    // Rutas que aplican CORS
+    // Rutas que aplican CORS (normalmente las APIs)
     'paths' => ['api/*', 'sanctum/csrf-cookie'],
 
-    // Métodos permitidos
-    'allowed_methods' => ['*'], // Permite GET, POST, PUT, DELETE, OPTIONS...
+    // Métodos HTTP permitidos
+    'allowed_methods' => ['*'], // GET, POST, PUT, DELETE, OPTIONS...
 
-    // Orígenes permitidos
-    'allowed_origins' => ['http://localhost:5173'], // tu frontend explícitamente
+    // Dominios que pueden acceder a tu backend
+    'allowed_origins' => [
+        'https://vacaciones.sokodev.com', // dominio en producción (HTTPS)
+        'http://localhost:5173',           // entorno local de desarrollo (Vite)
+    ],
 
-    // Patrón de orígenes permitidos (puedes dejar vacío)
+    // Patrón de orígenes (puede quedar vacío)
     'allowed_origins_patterns' => [],
 
     // Cabeceras permitidas
-    'allowed_headers' => ['*'], // Permite Authorization, Content-Type, etc.
+    'allowed_headers' => ['*'], // Authorization, Content-Type, etc.
 
-    // Cabeceras que pueden exponerse al frontend
+    // Cabeceras expuestas al frontend
     'exposed_headers' => [],
 
-    // Tiempo máximo de cache de preflight (en segundos)
+    // Tiempo máximo que el navegador puede cachear la respuesta preflight
     'max_age' => 0,
 
-    // Permite enviar cookies / Authorization headers
+    // Permitir envío de cookies o credenciales en las solicitudes
     'supports_credentials' => true,
 ];
