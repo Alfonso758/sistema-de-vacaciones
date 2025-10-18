@@ -28,6 +28,8 @@ function App() {
   const [campoEditable, setCampoEditable] = useState('');
   const [valorEditable, setValorEditable] = useState('');
   const [jefe, setJefe] = useState(null);
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
+  const imagesBaseUrl = import.meta.env.VITE_IMAGE_URL;
 
   const toggleMostrarPassword = () => setMostrarPassword(prev => !prev);
 
@@ -85,7 +87,7 @@ function App() {
       const token = localStorage.getItem('token');
       console.log('🔍 Obteniendo datos del jefe directo con ID:', usuario.jefe_directo);
 
-      fetch(`http://localhost:8000/api/usuarios/${usuario.jefe_directo}`, {
+      fetch(`${apiBaseUrl}/api/usuarios/${usuario.jefe_directo}`, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -134,7 +136,7 @@ function App() {
 
     try {
       const token = localStorage.getItem('token'); // token de login
-      const response = await fetch('http://localhost:8000/api/usuarios/avatar', {
+      const response = await fetch(`${apiBaseUrl}/api/usuarios/avatar`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -172,7 +174,7 @@ function App() {
     try {
       const token = localStorage.getItem('token'); // O donde guardes el token después del login
 
-      const response = await fetch('http://localhost:8000/api/usuarios/cambiar-password', {
+      const response = await fetch(`${apiBaseUrl}/api/usuarios/cambiar-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -213,7 +215,7 @@ function App() {
     try {
       const token = localStorage.getItem('token');
 
-      const response = await fetch('http://localhost:8000/api/usuario/actualizar', {
+      const response = await fetch(`${apiBaseUrl}/api/usuario/actualizar`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -245,7 +247,7 @@ function App() {
     <>
       <header className="encabezado-app">
         <div className="contenedor-logo">
-          <img src="http://localhost:8000/images/soko.png" alt="Logo" className="logo" />
+          <img src={`${imagesBaseUrl}/soko.png`} alt="Logo" className="logo" />
         </div>
 
         <div className="info-usuario" ref={menuRef}>
@@ -256,7 +258,7 @@ function App() {
                 ? usuario.avatarUrl.startsWith("storage/")
                   ? usuario.avatarUrl.replace(/^storage\//, "")
                   : usuario.avatarUrl
-                : "http://localhost:8000/images/user.jpg"
+                : `${imagesBaseUrl}/user.jpg`
             }
             alt="Foto de perfil"
             className="foto-perfil"
@@ -310,7 +312,7 @@ function App() {
                             ? usuario.avatarUrl.startsWith("storage/")
                               ? usuario.avatarUrl.replace(/^storage\//, "")
                               : usuario.avatarUrl
-                            : "http://localhost:8000/images/user.jpg"
+                            : `${imagesBaseUrl}/user.jpg`
                         }
                         alt="Foto de perfil"
                         className="perfil-foto"

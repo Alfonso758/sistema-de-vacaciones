@@ -25,6 +25,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
   const [fechaFinAnio, setFechaFinAnio] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [diasAnuales, setDiasAnuales] = useState(0);
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
 
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
@@ -113,7 +114,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
   const fetchDatosVacaciones = useCallback(async () => {
     if (!userID) return;
     try {
-      const res = await axios.get(`http://localhost:8000/api/datos-vacaciones/${userID}`);
+      const res = await axios.get(`${apiBaseUrl}/api/datos-vacaciones/${userID}`);
       setAnosTrabajados(res.data.anosTrabajados ?? 0);
       setDiasTomados(res.data.diasTomados ?? 0);
       setDiasDisponibles(res.data.diasDisponibles ?? 0);
@@ -176,7 +177,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
     }
 
     try {
-      const respuesta = await fetch('http://localhost:8000/api/solicitudes', {
+      const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
