@@ -5,6 +5,7 @@ export default function DiasAcumulables() {
   const [diasAcumulables, setDiasAcumulables] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const apiBaseUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -12,12 +13,12 @@ export default function DiasAcumulables() {
     console.log("🟢 Obteniendo días acumulables y usuarios...");
 
     // Fetch de los días acumulables
-    const fetchDias = fetch("http://localhost:8000/api/acumulables", {
+    const fetchDias = fetch(`${apiBaseUrl}/api/acumulables`, {
       headers: { "Authorization": `Bearer ${token}` },
     }).then(res => res.json());
 
     // Fetch de todos los usuarios
-    const fetchUsuarios = fetch("http://localhost:8000/api/usuarios", {
+    const fetchUsuarios = fetch(`${apiBaseUrl}/api/usuarios`, {
       headers: { "Authorization": `Bearer ${token}` },
     }).then(res => res.json());
 

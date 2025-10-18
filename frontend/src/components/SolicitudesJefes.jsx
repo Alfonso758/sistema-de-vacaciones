@@ -7,6 +7,7 @@ export default function SolicitudesJefes({ userID }) {
     const [loading, setLoading] = useState(true);
     const [filtro, setFiltro] = useState('2'); // por defecto aprobadas
     const [comentarios, setComentarios] = useState({}); // comentarios temporales
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const estados = {
         2: "Aprobada",
@@ -54,7 +55,7 @@ export default function SolicitudesJefes({ userID }) {
     useEffect(() => {
         if (!userID) return;
 
-        fetch(`http://localhost:8000/api/solicitudes/jefes/${userID}`, {
+        fetch(`${apiBaseUrl}/api/solicitudes/jefes/${userID}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -89,7 +90,7 @@ export default function SolicitudesJefes({ userID }) {
     // ----------------- RECHAZAR SOLICITUD -----------------
     const rechazarSolicitud = async (id) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/solicitudes/${id}/decision`, {
+            const res = await fetch(`${apiBaseUrl}/api/solicitudes/${id}/decision`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

@@ -11,6 +11,7 @@ export default function Usuarios({ userID }) {
     const [error, setError] = useState(null);
     const [busqueda, setBusqueda] = useState("");
     const [usuarioEditando, setUsuarioEditando] = useState(null);
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const token = localStorage.getItem("token");
 
@@ -22,7 +23,7 @@ export default function Usuarios({ userID }) {
     // Obtener usuario logueado
     const fetchUsuarioActual = async () => {
         try {
-            const res = await fetch(`http://localhost:8000/api/user`, {
+            const res = await fetch(`${apiBaseUrl}/api/user`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error("Error al obtener usuario actual");
@@ -37,7 +38,7 @@ export default function Usuarios({ userID }) {
     // Obtener todos los usuarios
     const fetchUsuarios = async () => {
         try {
-            const res = await fetch("http://localhost:8000/api/usuarios", {
+            const res = await fetch(`${apiBaseUrl}/api/usuarios`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             if (!res.ok) throw new Error("Error al obtener usuarios");
@@ -108,7 +109,7 @@ export default function Usuarios({ userID }) {
 
         try {
             const res = await axios.put(
-                `http://localhost:8000/api/usuarios/${usuarioEditando.id}`,
+                `${apiBaseUrl}/api/usuarios/${usuarioEditando.id}`,
                 usuarioData,
                 { headers: { Authorization: `Bearer ${token}` } }
             );

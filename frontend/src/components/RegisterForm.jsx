@@ -18,10 +18,11 @@ function RegisterForm() {
     const [jefes, setJefes] = useState([]);
     const [message, setMessage] = useState('');
     const [errors, setErrors] = useState({});
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     // Cargar jefes desde el backend
     useEffect(() => {
-        axios.get('http://localhost:8000/api/jefes')
+        axios.get(`${apiBaseUrl}/api/jefes`)
             .then(res => setJefes(res.data))
             .catch(() => console.error("Error cargando jefes"));
     }, []);
@@ -40,7 +41,7 @@ function RegisterForm() {
         setErrors({});
 
         try {
-            const response = await axios.post('http://localhost:8000/api/register', form);
+            const response = await axios.post(`${apiBaseUrl}/api/register`, form);
             setMessage(response.data.message || 'Usuario registrado');
 
             // 🔹 Reiniciar formulario después del registro exitoso

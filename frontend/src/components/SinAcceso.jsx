@@ -8,10 +8,11 @@ function SinAcceso({ usuario }) {
     const [guardado, setGuardado] = useState(
         localStorage.getItem('formGuardado') === 'true' // 🔹 leer el flag al iniciar
     );
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     // Cargar jefes desde el backend
     useEffect(() => {
-        fetch('http://localhost:8000/api/jefes')
+        fetch(`${apiBaseUrl}/api/jefes`)
             .then(res => res.json())
             .then(data => setJefes(data))
             .catch(() => console.error("Error cargando jefes"));
@@ -22,7 +23,7 @@ function SinAcceso({ usuario }) {
         e.preventDefault();
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:8000/api/usuarios/${usuario.id}`, {
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/${usuario.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

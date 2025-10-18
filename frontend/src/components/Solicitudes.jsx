@@ -6,11 +6,12 @@ export default function Solicitudes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [rolID, setRolID] = useState(null);
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         if (!userID) return;
 
-        fetch(`http://localhost:8000/api/usuarios/${userID}`, {
+        fetch(`${apiBaseUrl}/api/usuarios/${userID}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -88,7 +89,7 @@ export default function Solicitudes({ userID }) {
 
     const manejarEditar = async (id) => {
         try {
-            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}`, {
+            const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
@@ -126,7 +127,7 @@ export default function Solicitudes({ userID }) {
         if (!window.confirm("¿Seguro que deseas cancelar esta solicitud?")) return;
 
         try {
-            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}/cancelar`, {
+            const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${id}/cancelar`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -149,7 +150,7 @@ export default function Solicitudes({ userID }) {
         if (!window.confirm("¿Seguro que deseas eliminar esta solicitud?")) return;
 
         try {
-            const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${id}`, {
+            const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -170,7 +171,7 @@ export default function Solicitudes({ userID }) {
     useEffect(() => {
         if (!userID) return;
 
-        fetch(`http://localhost:8000/api/solicitudes/usuario/${userID}`)
+        fetch(`${apiBaseUrl}/api/solicitudes/usuario/${userID}`)
             .then(res => res.json())
             .then(data => {
                 console.log("Respuesta API:", data);
@@ -294,7 +295,7 @@ export default function Solicitudes({ userID }) {
                         <form onSubmit={async (e) => {
                             e.preventDefault();
                             try {
-                                const respuesta = await fetch(`http://localhost:8000/api/solicitudes/${solicitudEditando.id}`, {
+                                const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${solicitudEditando.id}`, {
                                     method: 'PUT',
                                     headers: {
                                         'Content-Type': 'application/json',

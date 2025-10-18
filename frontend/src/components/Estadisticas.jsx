@@ -17,11 +17,12 @@ export default function Estadisticas({ userID }) {
     const [loading, setLoading] = useState(true);
     const [year, setYear] = useState(new Date().getFullYear());
     const [focusedButton, setFocusedButton] = useState(null);
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const fetchDatos = async (anio) => {
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:8000/api/estadisticas/${anio}?userID=${userID}`, {
+            const response = await fetch(`${apiBaseUrl}/api/estadisticas/${anio}?userID=${userID}`, {
                 headers: {
                     "Content-Type": "application/json",
                     "Accept": "application/json",

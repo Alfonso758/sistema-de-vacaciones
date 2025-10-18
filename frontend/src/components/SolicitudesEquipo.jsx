@@ -7,6 +7,7 @@ export default function SolicitudesEquipo({ userID }) {
     const [loading, setLoading] = useState(true);
     const [comentarios, setComentarios] = useState({});
     const [filtro, setFiltro] = useState('1');
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const estados = {
         1: "Pendiente",
@@ -55,7 +56,7 @@ export default function SolicitudesEquipo({ userID }) {
     // ----------------- APROBAR O RECHAZAR -----------------
     const manejarDecision = async (id, decision) => {
         try {
-            const res = await fetch(`http://localhost:8000/api/solicitudes/${id}/decision`, {
+            const res = await fetch(`${apiBaseUrl}/api/solicitudes/${id}/decision`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ export default function SolicitudesEquipo({ userID }) {
     useEffect(() => {
         if (!userID) return;
 
-        fetch(`http://localhost:8000/api/solicitudes/equipo/${userID}`, {
+        fetch(`${apiBaseUrl}/api/solicitudes/equipo/${userID}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token')}`
             }
@@ -123,7 +124,7 @@ export default function SolicitudesEquipo({ userID }) {
                     className="btn-recargar"
                     onClick={() => {
                         setLoading(true);
-                        fetch(`http://localhost:8000/api/solicitudes/equipo/${userID}`, {
+                        fetch(`${apiBaseUrl}/api/solicitudes/equipo/${userID}`, {
                             headers: {
                                 'Authorization': `Bearer ${localStorage.getItem('token')}`
                             }

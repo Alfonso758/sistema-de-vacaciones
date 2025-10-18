@@ -6,6 +6,7 @@ export default function UsuariosPend({ userID }) {
     const [usuarios, setUsuarios] = useState([]);
     const [loading, setLoading] = useState(true);
     const [usuarioActual, setUsuarioActual] = useState(null);
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         fetchUsuarioActual();
@@ -15,7 +16,7 @@ export default function UsuariosPend({ userID }) {
     const fetchUsuarioActual = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`http://localhost:8000/api/user`, {
+            const res = await fetch(`${apiBaseUrl}/api/user`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (!res.ok) throw new Error("Error al obtener usuario actual");
@@ -29,7 +30,7 @@ export default function UsuariosPend({ userID }) {
     const fetchUsuarios = async () => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch("http://localhost:8000/api/usuarios/pendientes", {
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/pendientes`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             if (!response.ok) throw new Error("Error al obtener usuarios");
@@ -45,7 +46,7 @@ export default function UsuariosPend({ userID }) {
     const aprobarUsuario = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8000/api/usuarios/${id}/rol`, {
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}/rol`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -65,7 +66,7 @@ export default function UsuariosPend({ userID }) {
     const asignarRol = async (id, nuevoRol) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`http://localhost:8000/api/usuarios/${id}/rol`, {
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}/rol`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",

@@ -13,18 +13,19 @@ export default function Reportes({ userID }) {
     const [selectedEmpleado, setSelectedEmpleado] = useState("general");
     const [empleados, setEmpleados] = useState([]);
     const [loading, setLoading] = useState(true);
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         const fetchDatos = async () => {
             setLoading(true);
             try {
                 // Traer solicitudes del equipo
-                const resSolicitudes = await fetch(`http://localhost:8000/api/solicitudes/reporte/${userID}`);
+                const resSolicitudes = await fetch(`${apiBaseUrl}/api/solicitudes/reporte/${userID}`);
                 const dataSolicitudes = await resSolicitudes.json();
                 setSolicitudes(dataSolicitudes);
 
                 // Traer empleados del jefe
-                const resEmpleados = await fetch(`http://localhost:8000/api/empleados/${userID}`);
+                const resEmpleados = await fetch(`${apiBaseUrl}/api/empleados/${userID}`);
                 const dataEmpleados = await resEmpleados.json();
                 setEmpleados(dataEmpleados);
             } catch (error) {

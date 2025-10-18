@@ -11,8 +11,8 @@ export default function Calendario({ userID }) {
     const [vacaciones, setVacaciones] = useState([]);
     const [diasInhabiles, setDiasInhabiles] = useState([]);
     const [cargando, setCargando] = useState(true);
-
     const [empleadoColors, setEmpleadoColors] = useState({});
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -48,7 +48,7 @@ export default function Calendario({ userID }) {
             try {
                 let vacData = [];
                 if (userID) {
-                    const resVac = await fetch(`http://localhost:8000/api/vacaciones/${userID}`);
+                    const resVac = await fetch(`${apiBaseUrl}/api/vacaciones/${userID}`);
                     vacData = await resVac.json();
 
                     // asignar colores a empleados únicos
@@ -65,7 +65,7 @@ export default function Calendario({ userID }) {
                     setVacaciones(vacData);
                 }
 
-                const resDias = await fetch(`http://localhost:8000/api/dias-inhabiles`);
+                const resDias = await fetch(`${apiBaseUrl}/api/dias-inhabiles`);
                 const diasData = await resDias.json();
                 setDiasInhabiles(diasData);
 

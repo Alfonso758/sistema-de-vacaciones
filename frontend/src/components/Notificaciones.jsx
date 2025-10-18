@@ -4,11 +4,12 @@ import "../styles/Notificaciones.css";
 export default function Notificaciones({ userID }) {
     const [notificaciones, setNotificaciones] = useState([]);
     const [cargando, setCargando] = useState(true);
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         const fetchNotificaciones = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/api/notificaciones?userID=${userID}`);
+                const response = await fetch(`${apiBaseUrl}/api/notificaciones?userID=${userID}`);
                 const data = await response.json();
 
                 // Filtrar solo las notificaciones del usuario actual
@@ -39,7 +40,7 @@ export default function Notificaciones({ userID }) {
         const noti = notificaciones.find(n => n.id === id);
         if (!noti.visto) {
             try {
-                await fetch(`http://localhost:8000/api/notificaciones/${id}`, {
+                await fetch(`${apiBaseUrl}/api/notificaciones/${id}`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ leido: 1 })
@@ -56,7 +57,7 @@ export default function Notificaciones({ userID }) {
 
     const eliminarNotificacion = async (id) => {
         try {
-            await fetch(`http://localhost:8000/api/notificaciones/${id}`, {
+            await fetch(`${apiBaseUrl}/api/notificaciones/${id}`, {
                 method: "DELETE",
             });
 
