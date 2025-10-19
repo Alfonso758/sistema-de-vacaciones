@@ -69,7 +69,6 @@ function LoginForm({ onLoginSuccess }) {
       onLoginSuccess(normalizedUser);
 
     } catch (err) {
-      console.error("Error con login Google:", err);
 
       if (err.response) {
         switch (err.response.status) {
@@ -222,7 +221,6 @@ function LoginForm({ onLoginSuccess }) {
         <div className="google-login">
           <GoogleLogin
             onSuccess={handleGoogleSuccess}
-            onError={() => console.log("Error en login con Google")}
           />
         </div>
       </div>
