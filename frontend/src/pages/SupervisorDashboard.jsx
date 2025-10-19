@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import '../styles/EmpleadoDashboard.css';
 import Solicitudes from '../components/Solicitudes';
 import SolicitudesEquipo from '../components/SolicitudesEquipo';
-import UsuariosPend from '../components/UsuariosPend';
 import Usuarios from '../components/Usuarios';
 import Calendario from '../components/Calendario';
 import CalendarioEquipo from '../components/CalendarioEquipo';
@@ -46,7 +45,6 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
     "Usuarios": {
       icono: <FaUsers />,
       opciones: [
-        { nombre: "Empleados pendientes" },
         { nombre: "Lista de empleados" }
       ]
     },
@@ -235,7 +233,6 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       }} />;
       case 'Mis solicitudes': return <Solicitudes userID={userID} />;
       case 'S. Empleados': return <SolicitudesEquipo userID={userID} />;
-      case 'Empleados pendientes': return <UsuariosPend userID={userID} />;
       case 'Lista de empleados': return <Usuarios userID={userID} />;
       case 'Mi calendario': return <Calendario userID={userID} />;
       case 'C. Empleados': return <CalendarioEquipo userID={userID} />;

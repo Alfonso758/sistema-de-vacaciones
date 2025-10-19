@@ -83,6 +83,7 @@ class UsuarioController extends Controller
             'rol_id'        => $request->rol_id,
             'activo'        => 0,
             'fecha_ingreso' => $request->fecha_ingreso,
+            'nuevo' => true,
             'jefe_directo'  => $request->jefe_directo,
             'email_verified_at' => now(),
         ]);
@@ -119,55 +120,54 @@ class UsuarioController extends Controller
     }
 
     // 🔹 Actualizar un usuario
-public function update(Request $request, $id)
-{
-    try {
-        $validator = Validator::make($request->all(), [
-            'name'          => 'sometimes|string|max:255',
-            'surnames'      => 'sometimes|string|max:255|nullable',
-            'email'         => 'sometimes|email|unique:users,email,' . $id,
-            'password'      => 'sometimes|string|min:6|confirmed',
-            'activo'        => 'sometimes|in:0,1',
-            'fecha_ingreso' => 'sometimes|date',
-            'jefe_directo'  => 'sometimes|nullable|exists:users,id',
-            'rol_id'        => 'sometimes|integer|in:1,2,3',
-        ]);
+    public function update(Request $request, $id)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'name'          => 'sometimes|string|max:255',
+                'surnames'      => 'sometimes|string|max:255|nullable',
+                'email'         => 'sometimes|email|unique:users,email,' . $id,
+                'password'      => 'sometimes|string|min:6|confirmed',
+                'activo'        => 'sometimes|in:0,1',
+                'fecha_ingreso' => 'sometimes|date',
+                'jefe_directo'  => 'sometimes|nullable|exists:users,id',
+                'rol_id'        => 'sometimes|integer|in:1,2,3',
+            ]);
 
-        if ($validator->fails()) {
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Error de validación',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $usuario = Usuario::findOrFail($id);
+            $data = $validator->validated();
+
+            // Si 'surnames' viene vacío, se guarda como null
+            if (array_key_exists('surnames', $data)) {
+                $data['surnames'] = $data['surnames'] === '' ? null : $data['surnames'];
+            }
+
+            // Encriptar contraseña si viene
+            if (!empty($data['password'])) {
+                $data['password'] = bcrypt($data['password']);
+            }
+
+            $usuario->update($data);
+
             return response()->json([
-                'message' => 'Error de validación',
-                'errors' => $validator->errors()
-            ], 422);
+                'message' => 'Usuario actualizado correctamente',
+                'user' => $usuario
+            ]);
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'message' => 'Error interno del servidor',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        $usuario = Usuario::findOrFail($id);
-        $data = $validator->validated();
-
-        // Si 'surnames' viene vacío, se guarda como null
-        if (array_key_exists('surnames', $data)) {
-            $data['surnames'] = $data['surnames'] === '' ? null : $data['surnames'];
-        }
-
-        // Encriptar contraseña si viene
-        if (!empty($data['password'])) {
-            $data['password'] = bcrypt($data['password']);
-        }
-
-        $usuario->update($data);
-
-        return response()->json([
-            'message' => 'Usuario actualizado correctamente',
-            'user' => $usuario
-        ]);
-
-    } catch (\Exception $e) {
-
-        return response()->json([
-            'message' => 'Error interno del servidor',
-            'error' => $e->getMessage(),
-        ], 500);
     }
-}
 
 
     // 🔹 Eliminar un usuario
@@ -308,10 +308,11 @@ public function update(Request $request, $id)
     public function usuariosPend()
     {
         try {
-            // Busca usuarios con rol_id = 5 e incluye los datos del jefe
-            $usuarios = Usuario::where('rol_id', 5)
+            // Busca usuarios con activo = 0 y nuevo = true
+            $usuarios = Usuario::where('activo', 0)
+                ->where('nuevo', true)
                 ->with(['jefe' => function ($query) {
-                    $query->select('id', 'name', 'surnames'); // solo los campos que necesitas
+                    $query->select('id', 'name', 'surnames');
                 }])
                 ->get();
 
@@ -322,14 +323,15 @@ public function update(Request $request, $id)
                 ], 200);
             }
 
-            // Añadir un campo jefe_name para que React lo pueda usar
+            // Añadir campo con el nombre completo del jefe
             $usuarios->transform(function ($u) {
-                $u->jefe_name = $u->jefe ? $u->jefe->name . ' ' . $u->jefe->surnames : null;
+                $u->jefe_name = $u->jefe ? "{$u->jefe->name} {$u->jefe->surnames}" : null;
                 return $u;
             });
 
             return response()->json([
                 'message' => 'Usuarios pendientes encontrados',
+                'total' => $usuarios->count(),
                 'data' => $usuarios
             ], 200);
         } catch (\Exception $e) {
@@ -340,8 +342,36 @@ public function update(Request $request, $id)
         }
     }
 
+    public function activarUsuario($id)
+    {
+        try {
+            // Buscar el usuario por ID
+            $usuario = Usuario::find($id);
 
-    public function asignarRol(Request $request, $id)
+            if (!$usuario) {
+                return response()->json([
+                    'message' => 'Usuario no encontrado'
+                ], 404);
+            }
+
+            // Cambiar el estado de activo a 1 y nuevo a false
+            $usuario->activo = 1;
+            $usuario->nuevo = false;
+            $usuario->save();
+
+            return response()->json([
+                'message' => 'Usuario aprobado correctamente',
+                'data' => $usuario
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Error al aprobar usuario',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /*public function asignarRol(Request $request, $id)
     {
         try {
             $usuario = Usuario::findOrFail($id);
@@ -358,5 +388,5 @@ public function update(Request $request, $id)
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
+    }*/
 }

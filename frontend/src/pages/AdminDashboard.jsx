@@ -33,7 +33,7 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
     "Usuarios": {
       icono: <FaUsers />,
       opciones: [
-        { nombre: "Usuarios pendientes" },
+        { nombre: "Usuarios nuevos" },
         { nombre: "Lista de usuarios" }
       ]
     },
@@ -130,7 +130,7 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
       case 'Días acumulables':
         return <DiasAcumulables userID={userID} />;
 
-      case 'Usuarios pendientes':
+      case 'Usuarios nuevos':
         return <UsuariosPend userID={userID} />;
 
       case 'Lista de usuarios':

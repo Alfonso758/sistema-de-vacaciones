@@ -8,6 +8,13 @@ export default function UsuariosPend({ userID }) {
     const [usuarioActual, setUsuarioActual] = useState(null);
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
+    const rolesMap = {
+        1: 'Empleado',
+        2: 'Jefe de área',
+        3: 'Administrador'
+    };
+
+
     useEffect(() => {
         fetchUsuarioActual();
         fetchUsuarios();
@@ -35,6 +42,7 @@ export default function UsuariosPend({ userID }) {
             });
             if (!response.ok) throw new Error("Error al obtener usuarios");
             const data = await response.json();
+            console.log("Usuarios recibidos:", data.data);
             setUsuarios(data.data || []);
         } catch (err) {
             console.error("Error cargando usuarios:", err);
@@ -46,13 +54,13 @@ export default function UsuariosPend({ userID }) {
     const aprobarUsuario = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}/rol`, {
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}/activar`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${token}`
                 },
-                body: JSON.stringify({ rol_id: 1 })
+                body: JSON.stringify({ activo: 1, nuevo: false })
             });
             if (!response.ok) throw new Error("Error al aprobar usuario");
             const data = await response.json();
@@ -63,99 +71,62 @@ export default function UsuariosPend({ userID }) {
         }
     };
 
-    const asignarRol = async (id, nuevoRol) => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}/rol`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: JSON.stringify({ rol_id: nuevoRol })
-            });
-            if (!response.ok) throw new Error("Error al asignar rol");
-            const data = await response.json();
-            alert(data.message);
-            fetchUsuarios();
-        } catch (err) {
-            console.error("Error asignando rol:", err);
-        }
-    };
-
-    // Filtramos los usuarios según rol y jefe
+    // Filtramos usuarios con seguridad: convertir activo y nuevo a booleanos
     const usuariosFiltrados = usuarios.filter(u => {
-        if (usuarioActual.rol_id === 2) return u.rol_id === 5 && u.jefe_directo === usuarioActual.id;
-        if (usuarioActual.rol_id === 3) return u.rol_id === 5;
-        return false;
+        if (!usuarioActual) return false;
+
+        const activo = Number(u.activo) === 0;
+        const nuevo = u.nuevo === true || u.nuevo === 1 || u.nuevo === "1";
+
+        return activo && nuevo;
     });
 
     return (
         <div className="usuarios-pend-wrapper">
-            <h2>Usuarios pendientes</h2>
+            <h2>Usuarios nuevos</h2>
 
-            {/* Mensaje de carga */}
             {loading || !usuarioActual ? (
-                <p>Cargando usuarios pendientes...</p>
+                <p>Cargando usuarios nuevos...</p>
             ) : null}
 
-            {/* Mensaje si no hay usuarios filtrados */}
             {!loading && usuarioActual && usuariosFiltrados.length === 0 && (
-                <p>No hay usuarios pendientes.</p>
+                <p>No hay usuarios nuevos.</p>
             )}
 
-            {/* Lista de usuarios filtrados */}
             {!loading && usuarioActual && usuariosFiltrados.length > 0 && (
                 <ul className="usuarios-lista">
-                    {usuariosFiltrados.map((u) => {
-                        const mostrarBotonAprobar =
-                            (usuarioActual.rol_id === 2 && u.jefe_directo === usuarioActual.id) ||
-                            (usuarioActual.rol_id === 3 && u.jefe_directo);
-
-                        const mostrarSelectAsignar = usuarioActual.rol_id === 3 && !u.jefe_directo;
-
-                        return (
-                            <li key={u.id} className="usuario-item">
-                                <div className="usuario-header">
-                                    <FaUser className="icono-usuario" />
-                                    <div className="info-usuarios">
-                                        <p><strong>Nombre:</strong> {u.name} {u.surnames}</p>
-                                        <p><strong>Email:</strong> {u.email}</p>
-                                        <p>
-                                            <strong>Fecha ingreso:</strong>{" "}
-                                            {u.fecha_ingreso
-                                                ? new Date(u.fecha_ingreso).toLocaleDateString('es-MX', {
-                                                    day: 'numeric',
-                                                    month: 'long',
-                                                    year: 'numeric'
-                                                })
-                                                : 'No registrada'}
-                                        </p>
-
-                                        {(u.jefe_directo && usuarioActual.rol_id !== 2) && (
-                                            <p><strong>Jefe:</strong> {u.jefe_name || 'No asignado'}</p>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div className="usuario-actions">
-                                    {mostrarBotonAprobar && (
-                                        <button onClick={() => aprobarUsuario(u.id)}>Aprobar</button>
-                                    )}
-                                    {mostrarSelectAsignar && (
-                                        <select onChange={(e) => asignarRol(u.id, e.target.value)} defaultValue="">
-                                            <option value="" disabled>Asignar rol</option>
-                                            <option value="2">Jefe de área</option>
-                                            <option value="3">Administrador</option>
-                                        </select>
+                    {usuariosFiltrados.map((u) => (
+                        <li key={u.id} className="usuario-item">
+                            <div className="usuario-header">
+                                <FaUser className="icono-usuario" />
+                                <div className="info-usuarios">
+                                    <p><strong>Nombre:</strong> {u.name} {u.surnames}</p>
+                                    <p><strong>Email:</strong> {u.email}</p>
+                                    <p>
+                                        <strong>Fecha ingreso:</strong>{" "}
+                                        {u.fecha_ingreso
+                                            ? new Date(u.fecha_ingreso).toLocaleDateString('es-MX', {
+                                                day: 'numeric',
+                                                month: 'long',
+                                                year: 'numeric'
+                                            })
+                                            : 'No registrada'}
+                                    </p>
+                                    <p><strong>Rol:</strong> {rolesMap[u.rol_id] || 'Desconocido'}</p>
+                                    {u.jefe_name && (
+                                        <p><strong>Jefe:</strong> {u.jefe_name}</p>
                                     )}
                                 </div>
-                            </li>
-                        );
-                    })}
+
+                            </div>
+
+                            <div className="usuario-actions">
+                                <button onClick={() => aprobarUsuario(u.id)}>Aprobar</button>
+                            </div>
+                        </li>
+                    ))}
                 </ul>
             )}
         </div>
     );
-
 }
