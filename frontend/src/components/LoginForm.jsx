@@ -93,7 +93,7 @@ function LoginForm({ onLoginSuccess }) {
         alert(`⚠️ Error inesperado: ${err.message}`);
       }
 
-      setError("Error al iniciar sesión con Google");
+      //setError("Error al iniciar sesión con Google");
     } finally {
       setLoading(false); // 🔹 ocultar spinner
     }

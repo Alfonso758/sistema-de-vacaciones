@@ -208,9 +208,7 @@ function App() {
 
 
   const editarCampo = async (campo, valor) => {
-    if (!valor) {
-      valor = campo === 'nombre' ? usuario.nombre : usuario.apellidos;
-    }
+    if (!valor) valor = campo === 'nombre' ? usuario.nombre : usuario.apellidos;
 
     try {
       const token = localStorage.getItem('token');
@@ -230,8 +228,13 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
-        setUsuario(data.usuario);
+        setUsuario(prev => {
+          const actualizado = { ...prev, ...data.usuario };
+          localStorage.setItem('usuario', JSON.stringify(actualizado));
+          return actualizado;
+        });
         setCampoEditable('');
+        setValorEditable('');
       } else {
         alert(data.message || 'Error al actualizar');
       }
@@ -240,7 +243,6 @@ function App() {
       alert('Error de conexión con el servidor');
     }
   };
-
 
 
   return (
@@ -503,33 +505,35 @@ function App() {
       )}
 
       <div className="contenedor-dashboard">
-        {usuario.rol_id === 1 && (
-          <EmpleadoDashboard
-            userID={usuario.usuarioID}
-            userName={usuario.nombre}
-            userSurname={usuario.apellidos}
-          />
-        )}
-        {usuario.rol_id === 2 && (
-          <SupervisorDashboard
-            userID={usuario.usuarioID}
-            userName={usuario.nombre}
-            userSurname={usuario.apellidos}
-          />
-        )}
-        {usuario.rol_id === 3 && (
-          <AdminDashboard
-            userID={usuario.usuarioID}
-            userName={usuario.nombre}
-            userSurname={usuario.apellidos}
-          />
-        )}
-        {!([1, 2, 3].includes(usuario.rol_id)) && (
-          <SinAcceso
-            usuario={usuario}
-          />
+        {usuario.activo === false ? (
+          <SinAcceso usuario={usuario} />
+        ) : (
+          <>
+            {usuario.rol_id === 1 && usuario.activo === true && (
+              <EmpleadoDashboard
+                userID={usuario.usuarioID}
+                userName={usuario.nombre}
+                userSurname={usuario.apellidos}
+              />
+            )}
+            {usuario.rol_id === 2 && usuario.activo === true && (
+              <SupervisorDashboard
+                userID={usuario.usuarioID}
+                userName={usuario.nombre}
+                userSurname={usuario.apellidos}
+              />
+            )}
+            {usuario.rol_id === 3 && usuario.activo === true && (
+              <AdminDashboard
+                userID={usuario.usuarioID}
+                userName={usuario.nombre}
+                userSurname={usuario.apellidos}
+              />
+            )}
+          </>
         )}
       </div>
+
 
       <footer className="pie-app">
         <p>© {new Date().getFullYear()} Soko Labs. Todos los derechos reservados</p>

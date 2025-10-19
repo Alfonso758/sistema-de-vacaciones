@@ -43,13 +43,6 @@ class GoogleController extends Controller
                 ], 403);
             }
 
-            if (!$user->activo) {
-                return response()->json([
-                    'error' => 'Error al iniciar sesión con Google',
-                    'detalle' => 'La cuenta está inactiva'
-                ], 403);
-            }
-
             // Crear token Sanctum
             $appToken = $user->createToken('authToken')->plainTextToken;
 
