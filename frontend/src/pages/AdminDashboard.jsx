@@ -57,12 +57,12 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
         { nombre: "Ver notificaciones" }
       ]
     },
-    "Configuración": {
+    /*"Configuración": {
       icono: <FaCog />,
       opciones: [
         { nombre: "Gestión del área" }
       ]
-    }
+    }*/
   };
 
   // Estados del acordeón
