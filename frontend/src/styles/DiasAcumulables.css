@@ -60,7 +60,5 @@
 
 /* Opcional: mejorar la visual de carga y sin datos */
 .cargando, .sin-datos {
-    font-style: italic;
-    color: #555;
     margin-top: 10px;
 }
