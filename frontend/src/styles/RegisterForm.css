@@ -21,6 +21,10 @@
   align-items: center;
 }
 
+.tipo_usuario{
+  margin-top: 46px;
+}
+
 /* Formulario en dos columnas */
 .register-form {
   display: grid;

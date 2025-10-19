@@ -18,6 +18,7 @@ function RegisterForm() {
     const [jefes, setJefes] = useState([]);
     const [message, setMessage] = useState('');
     const [errors, setErrors] = useState({});
+    const [loading, setLoading] = useState(false);
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     // Cargar jefes desde el backend
@@ -39,6 +40,7 @@ function RegisterForm() {
         e.preventDefault();
         setMessage('');
         setErrors({});
+        setLoading(true); // 🔹 Activa el loading
 
         try {
             const response = await axios.post(`${apiBaseUrl}/api/register`, form);
@@ -63,14 +65,18 @@ function RegisterForm() {
             } else {
                 setMessage('Error al registrar el usuario');
             }
+        } finally {
+            setLoading(false); // 🔹 Desactiva el loading
         }
     };
 
     return (
         <div className="register-wrapper">
             <div className="register-container">
+                <p><strong>Nota:</strong> Si eres jefe de área o administrador, deja en blanco la casilla "Selecciona tu jefe".</p>
+                <h2>Crear cuenta</h2>
+
                 <form onSubmit={handleSubmit} className="register-form">
-                    <h2>Crear cuenta</h2>
 
                     <div className='fecha'>
                         <label>Fecha de incorporación a la empresa</label>
@@ -79,8 +85,26 @@ function RegisterForm() {
                             name="fecha_ingreso"
                             value={form.fecha_ingreso}
                             onChange={handleChange}
+                            required
+                            disabled={loading} // 🔹 Deshabilita mientras carga
                         />
                         {errors.fecha_ingreso && <p className="error">{errors.fecha_ingreso[0]}</p>}
+                    </div>
+
+                    <div className="tipo_usuario">
+                        <select
+                            name="rol_id"
+                            value={form.rol_id}
+                            onChange={handleChange}
+                            required
+                            disabled={loading}
+                        >
+                            <option value="">Tipo de usuario</option>
+                            <option value={1}>Empleado</option>
+                            <option value={2}>Jefe de área</option>
+                            <option value={3}>Administrador</option>
+                        </select>
+                        {errors.rol_id && <p className="error">{errors.rol_id[0]}</p>}
                     </div>
 
                     <input
@@ -89,6 +113,8 @@ function RegisterForm() {
                         placeholder="Nombre"
                         value={form.name}
                         onChange={handleChange}
+                        required
+                        disabled={loading}
                     />
                     {errors.name && <p className="error">{errors.name[0]}</p>}
 
@@ -98,6 +124,8 @@ function RegisterForm() {
                         placeholder="Apellidos"
                         value={form.surnames}
                         onChange={handleChange}
+                        required
+                        disabled={loading}
                     />
                     {errors.surnames && <p className="error">{errors.surnames[0]}</p>}
 
@@ -106,6 +134,7 @@ function RegisterForm() {
                             name="jefe_directo"
                             value={form.jefe_directo}
                             onChange={handleChange}
+                            disabled={loading}
                         >
                             <option value="">Selecciona tu jefe (si aplica)</option>
                             {jefes.map(j => (
@@ -123,6 +152,8 @@ function RegisterForm() {
                         placeholder="Correo"
                         value={form.email}
                         onChange={handleChange}
+                        required
+                        disabled={loading}
                     />
                     {errors.email && <p className="error">{errors.email[0]}</p>}
 
@@ -133,6 +164,8 @@ function RegisterForm() {
                             placeholder="Contraseña"
                             value={form.password}
                             onChange={handleChange}
+                            required
+                            disabled={loading}
                         />
                     </div>
                     {errors.password && <p className="error">{errors.password[0]}</p>}
@@ -144,10 +177,44 @@ function RegisterForm() {
                             placeholder="Confirmar contraseña"
                             value={form.password_confirmation}
                             onChange={handleChange}
+                            required
+                            disabled={loading}
                         />
                     </div>
 
-                    <button type="submit">Registrarse</button>
+                    <button type="submit" disabled={loading}>
+                        {loading ? (
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ margin: 'auto', background: 'none', display: 'block' }}
+                                width="24"
+                                height="24"
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="xMidYMid"
+                            >
+                                <circle
+                                    cx="50"
+                                    cy="50"
+                                    fill="none"
+                                    stroke="#fff"
+                                    strokeWidth="10"
+                                    r="35"
+                                    strokeDasharray="164.93361431346415 56.97787143782138"
+                                >
+                                    <animateTransform
+                                        attributeName="transform"
+                                        type="rotate"
+                                        repeatCount="indefinite"
+                                        dur="1s"
+                                        values="0 50 50;360 50 50"
+                                        keyTimes="0;1"
+                                    />
+                                </circle>
+                            </svg>
+                        ) : (
+                            'Registrarse'
+                        )}
+                    </button>
 
                     {message && <p className="message">{message}</p>}
                 </form>
