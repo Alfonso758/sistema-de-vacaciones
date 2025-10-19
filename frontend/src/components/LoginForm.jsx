@@ -48,9 +48,15 @@ function LoginForm({ onLoginSuccess }) {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true); // 🔹 mostrar spinner
+    setError('');
+
     try {
       const token = credentialResponse?.credential;
-      if (!token) return;
+      if (!token) {
+        alert('⚠️ Error: Token de Google no recibido');
+        return;
+      }
 
       const response = await api.post('/google-login', { token });
       const { user, token: appToken } = response.data;
@@ -59,16 +65,40 @@ function LoginForm({ onLoginSuccess }) {
 
       localStorage.setItem('usuario', JSON.stringify(normalizedUser));
       localStorage.setItem('token', appToken);
+
       onLoginSuccess(normalizedUser);
+
     } catch (err) {
       console.error("Error con login Google:", err);
+
+      if (err.response) {
+        switch (err.response.status) {
+          case 400:
+            alert(`⚠️ ${err.response.data.detalle || 'Token no proporcionado'}`);
+            break;
+          case 401:
+            alert(`⚠️ ${err.response.data.detalle || 'Token inválido'}`);
+            break;
+          case 403:
+            alert(`⚠️ ${err.response.data.detalle || 'Correo no registrado o cuenta inactiva'}`);
+            break;
+          case 500:
+            alert(`⚠️ Error del servidor: ${err.response.data.detalle || 'Intenta más tarde'}`);
+            break;
+          default:
+            alert(`⚠️ Error inesperado: ${err.response.data.detalle || 'Intenta más tarde'}`);
+        }
+      } else if (err.request) {
+        alert('⚠️ No se pudo conectar con el servidor. Intenta más tarde.');
+      } else {
+        alert(`⚠️ Error inesperado: ${err.message}`);
+      }
+
       setError("Error al iniciar sesión con Google");
+    } finally {
+      setLoading(false); // 🔹 ocultar spinner
     }
   };
-
-
-
-
 
 
   return (

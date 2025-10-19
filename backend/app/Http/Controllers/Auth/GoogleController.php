@@ -6,9 +6,6 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Google\Client;
 use App\Models\Usuario;
-use Illuminate\Support\Str;
-use App\Notifications\BienvenidaUsuario;
-use App\Notifications\contraseña;
 
 class GoogleController extends Controller
 {
@@ -16,37 +13,41 @@ class GoogleController extends Controller
     {
         try {
             $token = $request->input('token');
+
             if (!$token) {
-                return response()->json(['error' => 'Token no proporcionado'], 400);
+                return response()->json([
+                    'error' => 'Error al iniciar sesión con Google',
+                    'detalle' => 'Token no proporcionado'
+                ], 400);
             }
 
             $client = new Client(['client_id' => env('GOOGLE_CLIENT_ID')]);
             $payload = $client->verifyIdToken($token);
 
             if (!$payload) {
-                return response()->json(['error' => 'Token inválido'], 401);
+                return response()->json([
+                    'error' => 'Error al iniciar sesión con Google',
+                    'detalle' => 'Token inválido'
+                ], 401);
             }
 
             $email = $payload['email'];
-            $name = $payload['name'] ?? $email;
 
-            // Crear o recuperar usuario
-            $user = Usuario::firstOrCreate(
-                ['email' => $email],
-                [
-                    'name' => $name,
-                    'surnames' => '',
-                    'password' => bcrypt('Soko2025*'),
-                    'rol_id' => 5,
-                    'activo' => true,
-                    'email_verified_at' => now(),
-                ]
-            );
+            // Buscar usuario existente
+            $user = Usuario::where('email', $email)->first();
 
-            // 📩 Enviar correo de bienvenida solo si es un usuario nuevo
-            if ($user->wasRecentlyCreated) {
-                $user->notify(new BienvenidaUsuario($user));
-                $user->notify(new contraseña($user));
+            if (!$user) {
+                return response()->json([
+                    'error' => 'Error al iniciar sesión con Google',
+                    'detalle' => 'Correo no registrado'
+                ], 403);
+            }
+
+            if (!$user->activo) {
+                return response()->json([
+                    'error' => 'Error al iniciar sesión con Google',
+                    'detalle' => 'La cuenta está inactiva'
+                ], 403);
             }
 
             // Crear token Sanctum
@@ -67,7 +68,10 @@ class GoogleController extends Controller
                 'token' => $appToken
             ]);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error en el servidor', 'detalle' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => 'Error al iniciar sesión con Google',
+                'detalle' => $e->getMessage()
+            ], 500);
         }
     }
 }
