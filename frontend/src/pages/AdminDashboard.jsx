@@ -7,6 +7,7 @@ import UsuariosPend from '../components/UsuariosPend';
 import Usuarios from '../components/Usuarios';
 import CalendarioEquipo from '../components/CalendarioEquipo';
 import CalendarioJefes from '../components/CalendarioJefes';
+import DiasInhabiles from '../components/DiasInhabiles';
 import ReportesTodos from '../components/ReportesTodos';
 import EstadisticasTodas from '../components/EstadisticasTodas';
 import Notificaciones from '../components/Notificaciones';
@@ -41,7 +42,8 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
       icono: <FaCalendarAlt />,
       opciones: [
         { nombre: "C. Empleados" },
-        { nombre: "C. Jefes de área" }
+        { nombre: "C. Jefes de área" },
+        { nombre: "Días inhábiles" }
       ]
     },
     "Reportes y estadísticas": {
@@ -141,6 +143,9 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
 
       case 'C. Jefes de área':
         return <CalendarioJefes userID={userID} />;
+
+      case 'Días inhábiles':
+        return <DiasInhabiles userID={userID} />;
 
       case 'Reportes':
         return <ReportesTodos userID={userID} />;
