@@ -90,4 +90,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/usuarios/{id}', [UsuarioController::class, 'update']); // Actualizar jefe y fecha
     Route::put('/usuario/actualizar', [UsuarioController::class, 'actualizar']); // Actualizar nombre y apellidos
     Route::get('/acumulables', [SolicitudController::class, 'diasAcumulables']);
+    Route::post('/acumular-dias/{id}', [VacacionesController::class, 'acumular']);
+    Route::post('/dejar-perder-dias/{id}', [VacacionesController::class, 'dejarPerder']);
 });

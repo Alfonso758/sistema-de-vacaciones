@@ -29,9 +29,9 @@ export default function DiasAcumulables() {
         // Mapear el nombre del usuario a cada registro
         const registrosConNombre = filtrados.map(registro => {
           const usuario = usuariosData.find(u => u.id === registro.id_usuario);
-          return { 
-            ...registro, 
-            nombreUsuario: usuario ? `${usuario.name} ${usuario.surnames}`.trim() : "Desconocido" 
+          return {
+            ...registro,
+            nombreUsuario: usuario ? `${usuario.name} ${usuario.surnames}`.trim() : "Desconocido"
           };
         });
 
@@ -49,11 +49,41 @@ export default function DiasAcumulables() {
   };
 
   const acumularDias = (id) => {
-    console.log("Acumular días del registro:", id);
+    if (!window.confirm("¿Deseas acumular los días pendientes de este usuario?")) return;
+
+    const token = localStorage.getItem("token");
+    fetch(`${apiBaseUrl}/api/acumular-dias/${id}`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert("✅ " + data.message);
+        setDiasAcumulables(prev => prev.filter(r => r.id !== id));
+      })
+      .catch(err => {
+        console.error("❌ Error al acumular:", err);
+        alert("❌ Error al acumular los días");
+      });
   };
 
   const dejarPerderDias = (id) => {
-    console.log("Dejar perder días del registro:", id);
+    if (!window.confirm("⚠️ ¿Seguro que deseas dejar perder los días pendientes de este usuario? Esta acción no se puede deshacer.")) return;
+
+    const token = localStorage.getItem("token");
+    fetch(`${apiBaseUrl}/api/dejar-perder-dias/${id}`, {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${token}` },
+    })
+      .then(res => res.json())
+      .then(data => {
+        alert("✅ " + data.message);
+        setDiasAcumulables(prev => prev.filter(r => r.id !== id));
+      })
+      .catch(err => {
+        console.error("❌ Error al dejar perder:", err);
+        alert("❌ Error al dejar perder los días");
+      });
   };
 
   return (

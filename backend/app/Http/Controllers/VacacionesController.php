@@ -131,4 +131,35 @@ class VacacionesController extends Controller
 
         return response()->json($solicitudes);
     }
+
+    public function acumular($id)
+    {
+        $registro = VacacionesUser::find($id);
+
+        if (!$registro) {
+            return response()->json(['message' => 'Registro no encontrado'], 404);
+        }
+
+        // Pasar los días pendientes a dias_acumulados y poner pendiente en 0
+        $registro->dias_acumulados += $registro->pendiente;
+        $registro->pendiente = 0;
+        $registro->save();
+
+        return response()->json(['message' => 'Días acumulados correctamente', 'registro' => $registro]);
+    }
+
+    public function dejarPerder($id)
+    {
+        $registro = VacacionesUser::find($id);
+
+        if (!$registro) {
+            return response()->json(['message' => 'Registro no encontrado'], 404);
+        }
+
+        // Dejar perder los días pendientes
+        $registro->pendiente = 0;
+        $registro->save();
+
+        return response()->json(['message' => 'Días perdidos correctamente', 'registro' => $registro]);
+    }
 }
