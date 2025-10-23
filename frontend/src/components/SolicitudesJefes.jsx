@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import '../styles/SolicitudesEquipo.css';
-import { FaCalendarAlt, FaClock, FaUser, FaComment } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUser, FaComment, FaSync } from 'react-icons/fa';
 
 export default function SolicitudesJefes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filtro, setFiltro] = useState('2'); // por defecto aprobadas
-    const [comentarios, setComentarios] = useState({}); // comentarios temporales
+    const [comentarios, setComentarios] = useState({});
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const estados = {
@@ -51,27 +51,30 @@ export default function SolicitudesJefes({ userID }) {
         return formatoFecha.charAt(0).toUpperCase() + formatoFecha.slice(1);
     };
 
-    // ----------------- CARGA DE SOLICITUDES DE JEFES -----------------
-    useEffect(() => {
+    // ----------------- FUNCIÓN DE CARGA -----------------
+    const cargarSolicitudes = async () => {
         if (!userID) return;
-
-        fetch(`${apiBaseUrl}/api/solicitudes/jefes/${userID}`, {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        })
-            .then(res => res.json())
-            .then(data => {
-                console.log("Solicitudes de jefes:", data);
-                const lista = Array.isArray(data) ? data : [];
-                setSolicitudes(lista);
-                setLoading(false);
-            })
-            .catch(err => {
-                console.error("Error cargando solicitudes:", err);
-                setSolicitudes([]);
-                setLoading(false);
+        setLoading(true);
+        try {
+            const res = await fetch(`${apiBaseUrl}/api/solicitudes/jefes/${userID}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
             });
+            const data = await res.json();
+            console.log("Solicitudes de jefes:", data);
+            setSolicitudes(Array.isArray(data) ? data : []);
+        } catch (err) {
+            console.error("Error cargando solicitudes:", err);
+            setSolicitudes([]);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // ----------------- USEEFFECT -----------------
+    useEffect(() => {
+        cargarSolicitudes();
     }, [userID]);
 
     // ----------------- FILTRADO -----------------
@@ -117,17 +120,30 @@ export default function SolicitudesJefes({ userID }) {
         }
     };
 
-
     // ----------------- RENDER -----------------
     return (
         <div className="seccion-lista">
-            <h2>Solicitudes de jefes de área</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>Solicitudes de jefes de área</span>
+            </h2>
 
             {/* Filtros (solo aprobadas y rechazadas) */}
             <div className="filtros-solicitudes">
-                <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
-                <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
+                <div className="botones-filtro">
+                    <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
+                    <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
+                </div>
+
+                {/* Botón de recarga */}
+                <button
+                    className="btn-recargar"
+                    onClick={cargarSolicitudes}
+                    title="Recargar solicitudes"
+                >
+                    <FaSync className={loading ? "girando" : ""} />
+                </button>
             </div>
+
 
             <div className="lista-solicitudes">
                 {loading ? (
@@ -140,7 +156,6 @@ export default function SolicitudesJefes({ userID }) {
                             key={solicitud.id}
                             className={`tarjeta-solicitud ${estados[solicitud.estado_solicitud]?.toLowerCase()}`}
                         >
-                            {/* Cabecera */}
                             <div className="cabecera-solicitud">
                                 <span className="numero">#{arr.length - index}</span>
                                 <div className="fecha-estado">
@@ -155,12 +170,10 @@ export default function SolicitudesJefes({ userID }) {
                                 </div>
                             </div>
 
-                            {/* Info del jefe */}
                             {solicitud.usuario && (
                                 <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name} {solicitud.usuario.surnames}</strong></p>
                             )}
 
-                            {/* Fechas */}
                             <div className="fechas-solicitud">
                                 <span>
                                     <FaClock style={{ marginRight: '5px' }} />
@@ -172,7 +185,6 @@ export default function SolicitudesJefes({ userID }) {
                                 </span>
                             </div>
 
-                            {/* Revisor y fecha respuesta (solo en rechazadas) */}
                             {solicitud.estado_solicitud === 3 && (
                                 <div className="revision-respuesta">
                                     {solicitud.revisor && (
@@ -188,7 +200,6 @@ export default function SolicitudesJefes({ userID }) {
                                 </div>
                             )}
 
-                            {/* Acciones para aprobadas dentro de 48h */}
                             {solicitud.estado_solicitud === 2 && dentroDe48Horas(solicitud.fecha_solicitud) && (
                                 <div className="acciones-solicitud">
                                     <div className="comentario-container">
@@ -216,4 +227,3 @@ export default function SolicitudesJefes({ userID }) {
         </div>
     );
 }
-

@@ -142,7 +142,7 @@ export default function SolicitudesEquipo({ userID }) {
                             });
                     }}
                 >
-                    <FaSync style={{ marginRight: '5px' }} /> 
+                    <FaSync className={loading ? "girando" : ""} /> 
                 </button>
             </div>
 
