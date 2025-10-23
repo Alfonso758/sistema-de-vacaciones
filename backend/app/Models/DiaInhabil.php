@@ -17,6 +17,8 @@ class DiaInhabil extends Model
         'siempre',
     ];
 
+    public $timestamps = false;
+
     /**
      * Verifica si el día inhábil aplica para cualquier año
      */
