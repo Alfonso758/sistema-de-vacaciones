@@ -86,7 +86,7 @@ public function register(Request $request)
         'rol_id'        => $request->rol_id,
         'activo'        => 0,
         'fecha_ingreso' => $request->fecha_ingreso,
-        'nuevo'         => true,
+        'nuevo'         => 1,
         'jefe_directo'  => $request->jefe_directo,
         'email_verified_at' => now(),
     ]);

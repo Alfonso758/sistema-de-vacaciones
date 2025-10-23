@@ -23,6 +23,7 @@ class Usuario extends Authenticatable
         'password',
         'rol_id',
         'activo',
+        'nuevo',
         'fecha_ingreso',
         'jefe_directo',
         'email_verified_at',
