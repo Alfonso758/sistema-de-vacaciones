@@ -13,6 +13,8 @@ export default function Reportes({ userID }) {
     const [selectedEmpleado, setSelectedEmpleado] = useState("general");
     const [empleados, setEmpleados] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [fechaInicio, setFechaInicio] = useState("");
+    const [fechaFin, setFechaFin] = useState("");
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
@@ -24,10 +26,34 @@ export default function Reportes({ userID }) {
                 const dataSolicitudes = await resSolicitudes.json();
                 setSolicitudes(dataSolicitudes);
 
+                // Determinar fecha mínima y máxima entre todas las solicitudes
+                const todasFechas = [
+                    ...dataSolicitudes.pendientes,
+                    ...dataSolicitudes.aprobadas,
+                    ...dataSolicitudes.rechazadas
+                ].map(s => new Date(s.fecha_solicitud));
+
+                if (todasFechas.length > 0) {
+                    const minFecha = new Date(Math.min(...todasFechas));
+                    const fechaActual = new Date(); // fecha "Hasta" será hoy
+
+                    // Función para formatear fecha en local evitando desfase de timezone
+                    const formatearFechaLocal = (d) => {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, "0");
+                        const dd = String(d.getDate()).padStart(2, "0");
+                        return `${yyyy}-${mm}-${dd}`;
+                    };
+
+                    setFechaInicio(formatearFechaLocal(minFecha));
+                    setFechaFin(formatearFechaLocal(fechaActual));
+                }
+
                 // Traer empleados del jefe
                 const resEmpleados = await fetch(`${apiBaseUrl}/api/empleados/${userID}`);
                 const dataEmpleados = await resEmpleados.json();
                 setEmpleados(dataEmpleados);
+
             } catch (error) {
                 console.error("Error cargando datos:", error);
             } finally {
@@ -37,6 +63,7 @@ export default function Reportes({ userID }) {
 
         fetchDatos();
     }, [userID]);
+
 
     const empleadoSeleccionado = empleados.find(
         e => e.id === parseInt(selectedEmpleado)
@@ -52,9 +79,29 @@ export default function Reportes({ userID }) {
             ? lista
             : lista.filter(s => s.usuario.id === parseInt(selectedEmpleado));
 
-    const pendientesFiltradas = filtrarPorEmpleado(solicitudes.pendientes);
-    const aprobadasFiltradas = filtrarPorEmpleado(solicitudes.aprobadas);
-    const rechazadasFiltradas = filtrarPorEmpleado(solicitudes.rechazadas);
+    // Función para filtrar también por rango de fechas
+    const filtrarPorFechas = (lista) => {
+        return lista.filter((s) => {
+            // Obtener solo la parte YYYY-MM-DD de la solicitud
+            const fecha = s.fecha_solicitud.split('T')[0];
+
+            // Convertir a número para comparar fácilmente
+            const numFecha = parseInt(fecha.replace(/-/g, ''));
+            const numInicio = fechaInicio ? parseInt(fechaInicio.replace(/-/g, '')) : null;
+            const numFin = fechaFin ? parseInt(fechaFin.replace(/-/g, '')) : null;
+
+            if (numInicio && numFecha < numInicio) return false;
+            if (numFin && numFecha > numFin) return false; // ✅ ahora incluye la fechaFin exacta
+            return true;
+        });
+    };
+
+
+    // Aplica ambos filtros: por empleado y por fechas
+    const pendientesFiltradas = filtrarPorFechas(filtrarPorEmpleado(solicitudes.pendientes));
+    const aprobadasFiltradas = filtrarPorFechas(filtrarPorEmpleado(solicitudes.aprobadas));
+    const rechazadasFiltradas = filtrarPorFechas(filtrarPorEmpleado(solicitudes.rechazadas));
+
 
     const descargarPDF = () => {
         const doc = new jsPDF();
@@ -164,8 +211,8 @@ export default function Reportes({ userID }) {
             {/* Selector de empleado y botón PDF solo si ya cargaron empleados */}
             {!loading && empleados.length > 0 && (
                 <>
-                    <label className="selector-empleado">
-                        Seleccionar reporte:
+                    <label className="selector-empleado" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                        <span>Seleccionar reporte:</span>
                         <select
                             value={selectedEmpleado}
                             onChange={(e) => setSelectedEmpleado(e.target.value)}
@@ -177,6 +224,28 @@ export default function Reportes({ userID }) {
                                 </option>
                             ))}
                         </select>
+
+                        {/* 🔹 Nuevos inputs para rango de fechas */}
+                        <div className="filtros-fecha" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                            <label>
+                                Desde:
+                                <input
+                                    type="date"
+                                    value={fechaInicio || ""}
+                                    onChange={(e) => setFechaInicio(e.target.value)}
+                                    style={{ marginLeft: "5px" }}
+                                />
+                            </label>
+                            <label>
+                                Hasta:
+                                <input
+                                    type="date"
+                                    value={fechaFin || ""}
+                                    onChange={(e) => setFechaFin(e.target.value)}
+                                    style={{ marginLeft: "5px" }}
+                                />
+                            </label>
+                        </div>
                     </label>
 
                     <div className="botones-pdf">
