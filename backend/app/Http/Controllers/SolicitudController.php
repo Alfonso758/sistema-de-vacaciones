@@ -9,6 +9,11 @@ use App\Models\Usuario;
 use App\Models\solicitudesVacaciones;
 use App\Models\VacacionesUser;
 use Illuminate\Support\Facades\Log;
+use App\Notifications\SolicitudAprobada;
+use App\Notifications\SolicitudRechazada;
+use App\Notifications\SolicitudEditada;
+use App\Notifications\NuevaSolicitud;
+use App\Notifications\SolicitudCancelada;
 
 class SolicitudController extends Controller
 {
@@ -53,10 +58,10 @@ class SolicitudController extends Controller
         $fechaFin = Carbon::parse($request->fecha_fin)->format('Y-m-d');
         $total_dias = $request->total_dias;
 
-        // Buscar el usuario
+        // Buscar el usuario que crea la solicitud
         $usuario = Usuario::findOrFail($request->usuario_id);
 
-        // Si el rol_id del usuario es 2 -> estado_solicitud = 2
+        // Si el rol_id del usuario es 2 -> se aprueba automáticamente
         $estado = ($usuario->rol_id == 2) ? 2 : 1;
 
         // Crear la solicitud
@@ -85,6 +90,28 @@ class SolicitudController extends Controller
             }
         }
 
+        // 🔹 Enviar notificación según el rol del usuario
+        if ($usuario->rol_id == 1) {
+            // Si el usuario es rol 1 (empleado) → se notifica al jefe y a todos los administradores
+            $revisor = Usuario::find($usuario->jefe_directo);
+            $administradores = Usuario::where('rol_id', 3)->get(); // suponiendo que 3 = admin
+
+            if ($revisor) {
+                $revisor->notify(new NuevaSolicitud($usuario, $solicitud->id));
+            }
+
+            foreach ($administradores as $admin) {
+                $admin->notify(new NuevaSolicitud($usuario, $solicitud->id));
+            }
+        } elseif ($usuario->rol_id == 2) {
+            // Si el usuario es rol 2 (jefe) → solo se notifica a los administradores
+            $administradores = Usuario::where('rol_id', 3)->get();
+
+            foreach ($administradores as $admin) {
+                $admin->notify(new NuevaSolicitud($usuario, $solicitud->id));
+            }
+        }
+
         return response()->json([
             'message' => 'Solicitud registrada',
             'solicitud' => $solicitud
@@ -107,7 +134,35 @@ class SolicitudController extends Controller
             'fecha_fin'    => 'required|date|after_or_equal:fecha_inicio',
         ]);
 
+        // Actualizar solicitud
         $solicitud->update($validated);
+
+        // Usuario que editó la solicitud
+        $usuario = Usuario::find($solicitud->usuario_id);
+
+        if ($usuario) {
+            // 🔹 Enviar notificación según el rol del usuario
+            if ($usuario->rol_id == 1) {
+                // Si es empleado → notificar a su jefe y a los administradores
+                $revisor = Usuario::find($usuario->jefe_directo);
+                $administradores = Usuario::where('rol_id', 3)->get(); // suponiendo que 3 = admin
+
+                if ($revisor) {
+                    $revisor->notify(new SolicitudEditada($usuario, $solicitud->id));
+                }
+
+                foreach ($administradores as $admin) {
+                    $admin->notify(new SolicitudEditada($usuario, $solicitud->id));
+                }
+            } elseif ($usuario->rol_id == 2) {
+                // Si es jefe → notificar solo a los administradores
+                $administradores = Usuario::where('rol_id', 3)->get();
+
+                foreach ($administradores as $admin) {
+                    $admin->notify(new SolicitudEditada($usuario, $solicitud->id));
+                }
+            }
+        }
 
         return response()->json([
             'message' => 'Solicitud actualizada correctamente',
@@ -126,9 +181,48 @@ class SolicitudController extends Controller
             return response()->json(['error' => 'Solicitud no encontrada'], 404);
         }
 
+        // Cambiar estado a cancelada (4)
         $solicitud->update(['estado_solicitud' => 4]);
 
-        return response()->json(['message' => 'Solicitud cancelada', 'solicitud' => $solicitud]);
+        // Usuario que canceló la solicitud
+        $usuario = Usuario::find($solicitud->usuario_id);
+
+        if ($usuario) {
+            // 🔹 Enviar notificación según el rol del usuario
+            if ($usuario->rol_id == 1) {
+                // Si es empleado → notificar a su jefe y a los administradores
+                $revisor = Usuario::find($usuario->jefe_directo);
+                $administradores = Usuario::where('rol_id', 3)->get(); // 3 = admin
+
+                if ($revisor) {
+                    $revisor->notify(new SolicitudCancelada($usuario, $solicitud->id));
+                } else {
+                    Log::warning('No se encontró jefe directo para el usuario', [
+                        'usuario_id' => $usuario->id
+                    ]);
+                }
+
+                foreach ($administradores as $admin) {
+                    $admin->notify(new SolicitudCancelada($usuario, $solicitud->id));
+                }
+            } elseif ($usuario->rol_id == 2) {
+                // Si es jefe → notificar solo a los administradores
+                $administradores = Usuario::where('rol_id', 3)->get();
+
+                foreach ($administradores as $admin) {
+                    $admin->notify(new SolicitudCancelada($usuario, $solicitud->id));
+                }
+            }
+        } else {
+            Log::warning('No se encontró el usuario que canceló la solicitud', [
+                'solicitud_id' => $solicitud->id
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Solicitud cancelada correctamente',
+            'solicitud' => $solicitud
+        ]);
     }
 
     /**
@@ -267,6 +361,13 @@ class SolicitudController extends Controller
 
             // ✅ Si se aprueba
             if ($solicitud->estado_solicitud == 2) {
+                $usuario = Usuario::find($solicitud->usuario_id);
+
+                if ($usuario) {
+                    // 📩 Enviar correo
+                    $usuario->notify(new SolicitudAprobada());
+                }
+
                 $vacacionesUser = VacacionesUser::where('id_usuario', $solicitud->usuario_id)
                     ->orderBy('fecha_inicio_periodo', 'desc')
                     ->first();
@@ -279,7 +380,15 @@ class SolicitudController extends Controller
                         'usuario_id' => $solicitud->usuario_id
                     ]);
                 }
+            } else {
+                $usuario = Usuario::find($solicitud->usuario_id);
+
+                if ($usuario) {
+                    // 📩 Enviar correo
+                    $usuario->notify(new SolicitudRechazada());
+                }
             }
+
 
             $solicitud->load('revisor');
 

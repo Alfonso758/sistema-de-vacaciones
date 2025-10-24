@@ -129,10 +129,8 @@ export default function SolicitudesJefes({ userID }) {
 
             {/* Filtros (solo aprobadas y rechazadas) */}
             <div className="filtros-solicitudes">
-                <div className="botones-filtro">
-                    <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
-                    <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
-                </div>
+                <button onClick={() => setFiltro('2')} className={filtro === '2' ? 'activo' : ''}>Aprobadas</button>
+                <button onClick={() => setFiltro('3')} className={filtro === '3' ? 'activo' : ''}>Rechazadas</button>
 
                 {/* Botón de recarga */}
                 <button

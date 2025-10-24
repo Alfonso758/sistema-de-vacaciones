@@ -10,25 +10,25 @@ class BienvenidaUsuario extends Notification
 {
     public function via($notifiable)
     {
-        // Registramos la notificación en la DB
         Notificacion::create([
-            'id_usuario' => $notifiable->id,
-            'titulo'     => 'Bienvenido al sistema de vacaciones Sokolabs',
-            'mensaje'    => 'Tu cuenta ha sido creada en el sistema de vacaciones de Sokolabs. Gracias por unirte a nosotros.',
-            'leido'      => 2,
+            'id_usuario'  => $notifiable->id,
+            'titulo'      => 'Acceso habilitado al sistema de vacaciones',
+            'mensaje'     => 'Te damos la más cordial bienvenida al sistema de gestión vacacional de Sokolabs.',
+            'leido'       => 2,
             'fecha_envio' => now(),
         ]);
 
-        return ['mail']; // además de registrar, enviamos correo
+        return ['mail']; 
     }
 
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Bienvenido al sistema de vacaciones Sokolabs')
-            ->greeting('Hola ' . $notifiable->name)
-            ->line('Tu cuenta ha sido creada en el sistema de vacaciones de Sokolabs.')
-            ->action('Iniciar sesión', 'http://localhost:5173/LoginForm')
-            ->line('Gracias por unirte a nosotros.');
+            ->subject('Tu acceso al sistema de vacaciones Sokolabs ha sido habilitado')
+            ->greeting('Hola ' . $notifiable->name . ',')
+            ->line('Nos complace informarte que tu cuenta ha sido habilitada para acceder al sistema interno de gestión vacacional de Sokolabs.')
+            ->line('Ahora puedes iniciar sesion y acceder al sistema de manera segura')
+            ->action('Acceder al sistema', 'https://vacaciones.sokodev.com')
+            ->line('Recuerda que este sistema es de uso exclusivo para colaboradores de Sokolabs.');
     }
 }

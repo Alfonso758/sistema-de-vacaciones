@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Notifications\CuentaNueva;
 use App\Notifications\BienvenidaUsuario;
 
 use Illuminate\Http\Request;
@@ -62,88 +63,88 @@ class UsuarioController extends Controller
     }
 
     // 🔹 Registro de usuario
-public function register(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name'          => 'required|string|max:255',
-        'surnames'      => 'required|string|max:255',
-        'email'         => 'required|email|unique:users,email',
-        'password'      => 'required|string|min:6|confirmed',
-        'fecha_ingreso' => 'required|date',
-        'jefe_directo'  => 'nullable|exists:users,id',
-    ]);
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name'          => 'required|string|max:255',
+            'surnames'      => 'required|string|max:255',
+            'email'         => 'required|email|unique:users,email',
+            'password'      => 'required|string|min:6|confirmed',
+            'fecha_ingreso' => 'required|date',
+            'jefe_directo'  => 'nullable|exists:users,id',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        // Crear el usuario
+        $usuario = Usuario::create([
+            'name'          => $request->name,
+            'surnames'      => $request->surnames,
+            'email'         => $request->email,
+            'password'      => Hash::make($request->password),
+            'rol_id'        => $request->rol_id,
+            'activo'        => 0,
+            'fecha_ingreso' => $request->fecha_ingreso,
+            'nuevo'         => 1,
+            'jefe_directo'  => $request->jefe_directo,
+            'email_verified_at' => now(),
+        ]);
+
+        // 📩 Enviar correo
+        $usuario->notify(new CuentaNueva());
+
+        /**
+         * -------------------------------------------------------------
+         *  CREAR REGISTRO EN vacaciones_user
+         * -------------------------------------------------------------
+         */
+        $fechaIngreso = new \DateTime($usuario->fecha_ingreso);
+        $fechaActual  = new \DateTime();
+        $aniosLaborados = $fechaIngreso->diff($fechaActual)->y; // años trabajados
+
+        // Buscar el rango correcto según los años laborados
+        $vacacionesAnuales = VacacionesAnuales::where('anio_inicio', '<=', $aniosLaborados)
+            ->where('anio_fin', '>=', $aniosLaborados)
+            ->first();
+
+        // Si no se encuentra (por ejemplo, si no hay rango 0), se usa el de 0 años
+        if (!$vacacionesAnuales) {
+            $vacacionesAnuales = VacacionesAnuales::where('anio_inicio', 0)->first();
+        }
+
+        // Calcular el nuevo periodo de vacaciones según la fecha de ingreso
+        $anioActual = $fechaActual->format('Y');
+        $mesIngreso = $fechaIngreso->format('m');
+        $diaIngreso = $fechaIngreso->format('d');
+
+        // Si todavía no llega su aniversario este año, el periodo actual empieza desde la fecha de ingreso
+        $fechaInicioPeriodo = new \DateTime("$anioActual-$mesIngreso-$diaIngreso");
+        if ($fechaInicioPeriodo > $fechaActual) {
+            // Si el aniversario aún no llega, el periodo actual es del año anterior
+            $fechaInicioPeriodo->modify('-1 year');
+        }
+
+        $fechaFinPeriodo = (clone $fechaInicioPeriodo)->modify('+1 year');
+
+        // Crear el registro en vacaciones_user
+        VacacionesUser::create([
+            'id_usuario'           => $usuario->id,
+            'fecha_inicio_periodo' => $fechaInicioPeriodo->format('Y-m-d'),
+            'fecha_fin_periodo'    => $fechaFinPeriodo->format('Y-m-d'),
+            'id_dias'              => $vacacionesAnuales->id,
+            'dias_otorgados'       => $vacacionesAnuales->dias,
+            'dias_acumulados'      => 0,
+            'dias_tomados'         => 0,
+            'pendiente'            => 0,
+        ]);
+
+        return response()->json([
+            'message' => 'Usuario registrado correctamente',
+            'user'    => $usuario
+        ]);
     }
-
-    // Crear el usuario
-    $usuario = Usuario::create([
-        'name'          => $request->name,
-        'surnames'      => $request->surnames,
-        'email'         => $request->email,
-        'password'      => Hash::make($request->password),
-        'rol_id'        => $request->rol_id,
-        'activo'        => 0,
-        'fecha_ingreso' => $request->fecha_ingreso,
-        'nuevo'         => 1,
-        'jefe_directo'  => $request->jefe_directo,
-        'email_verified_at' => now(),
-    ]);
-
-    // 📩 Enviar correo de bienvenida
-    $usuario->notify(new BienvenidaUsuario());
-
-    /**
-     * -------------------------------------------------------------
-     *  CREAR REGISTRO EN vacaciones_user
-     * -------------------------------------------------------------
-     */
-    $fechaIngreso = new \DateTime($usuario->fecha_ingreso);
-    $fechaActual  = new \DateTime();
-    $aniosLaborados = $fechaIngreso->diff($fechaActual)->y; // años trabajados
-
-    // Buscar el rango correcto según los años laborados
-    $vacacionesAnuales = VacacionesAnuales::where('anio_inicio', '<=', $aniosLaborados)
-        ->where('anio_fin', '>=', $aniosLaborados)
-        ->first();
-
-    // Si no se encuentra (por ejemplo, si no hay rango 0), se usa el de 0 años
-    if (!$vacacionesAnuales) {
-        $vacacionesAnuales = VacacionesAnuales::where('anio_inicio', 0)->first();
-    }
-
-    // Calcular el nuevo periodo de vacaciones según la fecha de ingreso
-    $anioActual = $fechaActual->format('Y');
-    $mesIngreso = $fechaIngreso->format('m');
-    $diaIngreso = $fechaIngreso->format('d');
-
-    // Si todavía no llega su aniversario este año, el periodo actual empieza desde la fecha de ingreso
-    $fechaInicioPeriodo = new \DateTime("$anioActual-$mesIngreso-$diaIngreso");
-    if ($fechaInicioPeriodo > $fechaActual) {
-        // Si el aniversario aún no llega, el periodo actual es del año anterior
-        $fechaInicioPeriodo->modify('-1 year');
-    }
-
-    $fechaFinPeriodo = (clone $fechaInicioPeriodo)->modify('+1 year');
-
-    // Crear el registro en vacaciones_user
-    VacacionesUser::create([
-        'id_usuario'           => $usuario->id,
-        'fecha_inicio_periodo' => $fechaInicioPeriodo->format('Y-m-d'),
-        'fecha_fin_periodo'    => $fechaFinPeriodo->format('Y-m-d'),
-        'id_dias'              => $vacacionesAnuales->id,
-        'dias_otorgados'       => $vacacionesAnuales->dias,
-        'dias_acumulados'      => 0,
-        'dias_tomados'         => 0,
-        'pendiente'            => 0,
-    ]);
-
-    return response()->json([
-        'message' => 'Usuario registrado correctamente',
-        'user'    => $usuario
-    ]);
-}
 
 
     // 🔹 Obtener todos los usuarios
@@ -402,6 +403,9 @@ public function register(Request $request)
             $usuario->activo = 1;
             $usuario->nuevo = false;
             $usuario->save();
+
+            // 📩 Enviar correo
+            $usuario->notify(new BienvenidaUsuario());
 
             return response()->json([
                 'message' => 'Usuario aprobado correctamente',
