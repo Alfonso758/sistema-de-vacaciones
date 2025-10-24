@@ -36,7 +36,7 @@ class NuevaSolicitud extends Notification
         return (new MailMessage)
             ->subject('Nueva solicitud de vacaciones')
             ->greeting('Hola ' . $notifiable->name . ',')
-            ->line("El usuario {$this->usuario->name} ha creado una nueva solicitud de vacaciones.")
+            ->line("El usuario {$this->usuario->name} {$this->usuario->surnames} ha creado una nueva solicitud de vacaciones.")
             ->line('Por favor revisa la solicitud y procede con la aprobación o rechazo correspondiente.')
             ->action('Ver solicitud', 'https://vacaciones.sokodev.com')
             ->line('Gracias por dar seguimiento a las solicitudes de tus empleados.');

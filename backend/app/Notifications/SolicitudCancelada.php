@@ -36,7 +36,7 @@ class SolicitudCancelada extends Notification
         return (new MailMessage)
             ->subject('Solicitud de vacaciones cancelada')
             ->greeting('Hola ' . $notifiable->name . ',')
-            ->line("El usuario {$this->usuario->name} ha cancelado su solicitud de vacaciones.")
+            ->line("El usuario {$this->usuario->name} {$this->usuario->surnames} ha cancelado su solicitud de vacaciones.")
             ->line('El registro ya se actualizó en el sistema.')
             ->line('Para más información puedes contactarte con este usuario.');
     }

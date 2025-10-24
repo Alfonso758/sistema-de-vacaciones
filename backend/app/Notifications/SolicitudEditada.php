@@ -36,7 +36,7 @@ class SolicitudEditada extends Notification
         return (new MailMessage)
             ->subject('Solicitud de vacaciones editada')
             ->greeting('Hola ' . $notifiable->name . ',')
-            ->line("El usuario {$this->usuario->name} ha realizado cambios en su solicitud de vacaciones.")
+            ->line("El usuario {$this->usuario->name} {$this->usuario->surnames} ha realizado cambios en su solicitud de vacaciones.")
             ->line('Por favor revisa la solicitud actualizada y toma las acciones necesarias.')
             ->action('Ver solicitud', 'https://vacaciones.sokodev.com')
             ->line('Gracias por mantener el seguimiento de las solicitudes de tus empleados.');
