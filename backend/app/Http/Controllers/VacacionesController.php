@@ -8,6 +8,8 @@ use App\Models\VacacionesUser;
 use App\Models\VacacionesAnuales;
 use App\Models\solicitudesVacaciones;
 use Carbon\Carbon;
+use App\Notifications\AcumularDias;
+use App\Notifications\PerderDias;
 
 class VacacionesController extends Controller
 {
@@ -145,7 +147,17 @@ class VacacionesController extends Controller
         $registro->pendiente = 0;
         $registro->save();
 
-        return response()->json(['message' => 'Días acumulados correctamente', 'registro' => $registro]);
+        // ✅ Buscar correctamente al usuario dueño del registro
+        $usuario = Usuario::find($registro->id_usuario);
+
+        if ($usuario) {
+            $usuario->notify(new AcumularDias($usuario));
+        }
+
+        return response()->json([
+            'message' => 'Días acumulados correctamente',
+            'registro' => $registro
+        ]);
     }
 
     public function dejarPerder($id)
@@ -160,6 +172,16 @@ class VacacionesController extends Controller
         $registro->pendiente = 0;
         $registro->save();
 
-        return response()->json(['message' => 'Días perdidos correctamente', 'registro' => $registro]);
+        // ✅ Buscar correctamente al usuario dueño del registro
+        $usuario = Usuario::find($registro->id_usuario);
+
+        if ($usuario) {
+            $usuario->notify(new PerderDias($usuario));
+        }
+
+        return response()->json([
+            'message' => 'Días perdidos correctamente',
+            'registro' => $registro
+        ]);
     }
 }

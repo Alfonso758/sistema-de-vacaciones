@@ -6,6 +6,7 @@ use Illuminate\Console\Command;
 use App\Models\Usuario;
 use App\Models\VacacionesAnuales;
 use App\Models\VacacionesUser;
+use App\Notifications\DiasAcumulables;
 use Carbon\Carbon;
 
 class RenovacionVacaciones extends Command
@@ -22,10 +23,10 @@ class RenovacionVacaciones extends Command
             $fechaIngreso = Carbon::parse($usuario->fecha_ingreso);
             $aniosTrabajados = $fechaIngreso->diffInYears($hoy);
 
-            // Verifica si HOY cumple aniversario exacto
+            // ✅ Si hoy cumple aniversario
             if ($fechaIngreso->isSameDay($hoy->copy()->subYears($aniosTrabajados)) && $aniosTrabajados > 0) {
 
-                // 1️⃣ Buscar los días que le corresponden según los años trabajados
+                // 1️⃣ Buscar rango de días de vacaciones según años trabajados
                 $vacacionesAnuales = VacacionesAnuales::where('anio_inicio', '<=', $aniosTrabajados)
                     ->where('anio_fin', '>=', $aniosTrabajados)
                     ->first();
@@ -60,6 +61,17 @@ class RenovacionVacaciones extends Command
                 $nuevoPeriodo->save();
 
                 $this->info("Vacaciones renovadas para {$usuario->name}: {$diasOtorgados} días (pendiente: {$pendiente}).");
+
+                // 4️⃣ Si hay días pendientes, notificar a todos los administradores
+                if ($pendiente > 0) {
+                    $administradores = Usuario::where('rol_id', 3)->get(); // 3 = admin
+
+                    foreach ($administradores as $admin) {
+                        $admin->notify(new DiasAcumulables($usuario));
+                    }
+
+                    $this->info("Notificación enviada a administradores por días pendientes de {$usuario->name}.");
+                }
             }
         }
 

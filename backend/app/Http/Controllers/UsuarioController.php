@@ -267,8 +267,8 @@ class UsuarioController extends Controller
         if ($usuario->avatar) {
             // Como guardas la URL completa, hay que obtener la ruta relativa
             $oldPath = str_replace(asset('storage') . '/', '', $usuario->avatar);
-            if (\Storage::disk('public')->exists($oldPath)) {
-                \Storage::disk('public')->delete($oldPath);
+            if (Storage::disk('public')->exists($oldPath)) {
+                Storage::disk('public')->delete($oldPath);
             }
         }
 
