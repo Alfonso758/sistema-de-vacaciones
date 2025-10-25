@@ -140,8 +140,8 @@ export default function Reportes({ userID }) {
 
         const dataPend = pendientesFiltradas.map(s =>
             selectedEmpleado === "general"
-                ? [nombreCompleto(s.usuario), s.fecha_solicitud, s.fecha_inicio, s.fecha_fin]
-                : [s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, "Pendiente"]
+                ? [nombreCompleto(s.usuario), s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin)]
+                : [s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), "Pendiente"]
         );
 
         doc.setFont("helvetica", "bold");
@@ -162,8 +162,8 @@ export default function Reportes({ userID }) {
 
         const dataAprob = aprobadasFiltradas.map(s =>
             selectedEmpleado === "general"
-                ? [nombreCompleto(s.usuario), s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
-                : [s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                ? [nombreCompleto(s.usuario), s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                : [s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
         );
 
         doc.text("Solicitudes aprobadas", 14, finalY1);
@@ -182,8 +182,8 @@ export default function Reportes({ userID }) {
 
         const dataRech = rechazadasFiltradas.map(s =>
             selectedEmpleado === "general"
-                ? [nombreCompleto(s.usuario), s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
-                : [s.fecha_solicitud, s.fecha_inicio, s.fecha_fin, nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                ? [nombreCompleto(s.usuario), s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                : [s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
         );
 
         doc.text("Solicitudes rechazadas", 14, finalY2);
@@ -270,9 +270,9 @@ export default function Reportes({ userID }) {
                             <p><strong>Correo:</strong> {empleadoSeleccionado.email}</p>
 
                             {/* Pendientes */}
+                            <h3>Solicitudes pendientes</h3>
                             {pendientesFiltradas.length > 0 ? (
                                 <>
-                                    <h3>Solicitudes pendientes</h3>
                                     <table>
                                         <thead>
                                             <tr>
@@ -297,9 +297,9 @@ export default function Reportes({ userID }) {
                             ) : <p>No hay solicitudes pendientes.</p>}
 
                             {/* Aprobadas */}
+                            <h3>Solicitudes aprobadas</h3>
                             {aprobadasFiltradas.length > 0 ? (
                                 <>
-                                    <h3>Solicitudes aprobadas</h3>
                                     <table>
                                         <thead>
                                             <tr>
@@ -326,9 +326,9 @@ export default function Reportes({ userID }) {
                             ) : <p>No hay solicitudes aprobadas.</p>}
 
                             {/* Rechazadas */}
+                            <h3>Solicitudes rechazadas</h3>
                             {rechazadasFiltradas.length > 0 ? (
                                 <>
-                                    <h3>Solicitudes rechazadas</h3>
                                     <table>
                                         <thead>
                                             <tr>
@@ -360,10 +360,9 @@ export default function Reportes({ userID }) {
                     {!loading && selectedEmpleado === "general" && (
                         <section className="reporte-general">
                             <h2>Reporte general de solicitudes</h2>
-
+                            <h3>Solicitudes pendientes</h3>
                             {pendientesFiltradas.length > 0 ? (
                                 <>
-                                    <h3>Solicitudes pendientes</h3>
                                     <table>
                                         <thead>
                                             <tr>
@@ -387,9 +386,9 @@ export default function Reportes({ userID }) {
                                 </>
                             ) : <p>No hay solicitudes pendientes.</p>}
 
+                            <h3>Solicitudes aprobadas</h3>
                             {aprobadasFiltradas.length > 0 ? (
                                 <>
-                                    <h3>Solicitudes aprobadas</h3>
                                     <table>
                                         <thead>
                                             <tr>
@@ -417,9 +416,9 @@ export default function Reportes({ userID }) {
                                 </>
                             ) : <p>No hay solicitudes aprobadas.</p>}
 
+                            <h3>Solicitudes rechazadas</h3>
                             {rechazadasFiltradas.length > 0 ? (
                                 <>
-                                    <h3>Solicitudes rechazadas</h3>
                                     <table>
                                         <thead>
                                             <tr>
