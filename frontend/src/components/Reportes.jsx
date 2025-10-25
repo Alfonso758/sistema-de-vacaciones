@@ -201,6 +201,16 @@ export default function Reportes({ userID }) {
         doc.save(nombreArchivo);
     };
 
+    // Función para formatear fechas
+    function formatearFecha(fecha) {
+        if (!fecha) return "-"; // Por si está vacío o null
+        const d = new Date(fecha);
+        const dia = String(d.getDate()).padStart(2, "0");
+        const mes = String(d.getMonth() + 1).padStart(2, "0"); // Los meses van de 0 a 11
+        const año = d.getFullYear();
+        return `${dia}/${mes}/${año}`;
+    }
+
     return (
         <div className="reportes-wrap">
             <h2>Reportes</h2>
@@ -276,8 +286,8 @@ export default function Reportes({ userID }) {
                                             {pendientesFiltradas.map(s => (
                                                 <tr key={s.id}>
                                                     <td>{s.fecha_solicitud}</td>
-                                                    <td>{s.fecha_inicio}</td>
-                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>Pendiente</td>
                                                 </tr>
                                             ))}
@@ -304,8 +314,8 @@ export default function Reportes({ userID }) {
                                             {aprobadasFiltradas.map(s => (
                                                 <tr key={s.id}>
                                                     <td>{s.fecha_solicitud}</td>
-                                                    <td>{s.fecha_inicio}</td>
-                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
                                                     <td>{s.fecha_respuesta || "-"}</td>
                                                 </tr>
@@ -333,8 +343,8 @@ export default function Reportes({ userID }) {
                                             {rechazadasFiltradas.map(s => (
                                                 <tr key={s.id}>
                                                     <td>{s.fecha_solicitud}</td>
-                                                    <td>{s.fecha_inicio}</td>
-                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
                                                     <td>{s.fecha_respuesta || "-"}</td>
                                                 </tr>
@@ -368,8 +378,8 @@ export default function Reportes({ userID }) {
                                                 <tr key={s.id}>
                                                     <td>{nombreCompleto(s.usuario)}</td>
                                                     <td>{s.fecha_solicitud}</td>
-                                                    <td>{s.fecha_inicio}</td>
-                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -396,8 +406,8 @@ export default function Reportes({ userID }) {
                                                 <tr key={s.id}>
                                                     <td>{nombreCompleto(s.usuario)}</td>
                                                     <td>{s.fecha_solicitud}</td>
-                                                    <td>{s.fecha_inicio}</td>
-                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
                                                     <td>{s.fecha_respuesta || "-"}</td>
                                                 </tr>
@@ -426,8 +436,8 @@ export default function Reportes({ userID }) {
                                                 <tr key={s.id}>
                                                     <td>{nombreCompleto(s.usuario)}</td>
                                                     <td>{s.fecha_solicitud}</td>
-                                                    <td>{s.fecha_inicio}</td>
-                                                    <td>{s.fecha_fin}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
                                                     <td>{s.fecha_respuesta || "-"}</td>
                                                 </tr>
