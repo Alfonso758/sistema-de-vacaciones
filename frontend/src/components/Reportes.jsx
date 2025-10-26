@@ -124,7 +124,7 @@ export default function Reportes({ userID }) {
         if (selectedEmpleado !== "general" && empleadoSeleccionado) {
             doc.text("REPORTE POR EMPLEADO", 14, 22);
             doc.setFontSize(12);
-            doc.text(`Del 01/01/2024 al 31/12/2025`, 14, 28);
+            doc.text(`Del ${formatearFechaInput(fechaInicio)} al ${formatearFechaInput(fechaFin)}`, 14, 28);
             startY = 38;
 
             doc.setFont("helvetica", "normal");
@@ -136,7 +136,7 @@ export default function Reportes({ userID }) {
         } else {
             doc.text("REPORTE GENERAL DE EMPLEADOS", 14, 22);
             doc.setFontSize(12);
-            doc.text(`Del 01/01/2024 al 31/12/2025`, 14, 28);
+            doc.text(`Del ${formatearFechaInput(fechaInicio)} al ${formatearFechaInput(fechaFin)}`, 14, 28);
             startY = 38;
         }
 
@@ -231,6 +231,13 @@ export default function Reportes({ userID }) {
         const minutos = String(d.getMinutes()).padStart(2, "0");
 
         return `${dia}/${mes}/${año} ${horas}:${minutos}`;
+    }
+
+    function formatearFechaInput(fecha) {
+        if (!fecha) return "-";
+        // fecha viene en formato YYYY-MM-DD
+        const [año, mes, dia] = fecha.split("-");
+        return `${dia}/${mes}/${año}`;
     }
 
     return (
