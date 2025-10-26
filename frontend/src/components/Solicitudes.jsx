@@ -6,6 +6,7 @@ export default function Solicitudes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [rolID, setRolID] = useState(null);
+    const [modalLoading, setModalLoading] = useState(false);
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
@@ -118,9 +119,6 @@ export default function Solicitudes({ userID }) {
             alert('No se pudo cargar la solicitud para edición.');
         }
     };
-
-
-
 
     // Función para cancelar la solicitud (cambiar estado a 'Cancelada')
     const manejarCancelar = async (id) => {
@@ -301,6 +299,8 @@ export default function Solicitudes({ userID }) {
                         <h2>Editar Solicitud</h2>
                         <form onSubmit={async (e) => {
                             e.preventDefault();
+                            setModalLoading(true); // 🔹 bloquear inputs y mostrar spinner
+
                             try {
                                 const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${solicitudEditando.id}`, {
                                     method: 'PUT',
@@ -316,7 +316,6 @@ export default function Solicitudes({ userID }) {
 
                                 if (!respuesta.ok) throw new Error('Error al actualizar la solicitud');
 
-                                alert('Solicitud actualizada correctamente');
                                 setModalEditarOpen(false);
 
                                 setSolicitudes(prev => prev.map(s =>
@@ -329,10 +328,11 @@ export default function Solicitudes({ userID }) {
                                         : s
                                 ));
 
-
                             } catch (err) {
                                 console.error(err);
                                 alert('No se pudo actualizar la solicitud.');
+                            } finally {
+                                setModalLoading(false); // 🔹 desbloquear inputs y ocultar spinner
                             }
                         }}>
                             <div className="input-group">
@@ -341,6 +341,7 @@ export default function Solicitudes({ userID }) {
                                     type="date"
                                     value={solicitudEditando.fecha_inicio}
                                     onChange={(e) => setSolicitudEditando({ ...solicitudEditando, fecha_inicio: e.target.value })}
+                                    disabled={modalLoading}
                                 />
                             </div>
 
@@ -350,12 +351,48 @@ export default function Solicitudes({ userID }) {
                                     type="date"
                                     value={solicitudEditando.fecha_fin}
                                     onChange={(e) => setSolicitudEditando({ ...solicitudEditando, fecha_fin: e.target.value })}
+                                    disabled={modalLoading}
                                 />
                             </div>
 
                             <div className="botones-modal">
-                                <button type="submit" className="btn-guardar1">Guardar</button>
-                                <button type="button" className="btn-cancelar1" onClick={() => setModalEditarOpen(false)}>Cancelar</button>
+                                <button type="submit" className="btn-guardar1" disabled={modalLoading}>
+                                    {modalLoading ? (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            style={{ margin: 'auto', background: 'none', display: 'block' }}
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 100 100"
+                                            preserveAspectRatio="xMidYMid"
+                                        >
+                                            <circle
+                                                cx="50"
+                                                cy="50"
+                                                fill="none"
+                                                stroke="#fff"
+                                                strokeWidth="10"
+                                                r="35"
+                                                strokeDasharray="164.93361431346415 56.97787143782138"
+                                            >
+                                                <animateTransform
+                                                    attributeName="transform"
+                                                    type="rotate"
+                                                    repeatCount="indefinite"
+                                                    dur="1s"
+                                                    values="0 50 50;360 50 50"
+                                                    keyTimes="0;1"
+                                                />
+                                            </circle>
+                                        </svg>
+                                    ) : (
+                                        'Guardar'
+                                    )}
+                                </button>
+
+                                <button type="button" className="btn-cancelar1" onClick={() => setModalEditarOpen(false)} disabled={modalLoading}>
+                                    Cancelar
+                                </button>
                             </div>
                         </form>
                     </div>
