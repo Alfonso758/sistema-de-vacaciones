@@ -21,7 +21,6 @@ export default function Reportes({ userID }) {
         const fetchDatos = async () => {
             setLoading(true);
             try {
-                // Traer solicitudes del equipo
                 const resSolicitudes = await fetch(`${apiBaseUrl}/api/solicitudes/reporte/${userID}`);
                 const dataSolicitudes = await resSolicitudes.json();
                 setSolicitudes(dataSolicitudes);
@@ -118,19 +117,27 @@ export default function Reportes({ userID }) {
 
     // Función separada para todo el contenido del PDF
     const generarContenidoPDF = (doc) => {
-        doc.setFontSize(16);
-        doc.text("Reporte de solicitudes", 14, 22);
-
-        let startY = 30;
+        doc.setFontSize(14);
+        let startY = 0;
 
         // Datos del empleado
         if (selectedEmpleado !== "general" && empleadoSeleccionado) {
+            doc.text("REPORTE POR EMPLEADO", 14, 22);
+            doc.setFontSize(12);
+            doc.text(`Del 01/01/2024 al 31/12/2025`, 14, 28);
+            startY = 38;
+
             doc.setFont("helvetica", "normal");
             doc.setFontSize(12);
             doc.text(`Nombre: ${nombreCompleto(empleadoSeleccionado)}`, 14, startY);
             startY += 6;
             doc.text(`Correo: ${empleadoSeleccionado.email}`, 14, startY);
             startY += 10;
+        } else {
+            doc.text("REPORTE GENERAL DE EMPLEADOS", 14, 22);
+            doc.setFontSize(12);
+            doc.text(`Del 01/01/2024 al 31/12/2025`, 14, 28);
+            startY = 38;
         }
 
         // --- Pendientes ---
@@ -140,8 +147,8 @@ export default function Reportes({ userID }) {
 
         const dataPend = pendientesFiltradas.map(s =>
             selectedEmpleado === "general"
-                ? [nombreCompleto(s.usuario), s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin)]
-                : [s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), "Pendiente"]
+                ? [nombreCompleto(s.usuario), formatearFechaHora(s.fecha_solicitud), formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin)]
+                : [formatearFechaHora(s.fecha_solicitud), formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), "Pendiente"]
         );
 
         doc.setFont("helvetica", "bold");
@@ -162,8 +169,8 @@ export default function Reportes({ userID }) {
 
         const dataAprob = aprobadasFiltradas.map(s =>
             selectedEmpleado === "general"
-                ? [nombreCompleto(s.usuario), s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
-                : [s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                ? [nombreCompleto(s.usuario), formatearFechaHora(s.fecha_solicitud), formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), formatearFechaHora(s.fecha_respuesta) || "-"]
+                : [formatearFechaHora(s.fecha_solicitud), formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), formatearFechaHora(s.fecha_respuesta) || "-"]
         );
 
         doc.text("Solicitudes aprobadas", 14, finalY1);
@@ -182,8 +189,8 @@ export default function Reportes({ userID }) {
 
         const dataRech = rechazadasFiltradas.map(s =>
             selectedEmpleado === "general"
-                ? [nombreCompleto(s.usuario), s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
-                : [s.fecha_solicitud, formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), s.fecha_respuesta || "-"]
+                ? [nombreCompleto(s.usuario), formatearFechaHora(s.fecha_solicitud), formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), formatearFechaHora(s.fecha_respuesta) || "-"]
+                : [formatearFechaHora(s.fecha_solicitud), formatearFecha(s.fecha_inicio), formatearFecha(s.fecha_fin), nombreCompleto(s.revisor), formatearFechaHora(s.fecha_respuesta) || "-"]
         );
 
         doc.text("Solicitudes rechazadas", 14, finalY2);
@@ -195,7 +202,7 @@ export default function Reportes({ userID }) {
 
         // Guardar PDF
         const nombreArchivo = selectedEmpleado === "general"
-            ? "reporte_general.pdf"
+            ? "reporte_general de empleados.pdf"
             : `reporte_${nombreCompleto(empleadoSeleccionado)}.pdf`;
 
         doc.save(nombreArchivo);
@@ -209,6 +216,21 @@ export default function Reportes({ userID }) {
         const mes = String(d.getMonth() + 1).padStart(2, "0"); // Los meses van de 0 a 11
         const año = d.getFullYear();
         return `${dia}/${mes}/${año}`;
+    }
+
+    // Función para formatear fecha con hora
+    function formatearFechaHora(fecha) {
+        if (!fecha) return "-"; // Por si está vacío o null
+        const d = new Date(fecha);
+        if (isNaN(d)) return "-"; // Por si no se puede convertir a fecha
+
+        const dia = String(d.getDate()).padStart(2, "0");
+        const mes = String(d.getMonth() + 1).padStart(2, "0");
+        const año = d.getFullYear();
+        const horas = String(d.getHours()).padStart(2, "0");
+        const minutos = String(d.getMinutes()).padStart(2, "0");
+
+        return `${dia}/${mes}/${año} ${horas}:${minutos}`;
     }
 
     return (
@@ -285,7 +307,7 @@ export default function Reportes({ userID }) {
                                         <tbody>
                                             {pendientesFiltradas.map(s => (
                                                 <tr key={s.id}>
-                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
                                                     <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>Pendiente</td>
@@ -313,11 +335,11 @@ export default function Reportes({ userID }) {
                                         <tbody>
                                             {aprobadasFiltradas.map(s => (
                                                 <tr key={s.id}>
-                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
                                                     <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
-                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                    <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -342,11 +364,11 @@ export default function Reportes({ userID }) {
                                         <tbody>
                                             {rechazadasFiltradas.map(s => (
                                                 <tr key={s.id}>
-                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
                                                     <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
-                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                    <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -376,7 +398,7 @@ export default function Reportes({ userID }) {
                                             {pendientesFiltradas.map(s => (
                                                 <tr key={s.id}>
                                                     <td>{nombreCompleto(s.usuario)}</td>
-                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
                                                     <td>{formatearFecha(s.fecha_fin)}</td>
                                                 </tr>
@@ -404,11 +426,11 @@ export default function Reportes({ userID }) {
                                             {aprobadasFiltradas.map(s => (
                                                 <tr key={s.id}>
                                                     <td>{nombreCompleto(s.usuario)}</td>
-                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
                                                     <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
-                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                    <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
@@ -434,11 +456,11 @@ export default function Reportes({ userID }) {
                                             {rechazadasFiltradas.map(s => (
                                                 <tr key={s.id}>
                                                     <td>{nombreCompleto(s.usuario)}</td>
-                                                    <td>{s.fecha_solicitud}</td>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
                                                     <td>{formatearFecha(s.fecha_fin)}</td>
                                                     <td>{nombreCompleto(s.revisor)}</td>
-                                                    <td>{s.fecha_respuesta || "-"}</td>
+                                                    <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>

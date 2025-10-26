@@ -15,6 +15,8 @@ export default function Reportes({ userID }) {
     const [empleadoSeleccionado, setEmpleadoSeleccionado] = useState(null);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState("todos");
+    const [fechaInicio, setFechaInicio] = useState("");
+    const [fechaFin, setFechaFin] = useState("");
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
@@ -24,6 +26,29 @@ export default function Reportes({ userID }) {
                 const resSolicitudes = await fetch(`${apiBaseUrl}/api/solicitudes/reporte/3`);
                 const dataSolicitudes = await resSolicitudes.json();
                 setSolicitudes(dataSolicitudes);
+
+                // Determinar fecha mínima y máxima entre todas las solicitudes
+                const todasFechas = [
+                    ...dataSolicitudes.pendientes,
+                    ...dataSolicitudes.aprobadas,
+                    ...dataSolicitudes.rechazadas
+                ].map(s => new Date(s.fecha_solicitud));
+
+                if (todasFechas.length > 0) {
+                    const minFecha = new Date(Math.min(...todasFechas));
+                    const fechaActual = new Date(); // fecha "Hasta" será hoy
+
+                    // Función para formatear fecha en local evitando desfase de timezone
+                    const formatearFechaLocal = (d) => {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, "0");
+                        const dd = String(d.getDate()).padStart(2, "0");
+                        return `${yyyy}-${mm}-${dd}`;
+                    };
+
+                    setFechaInicio(formatearFechaLocal(minFecha));
+                    setFechaFin(formatearFechaLocal(fechaActual));
+                }
 
                 const resUsuarios = await fetch(`${apiBaseUrl}/api/usuarios`);
                 const dataUsuarios = await resUsuarios.json();
@@ -65,9 +90,26 @@ export default function Reportes({ userID }) {
         return filtrada;
     };
 
-    const pendientes = filtrarSolicitudes(solicitudes.pendientes);
-    const aprobadas = filtrarSolicitudes(solicitudes.aprobadas);
-    const rechazadas = filtrarSolicitudes(solicitudes.rechazadas);
+    // Función para filtrar también por rango de fechas
+    const filtrarPorFechas = (lista) => {
+        return lista.filter((s) => {
+            // Obtener solo la parte YYYY-MM-DD de la solicitud
+            const fecha = s.fecha_solicitud.split('T')[0];
+
+            // Convertir a número para comparar fácilmente
+            const numFecha = parseInt(fecha.replace(/-/g, ''));
+            const numInicio = fechaInicio ? parseInt(fechaInicio.replace(/-/g, '')) : null;
+            const numFin = fechaFin ? parseInt(fechaFin.replace(/-/g, '')) : null;
+
+            if (numInicio && numFecha < numInicio) return false;
+            if (numFin && numFecha > numFin) return false; // ✅ ahora incluye la fechaFin exacta
+            return true;
+        });
+    };
+
+    const pendientes = filtrarPorFechas(filtrarSolicitudes(solicitudes.pendientes));
+    const aprobadas = filtrarPorFechas(filtrarSolicitudes(solicitudes.aprobadas));
+    const rechazadas = filtrarPorFechas(filtrarSolicitudes(solicitudes.rechazadas));
 
     // 🔹 Filtrado por empleado para reporte individual
     const pendientesFiltradas = empleadoSeleccionado ? pendientes.filter(s => s.usuario_id === empleadoSeleccionado.id) : [];
@@ -84,10 +126,49 @@ export default function Reportes({ userID }) {
     };
 
     const generarContenidoPDF = (doc) => {
-        doc.setFontSize(16);
-        doc.text(`Reporte de solicitudes - ${activeTab.toUpperCase()} - Usuario: ${usuarioSeleccionado}`, 14, 22);
+        doc.setFontSize(14);
+        let titulo = "";
+        let nombreArchivo = "";
 
-        let startY = 30;
+        // Si es reporte general
+        if (usuarioSeleccionado === "todos") {
+            if (activeTab === "todos") {
+                titulo = "REPORTE GENERAL";
+                nombreArchivo = "reporte_general";
+            } else if (activeTab === "empleados") {
+                titulo = "REPORTE GENERAL DE EMPLEADOS";
+                nombreArchivo = "reporte_general de empleados";
+            } else if (activeTab === "jefes") {
+                titulo = "REPORTE GENERAL DE JEFES DE ÁREA";
+                nombreArchivo = "reporte_general de jefes de área";
+            }
+        }
+        // Si es reporte individual
+        else {
+            const usuario = usuarios.find(u => u.id === parseInt(usuarioSeleccionado));
+
+            function capitalizarNombre(nombre) {
+                return nombre
+                    .toLowerCase()
+                    .replace(/\b\w/g, (letra) => letra.toUpperCase());
+            }
+
+            if (usuario) {
+                const nombreCompleto = `${usuario.name} ${usuario.surnames}`;
+                const nombreCapitalizado = capitalizarNombre(nombreCompleto);
+                titulo = `REPORTE DE ${nombreCapitalizado.toUpperCase()}`;
+                nombreArchivo = `reporte_${nombreCapitalizado.replace(/\s+/g, " ")}`;
+            } else {
+                titulo = "REPORTE INDIVIDUAL";
+                nombreArchivo = "reporte_individual";
+            }
+        }
+        doc.text(titulo, 14, 22);
+
+        doc.setFontSize(12);
+        doc.text(`Del 01/01/2024 al 31/12/2025`, 14, 28);
+
+        let startY = 38;
         const generarTabla = (titulo, lista, columnas, datos) => {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(12);
@@ -102,13 +183,13 @@ export default function Reportes({ userID }) {
 
         // Pendientes
         if (activeTab !== "jefes") {
-            const columnasPend = ["Empleado/Jefe", "Rol", "Fecha solicitud", "Inicio", "Fin", "Jefe directo"];
+            const columnasPend = ["Nombre", "Rol", "Fecha solicitud", "Inicio", "Fin", "Jefe directo"];
             const dataPend = pendientes.map(s => [
                 nombreCompleto(s.usuario),
                 esJefe(s.usuario) ? "Jefe" : "Empleado",
-                s.fecha_solicitud,
-                s.fecha_inicio,
-                s.fecha_fin,
+                formatearFechaHora(s.fecha_solicitud),
+                formatearFecha(s.fecha_inicio),
+                formatearFecha(s.fecha_fin),
                 s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"
             ]);
             generarTabla("Solicitudes pendientes", pendientes, columnasPend, dataPend);
@@ -120,11 +201,11 @@ export default function Reportes({ userID }) {
         const dataAprob = aprobadas.map(s => [
             nombreCompleto(s.usuario),
             esJefe(s.usuario) ? "Jefe" : "Empleado",
-            s.fecha_solicitud,
-            s.fecha_inicio,
-            s.fecha_fin,
+            formatearFechaHora(s.fecha_solicitud),
+            formatearFecha(s.fecha_inicio),
+            formatearFecha(s.fecha_fin),
             nombreCompleto(s.revisor),
-            s.fecha_respuesta || "-",
+            formatearFechaHora(s.fecha_respuesta) || "-",
             ...(activeTab !== "jefes" ? [s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"] : [])
         ]);
         generarTabla("Solicitudes aprobadas", aprobadas, columnasAprob, dataAprob);
@@ -135,16 +216,16 @@ export default function Reportes({ userID }) {
         const dataRech = rechazadas.map(s => [
             nombreCompleto(s.usuario),
             esJefe(s.usuario) ? "Jefe" : "Empleado",
-            s.fecha_solicitud,
-            s.fecha_inicio,
-            s.fecha_fin,
+            formatearFechaHora(s.fecha_solicitud),
+            formatearFecha(s.fecha_inicio),
+            formatearFecha(s.fecha_fin),
             nombreCompleto(s.revisor),
-            s.fecha_respuesta || "-",
+            formatearFechaHora(s.fecha_respuesta) || "-",
             ...(activeTab !== "jefes" ? [s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"] : [])
         ]);
         generarTabla("Solicitudes rechazadas", rechazadas, columnasRech, dataRech);
 
-        doc.save(`reporte_${activeTab}_${usuarioSeleccionado}.pdf`);
+        doc.save(`${nombreArchivo}.pdf`);
     };
 
     // Función para formatear fechas
@@ -155,6 +236,21 @@ export default function Reportes({ userID }) {
         const mes = String(d.getMonth() + 1).padStart(2, "0"); // Los meses van de 0 a 11
         const año = d.getFullYear();
         return `${dia}/${mes}/${año}`;
+    }
+
+    // Función para formatear fecha con hora
+    function formatearFechaHora(fecha) {
+        if (!fecha) return "-"; // Por si está vacío o null
+        const d = new Date(fecha);
+        if (isNaN(d)) return "-"; // Por si no se puede convertir a fecha
+
+        const dia = String(d.getDate()).padStart(2, "0");
+        const mes = String(d.getMonth() + 1).padStart(2, "0");
+        const año = d.getFullYear();
+        const horas = String(d.getHours()).padStart(2, "0");
+        const minutos = String(d.getMinutes()).padStart(2, "0");
+
+        return `${dia}/${mes}/${año} ${horas}:${minutos}`;
     }
 
     return (
@@ -186,32 +282,58 @@ export default function Reportes({ userID }) {
                             onClick={() => { setActiveTab("jefes"); setUsuarioSeleccionado("todos"); }}
                             className={activeTab === "jefes" ? "activo" : ""}
                         >
-                            Jefes
+                            Jefes de área
                         </button>
                     </div>
 
                     {/* Select dinámico según pestaña */}
-                    {
-                        !loading && usuarios.length > 0 && (
-                            <div className="filtro-usuario">
-                                <label>Seleccionar reporte:
-                                    <select value={usuarioSeleccionado} onChange={(e) => setUsuarioSeleccionado(e.target.value)}>
-                                        <option value="todos">
-                                            {activeTab === "todos"
-                                                ? "Reporte general"
-                                                : activeTab === "empleados"
-                                                    ? "Reporte general de empleados"
-                                                    : "Reporte general de jefes de área"}
-                                        </option>
-                                        {usuariosFiltrados().map(u => (
+                    {!loading && usuarios.length > 0 && (
+                        <div className="filtro-usuario">
+                            <label>Seleccionar reporte:
+                                <select value={usuarioSeleccionado} onChange={(e) => setUsuarioSeleccionado(e.target.value)}>
+                                    <option value="todos">
+                                        {activeTab === "todos"
+                                            ? "Reporte general"
+                                            : activeTab === "empleados"
+                                                ? "Reporte general de empleados"
+                                                : "Reporte general de jefes de área"}
+                                    </option>
+
+                                    {usuariosFiltrados()
+                                        // Si está en la pestaña "todos", filtra los que no son administradores
+                                        .filter(u => !(activeTab === "todos" && u.rol_id === 3))
+                                        .map(u => (
                                             <option key={u.id} value={u.id}>
                                                 Reporte de {`${u.name} ${u.surnames}`}
                                             </option>
                                         ))}
-                                    </select>
-                                </label>
-                            </div>
-                        )
+                                </select>
+
+
+                                {/* 🔹 Nuevos inputs para rango de fechas */}
+                                <div className="filtros-fecha" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+                                    <label>
+                                        Desde:
+                                        <input
+                                            type="date"
+                                            value={fechaInicio || ""}
+                                            onChange={(e) => setFechaInicio(e.target.value)}
+                                            style={{ marginLeft: "5px" }}
+                                        />
+                                    </label>
+                                    <label>
+                                        Hasta:
+                                        <input
+                                            type="date"
+                                            value={fechaFin || ""}
+                                            onChange={(e) => setFechaFin(e.target.value)}
+                                            style={{ marginLeft: "5px" }}
+                                        />
+                                    </label>
+                                </div>
+                            </label>
+                        </div>
+                    )
                     }
 
                     <div className="botones-pdf">
@@ -226,9 +348,9 @@ export default function Reportes({ userID }) {
                                     <h2>Reporte de solicitudes ({activeTab})</h2>
 
                                     {/* Solo mostrar pendientes si NO es pestaña jefes */}
-                                    {activeTab !== "jefes" && pendientes.length > 0 && (
+                                    <h3>Solicitudes pendientes</h3>
+                                    {activeTab !== "jefes" && pendientes.length > 0 ? (
                                         <>
-                                            <h3>Solicitudes pendientes</h3>
                                             <table>
                                                 <thead>
                                                     <tr>
@@ -245,7 +367,7 @@ export default function Reportes({ userID }) {
                                                         <tr key={s.id}>
                                                             <td>{nombreCompleto(s.usuario)}</td>
                                                             <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
-                                                            <td>{s.fecha_solicitud}</td>
+                                                            <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                             <td>{formatearFecha(s.fecha_inicio)}</td>
                                                             <td>{formatearFecha(s.fecha_fin)}</td>
                                                             <td>{s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"}</td>
@@ -254,12 +376,12 @@ export default function Reportes({ userID }) {
                                                 </tbody>
                                             </table>
                                         </>
-                                    )}
+                                    ) : <p>No hay solicitudes pendientes.</p>}
 
                                     {/* Aprobadas */}
-                                    {aprobadas.length > 0 && (
+                                    <h3>Solicitudes aprobadas</h3>
+                                    {aprobadas.length > 0 ? (
                                         <>
-                                            <h3>Solicitudes aprobadas</h3>
                                             <table>
                                                 <thead>
                                                     <tr>
@@ -278,23 +400,23 @@ export default function Reportes({ userID }) {
                                                         <tr key={s.id}>
                                                             <td>{nombreCompleto(s.usuario)}</td>
                                                             <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
-                                                            <td>{s.fecha_solicitud}</td>
+                                                            <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                             <td>{formatearFecha(s.fecha_inicio)}</td>
                                                             <td>{formatearFecha(s.fecha_fin)}</td>
                                                             <td>{nombreCompleto(s.revisor)}</td>
-                                                            <td>{s.fecha_respuesta || "-"}</td>
+                                                            <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                             {activeTab !== "jefes" && <td>{s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"}</td>}
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
                                         </>
-                                    )}
+                                    ) : <p>No hay solicitudes aprobadas.</p>}
 
                                     {/* Rechazadas */}
-                                    {rechazadas.length > 0 && (
+                                    <h3>Solicitudes rechazadas</h3>
+                                    {rechazadas.length > 0 ? (
                                         <>
-                                            <h3>Solicitudes rechazadas</h3>
                                             <table>
                                                 <thead>
                                                     <tr>
@@ -313,130 +435,133 @@ export default function Reportes({ userID }) {
                                                         <tr key={s.id}>
                                                             <td>{nombreCompleto(s.usuario)}</td>
                                                             <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
-                                                            <td>{s.fecha_solicitud}</td>
+                                                            <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                             <td>{formatearFecha(s.fecha_inicio)}</td>
                                                             <td>{formatearFecha(s.fecha_fin)}</td>
                                                             <td>{nombreCompleto(s.revisor)}</td>
-                                                            <td>{s.fecha_respuesta || "-"}</td>
+                                                            <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                             {activeTab !== "jefes" && <td>{s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"}</td>}
                                                         </tr>
                                                     ))}
                                                 </tbody>
                                             </table>
                                         </>
-                                    )}
+                                    ) : <p>No hay solicitudes rechazadas.</p>}
                                 </section>
                             )
                         )
                     }
 
                     {/* 🔹 Reporte por empleado */}
-                    {
-                        usuarioSeleccionado !== "todos" && empleadoSeleccionado && (
-                            <section className="reporte-empleado">
-                                <h2>Reporte por empleado de solicitudes</h2>
-                                <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
-                                <p><strong>Correo:</strong> {empleadoSeleccionado?.email || "-"}</p>
+                    {usuarioSeleccionado !== "todos" && empleadoSeleccionado && (
+                        <section className="reporte-empleado">
+                            <h2>Reporte por empleado de solicitudes</h2>
+                            <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
+                            <p><strong>Correo:</strong> {empleadoSeleccionado?.email || "-"}</p>
 
-                                {/* Mostrar jefe si rol_id === 1 */}
-                                {empleadoSeleccionado.rol_id === 1 && (
-                                    <p>
-                                        <strong>Jefe:</strong> {pendientesFiltradas[0]?.usuario?.jefe
+                            {/* Mostrar jefe si rol_id === 1 */}
+                            {empleadoSeleccionado.rol_id === 1 && (
+                                <p>
+                                    <strong>Jefe:</strong>{" "}
+                                    {empleadoSeleccionado.jefe
+                                        ? nombreCompleto(empleadoSeleccionado.jefe)
+                                        : pendientesFiltradas[0]?.usuario?.jefe
                                             ? nombreCompleto(pendientesFiltradas[0].usuario.jefe)
                                             : aprobadasFiltradas[0]?.usuario?.jefe
                                                 ? nombreCompleto(aprobadasFiltradas[0].usuario.jefe)
                                                 : rechazadasFiltradas[0]?.usuario?.jefe
                                                     ? nombreCompleto(rechazadasFiltradas[0].usuario.jefe)
                                                     : "-"}
-                                    </p>
-                                )}
+                                </p>
+                            )}
 
-                                {/* Pendientes */}
-                                {pendientesFiltradas.length > 0 && (
-                                    <>
-                                        <h3>Solicitudes pendientes</h3>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Fecha solicitud</th>
-                                                    <th>Inicio</th>
-                                                    <th>Fin</th>
-                                                    <th>Estado</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {pendientesFiltradas.map(s => (
-                                                    <tr key={s.id}>
-                                                        <td>{s.fecha_solicitud}</td>
-                                                        <td>{formatearFecha(s.fecha_inicio)}</td>
-                                                        <td>{formatearFecha(s.fecha_fin)}</td>
-                                                        <td>Pendiente</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </>
-                                )}
 
-                                {/* Aprobadas */}
-                                {aprobadasFiltradas.length > 0 && (
-                                    <>
-                                        <h3>Solicitudes aprobadas</h3>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Fecha solicitud</th>
-                                                    <th>Inicio</th>
-                                                    <th>Fin</th>
-                                                    <th>Revisado por</th>
-                                                    <th>Fecha revisión</th>
+                            {/* Pendientes */}
+                            <h3>Solicitudes pendientes</h3>
+                            {pendientesFiltradas.length > 0 ? (
+                                <>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {pendientesFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
+                                                    <td>Pendiente</td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {aprobadasFiltradas.map(s => (
-                                                    <tr key={s.id}>
-                                                        <td>{s.fecha_solicitud}</td>
-                                                        <td>{formatearFecha(s.fecha_inicio)}</td>
-                                                        <td>{formatearFecha(s.fecha_fin)}</td>
-                                                        <td>{nombreCompleto(s.revisor)}</td>
-                                                        <td>{s.fecha_respuesta || "-"}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </>
-                                )}
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes pendientes.</p>}
 
-                                {/* Rechazadas */}
-                                {rechazadasFiltradas.length > 0 && (
-                                    <>
-                                        <h3>Solicitudes rechazadas</h3>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    <th>Fecha solicitud</th>
-                                                    <th>Inicio</th>
-                                                    <th>Fin</th>
-                                                    <th>Revisado por</th>
-                                                    <th>Fecha revisión</th>
+                            {/* Aprobadas */}
+                            <h3>Solicitudes aprobadas</h3>
+                            {aprobadasFiltradas.length > 0 ? (
+                                <>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Revisado por</th>
+                                                <th>Fecha revisión</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {aprobadasFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
+                                                    <td>{nombreCompleto(s.revisor)}</td>
+                                                    <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
                                                 </tr>
-                                            </thead>
-                                            <tbody>
-                                                {rechazadasFiltradas.map(s => (
-                                                    <tr key={s.id}>
-                                                        <td>{s.fecha_solicitud}</td>
-                                                        <td>{formatearFecha(s.fecha_inicio)}</td>
-                                                        <td>{formatearFecha(s.fecha_fin)}</td>
-                                                        <td>{nombreCompleto(s.revisor)}</td>
-                                                        <td>{s.fecha_respuesta || "-"}</td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </>
-                                )}
-                            </section>
-                        )
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes aprobadas.</p>}
+
+                            {/* Rechazadas */}
+                            <h3>Solicitudes rechazadas</h3>
+                            {rechazadasFiltradas.length > 0 ? (
+                                <>
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha solicitud</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Revisado por</th>
+                                                <th>Fecha revisión</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {rechazadasFiltradas.map(s => (
+                                                <tr key={s.id}>
+                                                    <td>{formatearFechaHora(s.fecha_solicitud)}</td>
+                                                    <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                    <td>{formatearFecha(s.fecha_fin)}</td>
+                                                    <td>{nombreCompleto(s.revisor)}</td>
+                                                    <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </>
+                            ) : <p>No hay solicitudes rechazadas.</p>}
+                        </section>
+                    )
                     }
                 </>
             )}
