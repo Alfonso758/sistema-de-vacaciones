@@ -189,6 +189,13 @@ export default function Solicitudes({ userID }) {
             });
     }, [userID]);
 
+    const parseFechaLocal = (fechaStr) => {
+        if (!fechaStr) return null;
+        const [yyyy, mm, dd] = fechaStr.split("-").map(Number);
+        return new Date(yyyy, mm - 1, dd); // mes 0-indexado
+    };
+
+
     return (
         <div className="seccion-lista">
             <h2>Solicitudes</h2>
@@ -312,7 +319,16 @@ export default function Solicitudes({ userID }) {
                                 alert('Solicitud actualizada correctamente');
                                 setModalEditarOpen(false);
 
-                                setSolicitudes(prev => prev.map(s => s.id === solicitudEditando.id ? { ...s, fecha_inicio: solicitudEditando.fecha_inicio, fecha_fin: solicitudEditando.fecha_fin } : s));
+                                setSolicitudes(prev => prev.map(s =>
+                                    s.id === solicitudEditando.id
+                                        ? {
+                                            ...s,
+                                            fecha_inicio: parseFechaLocal(solicitudEditando.fecha_inicio),
+                                            fecha_fin: parseFechaLocal(solicitudEditando.fecha_fin)
+                                        }
+                                        : s
+                                ));
+
 
                             } catch (err) {
                                 console.error(err);
@@ -338,8 +354,8 @@ export default function Solicitudes({ userID }) {
                             </div>
 
                             <div className="botones-modal">
-                                <button type="submit" className="btn-guardar">Guardar</button>
-                                <button type="button" className="btn-cancelar" onClick={() => setModalEditarOpen(false)}>Cancelar</button>
+                                <button type="submit" className="btn-guardar1">Guardar</button>
+                                <button type="button" className="btn-cancelar1" onClick={() => setModalEditarOpen(false)}>Cancelar</button>
                             </div>
                         </form>
                     </div>

@@ -266,7 +266,7 @@ p {
 }
 
 /* Botón Guardar */
-.btn-guardar {
+.btn-guardar1 {
     width: 100%;
     /* ✅ ocupan el espacio de la columna */
     padding: 12px 0;
@@ -277,18 +277,15 @@ p {
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
     text-align: center;
 }
 
-.btn-guardar:hover {
+.btn-guardar1:hover {
     background: linear-gradient(90deg, #0d47a1, #1976d2);
-    box-shadow: 0 6px 15px rgba(25, 118, 210, 0.4);
-    transform: translateY(-2px);
 }
 
 /* Botón Cancelar */
-.btn-cancelar {
+.btn-cancelar1 {
     width: 100%;
     /* ✅ igual que Guardar */
     padding: 12px 0;
@@ -299,12 +296,9 @@ p {
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.3s ease;
     text-align: center;
 }
 
-.btn-cancelar:hover {
+.btn-cancelar1:hover {
     background: linear-gradient(90deg, #911614, #e53935);
-    box-shadow: 0 6px 15px rgba(229, 57, 53, 0.4);
-    transform: translateY(-2px);
 }
