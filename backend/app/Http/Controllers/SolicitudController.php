@@ -141,7 +141,7 @@ class SolicitudController extends Controller
         // Usuario que editó la solicitud
         $usuario = Usuario::find($solicitud->usuario_id);
 
-        /*if ($usuario) {
+        if ($usuario) {
             // 🔹 Enviar notificación según el rol del usuario
             if ($usuario->rol_id == 1) {
                 // Si es empleado → notificar a su jefe y a los administradores
@@ -163,7 +163,7 @@ class SolicitudController extends Controller
                     $admin->notify(new SolicitudEditada($usuario, $solicitud->id));
                 }
             }
-        }*/
+        }
 
         return response()->json([
             'message' => 'Solicitud actualizada correctamente',
