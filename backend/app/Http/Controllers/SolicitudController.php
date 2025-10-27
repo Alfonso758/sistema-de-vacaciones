@@ -132,9 +132,10 @@ class SolicitudController extends Controller
         $validated = $request->validate([
             'fecha_inicio' => 'required|date',
             'fecha_fin'    => 'required|date|after_or_equal:fecha_inicio',
+            'total_dias'   => 'required|integer|min:0',
         ]);
 
-        // Actualizar solicitud
+        // Actualizar solicitud con total_dias
         $solicitud->update($validated);
 
         // Usuario que editó la solicitud
