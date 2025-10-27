@@ -52,12 +52,12 @@ export default function Solicitudes({ userID }) {
         fetchDiasInhabiles();
     }, [apiBaseUrl]);
 
-    const menosDe48Horas = (fecha) => {
+    const menosDe72Horas = (fecha) => {
         if (!fecha) return false;
         const fechaSolicitud = new Date(fecha);
         const ahora = new Date();
         const diferenciaHoras = (ahora - fechaSolicitud) / (1000 * 60 * 60);
-        return diferenciaHoras < 48;
+        return diferenciaHoras < 72;
     };
 
 
@@ -315,22 +315,40 @@ export default function Solicitudes({ userID }) {
 
                             {/* Botones de acción */}
                             <div className="acciones-solicitud">
-                                {(estados[solicitud.estado_solicitud] === 'Pendiente' ||
-                                    (estados[solicitud.estado_solicitud] === 'Aprobada' &&
-                                        rolID === 2 &&
-                                        menosDe48Horas(solicitud.fecha_solicitud))) && (
-                                        <>
-                                            {estados[solicitud.estado_solicitud] === 'Pendiente' && (
-                                                <button className="btn editar" onClick={() => manejarEditar(solicitud.id)}>Editar</button>
-                                            )}
-                                            <button className="btn eliminar" onClick={() => manejarCancelar(solicitud.id)}>Cancelar</button>
-                                        </>
-                                    )}
+                                {(() => {
+                                    const estado = estados[solicitud.estado_solicitud];
 
-                                {estados[solicitud.estado_solicitud] === 'Cancelada' && (
-                                    <button className="btn eliminar" onClick={() => manejarEliminar(solicitud.id)}>Eliminar</button>
-                                )}
+                                    // Para solicitudes pendientes, siempre mostrar Editar y Cancelar
+                                    if (estado === 'Pendiente') {
+                                        return (
+                                            <>
+                                                <button className="btn editar" onClick={() => manejarEditar(solicitud.id)}>Editar</button>
+                                                <button className="btn eliminar" onClick={() => manejarCancelar(solicitud.id)}>Cancelar</button>
+                                            </>
+                                        );
+                                    }
+
+                                    // Para solicitudes aprobadas, solo rol 2 y dentro de las primeras 48 horas
+                                    if (estado === 'Aprobada' && rolID === 2 && menosDe72Horas(solicitud.fecha_solicitud)) {
+                                        return (
+                                            <>
+                                                <button className="btn editar" onClick={() => manejarEditar(solicitud.id)}>Editar</button>
+                                                <button className="btn eliminar" onClick={() => manejarCancelar(solicitud.id)}>Cancelar</button>
+                                            </>
+                                        );
+                                    }
+
+                                    // Para solicitudes canceladas, mostrar solo Eliminar
+                                    if (estado === 'Cancelada') {
+                                        return (
+                                            <button className="btn eliminar" onClick={() => manejarEliminar(solicitud.id)}>Eliminar</button>
+                                        );
+                                    }
+
+                                    return null;
+                                })()}
                             </div>
+
                         </div>
                     ))}
                 </div>
