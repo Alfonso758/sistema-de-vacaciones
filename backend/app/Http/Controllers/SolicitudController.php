@@ -75,7 +75,7 @@ class SolicitudController extends Controller
         ]);
 
         // Si el usuario es rol_id 2, actualizar vacaciones_user
-        if ($usuario->rol_id == 2) {
+        /*if ($usuario->rol_id == 2) {
             $vacacionesUser = VacacionesUser::where('id_usuario', $usuario->id)
                 ->orderBy('fecha_inicio_periodo', 'desc')
                 ->first();
@@ -88,7 +88,7 @@ class SolicitudController extends Controller
                     'usuario_id' => $usuario->id
                 ]);
             }
-        }
+        }*/
 
         // 🔹 Enviar notificación según el rol del usuario
         if ($usuario->rol_id == 1) {

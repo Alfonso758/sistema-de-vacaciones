@@ -233,7 +233,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
         throw new Error(text || 'Error al registrar la solicitud');
       }
 
-      setMensajeExito('Solicitud de vacaciones enviada.');
+      setMensajeExito('Solicitud enviada. Dispones de 72 horas para editar o cancelar tu solicitud.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
       await fetchDatosVacaciones();

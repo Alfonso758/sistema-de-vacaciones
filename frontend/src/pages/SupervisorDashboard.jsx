@@ -175,51 +175,93 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
     const fin = dayjs(fechaFinVacaciones, 'YYYY-MM-DD');
 
     if (fin.isBefore(inicio, 'day')) {
-      setMensajeError('Selecciona una fecha posterior a la de inicio.');
+      setMensajeError('La fecha de fin no puede ser anterior a la fecha de inicio.');
       return;
     }
 
     if (inicio.diff(hoy, 'month') < 2) {
-      setMensajeError('Elige una fecha al menos 2 meses posterior a la actual.');
-      return;
-    }
-
-    let diasSolicitados = 0;
-    let diaActual = inicio.clone();
-    const finInclusive = fin.clone().add(1, 'day');
-    while (diaActual.isBefore(finInclusive)) {
-      const diaSemana = diaActual.day();
-      if (diaSemana !== 0 && diaSemana !== 6) diasSolicitados++;
-      diaActual = diaActual.add(1, 'day');
-    }
-
-    if (diasSolicitados > diasDisponibles) {
-      setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
+      setMensajeError('Las vacaciones deben solicitarse al menos con 2 meses de anticipación.');
       return;
     }
 
     try {
+      // 🟢 1. OBTENER DÍAS INHÁBILES DESDE LA API
+      const resp = await fetch(`${apiBaseUrl}/api/dias-inhabiles`);
+      if (!resp.ok) throw new Error('Error al obtener los días inhábiles');
+      const diasInhabiles = await resp.json();
+
+      // Convertimos las fechas a dayjs para comparar fácilmente
+      const diasInhabilesDayjs = diasInhabiles.map(d => ({
+        siempre: d.siempre === 1,
+        fecha: dayjs(d.fecha)
+      }));
+
+      // 🟢 2. CALCULAR DÍAS HÁBILES EXCLUYENDO FINES DE SEMANA E INHÁBILES
+      let diasSolicitados = 0;
+      let diaActual = inicio.clone();
+      const finInclusive = fin.clone().add(1, 'day');
+
+      while (diaActual.isBefore(finInclusive, 'day')) {
+        const diaSemana = diaActual.day(); // 0=domingo, 6=sábado
+
+        // Omitir sábados y domingos
+        if (diaSemana === 0 || diaSemana === 6) {
+          diaActual = diaActual.add(1, 'day');
+          continue;
+        }
+
+        // Verificar si el día actual es inhábil
+        const esInhabil = diasInhabilesDayjs.some(dia => {
+          if (dia.siempre) {
+            // compara solo día y mes
+            return (
+              dia.fecha.date() === diaActual.date() &&
+              dia.fecha.month() === diaActual.month()
+            );
+          } else {
+            // compara año, mes y día completos
+            return dia.fecha.isSame(diaActual, 'day');
+          }
+        });
+
+        if (!esInhabil) diasSolicitados++;
+
+        diaActual = diaActual.add(1, 'day');
+      }
+
+      // 🟢 3. VALIDAR CONTRA LOS DÍAS DISPONIBLES
+      if (diasSolicitados > diasDisponibles) {
+        setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
+        return;
+      }
+
+      // 🟢 4. ENVIAR LA SOLICITUD
       const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('token')}`,
         },
         body: JSON.stringify({
           usuario_id: userID,
           fecha_inicio: fechaInicioVacaciones,
           fecha_fin: fechaFinVacaciones,
           total_dias: diasSolicitados
-        })
+        }),
       });
 
-      if (!respuesta.ok) throw new Error(await respuesta.text());
+      if (!respuesta.ok) {
+        const text = await respuesta.text();
+        throw new Error(text || 'Error al registrar la solicitud');
+      }
 
-      setMensajeExito('Solicitud de vacaciones enviada.');
+      setMensajeExito('Solicitud enviada. Dispones de 72 horas para editar o cancelar tu solicitud.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
       await fetchDatosVacaciones();
+
     } catch (err) {
+      console.error(err);
       setMensajeError(err.message || 'Error al enviar solicitud.');
     }
   };
