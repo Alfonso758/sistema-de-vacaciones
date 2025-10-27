@@ -162,21 +162,58 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
       return;
     }
 
-    let diasSolicitados = 0;
-    let diaActual = inicio.clone();
-    const finInclusive = fin.clone().add(1, 'day');
-    while (diaActual.isBefore(finInclusive)) {
-      const diaSemana = diaActual.day();
-      if (diaSemana !== 0 && diaSemana !== 6) diasSolicitados++;
-      diaActual = diaActual.add(1, 'day');
-    }
-
-    if (diasSolicitados > diasDisponibles) {
-      setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
-      return;
-    }
-
     try {
+      // 🟢 1. OBTENER DÍAS INHÁBILES DESDE LA API
+      const resp = await fetch(`${apiBaseUrl}/api/dias-inhabiles`);
+      if (!resp.ok) throw new Error('Error al obtener los días inhábiles');
+      const diasInhabiles = await resp.json();
+
+      // Convertimos las fechas a dayjs para comparar fácilmente
+      const diasInhabilesDayjs = diasInhabiles.map(d => ({
+        siempre: d.siempre === 1,
+        fecha: dayjs(d.fecha)
+      }));
+
+      // 🟢 2. CALCULAR DÍAS HÁBILES EXCLUYENDO FINES DE SEMANA E INHÁBILES
+      let diasSolicitados = 0;
+      let diaActual = inicio.clone();
+      const finInclusive = fin.clone().add(1, 'day');
+
+      while (diaActual.isBefore(finInclusive, 'day')) {
+        const diaSemana = diaActual.day(); // 0=domingo, 6=sábado
+
+        // Omitir sábados y domingos
+        if (diaSemana === 0 || diaSemana === 6) {
+          diaActual = diaActual.add(1, 'day');
+          continue;
+        }
+
+        // Verificar si el día actual es inhábil
+        const esInhabil = diasInhabilesDayjs.some(dia => {
+          if (dia.siempre) {
+            // compara solo día y mes
+            return (
+              dia.fecha.date() === diaActual.date() &&
+              dia.fecha.month() === diaActual.month()
+            );
+          } else {
+            // compara año, mes y día completos
+            return dia.fecha.isSame(diaActual, 'day');
+          }
+        });
+
+        if (!esInhabil) diasSolicitados++;
+
+        diaActual = diaActual.add(1, 'day');
+      }
+
+      // 🟢 3. VALIDAR CONTRA LOS DÍAS DISPONIBLES
+      if (diasSolicitados > diasDisponibles) {
+        setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
+        return;
+      }
+
+      // 🟢 4. ENVIAR LA SOLICITUD
       const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes`, {
         method: 'POST',
         headers: {
@@ -202,6 +239,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
       await fetchDatosVacaciones();
 
     } catch (err) {
+      console.error(err);
       setMensajeError(err.message || 'Error al enviar solicitud.');
     }
   };

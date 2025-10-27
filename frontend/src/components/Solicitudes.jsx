@@ -1,12 +1,18 @@
 import { useEffect, useState } from "react";
 import '../styles/Solicitudes.css';
 import { FaCalendarAlt, FaClock, FaUser, FaComment } from 'react-icons/fa';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
+
 
 export default function Solicitudes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [rolID, setRolID] = useState(null);
     const [modalLoading, setModalLoading] = useState(false);
+    const [diasInhabilesBD, setDiasInhabilesBD] = useState([]);
+    const [mensajeError, setMensajeError] = useState("");
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
@@ -23,6 +29,28 @@ export default function Solicitudes({ userID }) {
             })
             .catch(err => console.error("Error obteniendo rol del usuario:", err));
     }, [userID]);
+
+    // Obtener días inhábiles desde el backend
+    useEffect(() => {
+        const fetchDiasInhabiles = async () => {
+            try {
+                const respuesta = await fetch(`${apiBaseUrl}/api/dias-inhabiles`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                if (!respuesta.ok) throw new Error('Error al obtener días inhábiles');
+                const data = await respuesta.json();
+
+                // Guardar los días en el estado
+                setDiasInhabilesBD(data);
+            } catch (err) {
+                console.error("Error cargando días inhábiles:", err);
+            }
+        };
+
+        fetchDiasInhabiles();
+    }, [apiBaseUrl]);
 
     const menosDe48Horas = (fecha) => {
         if (!fecha) return false;
@@ -90,26 +118,41 @@ export default function Solicitudes({ userID }) {
 
     const manejarEditar = async (id) => {
         try {
-            const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${id}`, {
+            // Obtener la solicitud
+            const respuestaSolicitud = await fetch(`${apiBaseUrl}/api/solicitudes/${id}`, {
                 headers: {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
 
-            if (!respuesta.ok) throw new Error('Error al obtener la solicitud');
+            if (!respuestaSolicitud.ok) throw new Error('Error al obtener la solicitud');
 
-            const solicitud = await respuesta.json();
+            const solicitud = await respuestaSolicitud.json();
 
-            // 🔹 Normalizar fechas para el input tipo "date"
+            // 🔹 Obtener datos de vacaciones del usuario
+            const respuestaVacaciones = await fetch(`${apiBaseUrl}/api/datos-vacaciones/${userID}`, {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+            });
+
+            if (!respuestaVacaciones.ok) throw new Error('Error al obtener datos de vacaciones');
+
+            const datosVacaciones = await respuestaVacaciones.json();
+
+            const diasDisponibles = datosVacaciones.diasDisponibles ?? 0;
+
+            // 🔹 Normalizar fechas para input tipo "date"
             const formatDateInput = (fecha) => {
                 if (!fecha) return "";
-                return new Date(fecha).toISOString().split("T")[0]; // "YYYY-MM-DD"
+                return new Date(fecha).toISOString().split("T")[0];
             };
 
             setSolicitudEditando({
                 ...solicitud,
                 fecha_inicio: formatDateInput(solicitud.fecha_inicio),
-                fecha_fin: formatDateInput(solicitud.fecha_fin)
+                fecha_fin: formatDateInput(solicitud.fecha_fin),
+                dias_disponibles: diasDisponibles
             });
 
             setModalEditarOpen(true);
@@ -119,6 +162,7 @@ export default function Solicitudes({ userID }) {
             alert('No se pudo cargar la solicitud para edición.');
         }
     };
+
 
     // Función para cancelar la solicitud (cambiar estado a 'Cancelada')
     const manejarCancelar = async (id) => {
@@ -299,8 +343,78 @@ export default function Solicitudes({ userID }) {
                         <h2>Editar Solicitud</h2>
                         <form onSubmit={async (e) => {
                             e.preventDefault();
-                            setModalLoading(true); // 🔹 bloquear inputs y mostrar spinner
+                            setModalLoading(true);
+                            setMensajeError(""); // limpiar mensaje anterior
 
+                            const inicio = new Date(solicitudEditando.fecha_inicio);
+                            const fin = new Date(solicitudEditando.fecha_fin);
+                            const hoy = new Date();
+
+                            // 🔸 Validar que la fecha fin no sea antes de inicio
+                            if (fin < inicio) {
+                                setMensajeError("La fecha de fin no puede ser anterior a la fecha de inicio.");
+                                setModalLoading(false);
+                                return;
+                            }
+
+                            // 🔸 Validar anticipación mínima de 2 meses
+                            const diferenciaMeses =
+                                (inicio.getFullYear() - hoy.getFullYear()) * 12 + (inicio.getMonth() - hoy.getMonth());
+                            if (diferenciaMeses < 2) {
+                                setMensajeError("Las vacaciones deben solicitarse al menos con 2 meses de anticipación.");
+                                setModalLoading(false);
+                                return;
+                            }
+
+
+                            // 🔹 2. CALCULAR DÍAS HÁBILES EXCLUYENDO SÁBADOS, DOMINGOS E INHÁBILES
+                            let totalDias = 0;
+
+                            // Crear dayjs desde string 'YYYY-MM-DD' para evitar desfases de zona horaria
+                            let diaActual = dayjs(solicitudEditando.fecha_inicio, 'YYYY-MM-DD');
+                            const finInclusive = dayjs(solicitudEditando.fecha_fin, 'YYYY-MM-DD').add(1, 'day');
+
+                            while (diaActual.isBefore(finInclusive, 'day')) {
+                                const diaSemana = diaActual.day(); // 0=domingo, 6=sábado
+
+                                // Omitir fines de semana
+                                if (diaSemana === 0 || diaSemana === 6) {
+                                    diaActual = diaActual.add(1, 'day');
+                                    continue;
+                                }
+
+                                // Verificar si es día inhábil
+                                const esInhabil = diasInhabilesBD.some(dia => {
+                                    const fechaDia = dayjs(dia.fecha, 'YYYY-MM-DD');
+                                    if (dia.siempre === 1) {
+                                        // Comparar solo día y mes
+                                        return fechaDia.date() === diaActual.date() && fechaDia.month() === diaActual.month();
+                                    } else {
+                                        // Comparar fecha completa
+                                        return fechaDia.isSame(diaActual, 'day');
+                                    }
+                                });
+
+                                if (!esInhabil) totalDias++;
+
+                                diaActual = diaActual.add(1, 'day');
+                            }
+
+
+
+
+
+                            // 🔸 Simulamos que tienes una variable de días disponibles
+                            const diasDisponibles = solicitudEditando.dias_disponibles;
+
+                            // 🔸 Validar que no supere los días disponibles
+                            if (totalDias > diasDisponibles) {
+                                setMensajeError(`No puedes solicitar ${totalDias} días. Solo tienes ${diasDisponibles} disponibles.`);
+                                setModalLoading(false);
+                                return;
+                            }
+
+                            // 🔹 Si todo está bien, guardar los cambios
                             try {
                                 const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes/${solicitudEditando.id}`, {
                                     method: 'PUT',
@@ -311,6 +425,7 @@ export default function Solicitudes({ userID }) {
                                     body: JSON.stringify({
                                         fecha_inicio: solicitudEditando.fecha_inicio,
                                         fecha_fin: solicitudEditando.fecha_fin,
+                                        total_dias: totalDias // 🔹 nuevo campo total_dias
                                     })
                                 });
 
@@ -318,23 +433,26 @@ export default function Solicitudes({ userID }) {
 
                                 setModalEditarOpen(false);
 
+                                // Actualiza la solicitud localmente
                                 setSolicitudes(prev => prev.map(s =>
                                     s.id === solicitudEditando.id
                                         ? {
                                             ...s,
                                             fecha_inicio: parseFechaLocal(solicitudEditando.fecha_inicio),
-                                            fecha_fin: parseFechaLocal(solicitudEditando.fecha_fin)
+                                            fecha_fin: parseFechaLocal(solicitudEditando.fecha_fin),
+                                            total_dias: totalDias
                                         }
                                         : s
                                 ));
 
                             } catch (err) {
                                 console.error(err);
-                                alert('No se pudo actualizar la solicitud.');
+                                setMensajeError("No se pudo actualizar la solicitud.");
                             } finally {
-                                setModalLoading(false); // 🔹 desbloquear inputs y ocultar spinner
+                                setModalLoading(false);
                             }
                         }}>
+
                             <div className="input-group">
                                 <label>Fecha de Inicio</label>
                                 <input
@@ -394,6 +512,11 @@ export default function Solicitudes({ userID }) {
                                     Cancelar
                                 </button>
                             </div>
+                            {mensajeError && (
+                                <div className="mensaje-error">
+                                    <p>{mensajeError}</p>
+                                </div>
+                            )}
                         </form>
                     </div>
                 </div>

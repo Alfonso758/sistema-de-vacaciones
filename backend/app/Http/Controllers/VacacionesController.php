@@ -21,26 +21,35 @@ class VacacionesController extends Controller
         $fechaIngreso = $usuario->fecha_ingreso; // ya es Carbon por el cast
         $anosTrabajados = $fechaIngreso->diffInYears(Carbon::now());
 
-        // 2. Días tomados y acumulados
-        $vacaciones = VacacionesUser::where('id_usuario', $usuarioId)->get();
+        // 2. Obtener solo el último registro de vacaciones del usuario
+        $ultimaVacacion = VacacionesUser::where('id_usuario', $usuarioId)
+            ->latest('id') // o ->latest('created_at') si tienes esa columna
+            ->first();
 
-        $diasTomados = 0;
-        $diasAnuales = 0;
-        $diasAcumulados = 0;
-        $diasDisponibles = 0;
-
-        foreach ($vacaciones as $v) {
-            $diasAnualesRegistro = $v->vacacionesAnuales->dias ?? 0;
-
-            $diasTomados += $v->dias_tomados;
-            $diasAnuales = $diasAnualesRegistro;
-            $diasAcumulados += $v->dias_acumulados;
-
-            $diasDisponibles += $diasAnuales + $diasAcumulados - $diasTomados;
-            $diasAnuales += $diasAcumulados;
+        // Si no hay registros, devolvemos ceros
+        if (!$ultimaVacacion) {
+            return response()->json([
+                'fechaIngreso' => $fechaIngreso->format('d/m/Y'),
+                'anosTrabajados' => $anosTrabajados,
+                'diasTomados' => 0,
+                'diasAnuales' => 0,
+                'diasAcumulados' => 0,
+                'diasDisponibles' => 0,
+                'fechaFinAnio' => Carbon::createFromDate(
+                    Carbon::now()->year,
+                    $fechaIngreso->month,
+                    $fechaIngreso->day
+                )->format('d/m/Y')
+            ]);
         }
 
-        // 3. Fecha final del presente año
+        // 3. Calcular los días con base en el último registro
+        $diasAnuales = $ultimaVacacion->vacacionesAnuales->dias ?? 0;
+        $diasTomados = $ultimaVacacion->dias_tomados ?? 0;
+        $diasAcumulados = $ultimaVacacion->dias_acumulados ?? 0;
+        $diasDisponibles = $diasAnuales + $diasAcumulados - $diasTomados;
+
+        // 4. Fecha final del presente año
         $fechaFinAnio = Carbon::createFromDate(
             Carbon::now()->year,
             $fechaIngreso->month,
@@ -51,7 +60,7 @@ class VacacionesController extends Controller
             'fechaIngreso' => $fechaIngreso->format('d/m/Y'),
             'anosTrabajados' => $anosTrabajados,
             'diasTomados' => $diasTomados,
-            'diasAnuales' => $diasAnuales,
+            'diasAnuales' => $diasAnuales + $diasAcumulados,
             'diasAcumulados' => $diasAcumulados,
             'diasDisponibles' => $diasDisponibles,
             'fechaFinAnio' => $fechaFinAnio

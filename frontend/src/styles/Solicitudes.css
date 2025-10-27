@@ -302,3 +302,7 @@ p {
 .btn-cancelar1:hover {
     background: linear-gradient(90deg, #911614, #e53935);
 }
+
+.modal-contenido .mensaje-error p {
+    color: red !important;
+}
