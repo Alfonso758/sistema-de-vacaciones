@@ -82,12 +82,12 @@ export default function SolicitudesJefes({ userID }) {
         ? solicitudes.filter(s => String(s.estado_solicitud) === filtro)
         : solicitudes;
 
-    // ----------------- VALIDAR 48 HORAS -----------------
-    const dentroDe48Horas = (fechaSolicitud) => {
+    // ----------------- VALIDAR 72 HORAS -----------------
+    const dentroDe72Horas = (fechaSolicitud) => {
         const fecha = new Date(fechaSolicitud);
         const ahora = new Date();
         const diffHoras = (ahora - fecha) / (1000 * 60 * 60);
-        return diffHoras <= 48;
+        return diffHoras <= 72;
     };
 
     // ----------------- RECHAZAR SOLICITUD -----------------
@@ -198,7 +198,7 @@ export default function SolicitudesJefes({ userID }) {
                                 </div>
                             )}
 
-                            {solicitud.estado_solicitud === 2 && dentroDe48Horas(solicitud.fecha_solicitud) && (
+                            {solicitud.estado_solicitud === 2 && dentroDe72Horas(solicitud.fecha_solicitud) && (
                                 <div className="acciones-solicitud">
                                     <div className="comentario-container">
                                         <textarea
