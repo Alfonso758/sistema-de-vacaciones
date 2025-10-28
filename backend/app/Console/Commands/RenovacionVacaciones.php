@@ -20,6 +20,10 @@ class RenovacionVacaciones extends Command
         $usuarios = Usuario::all();
 
         foreach ($usuarios as $usuario) {
+            if ($usuario->rol_id === 3) {
+                continue;
+            }
+
             $fechaIngreso = Carbon::parse($usuario->fecha_ingreso);
             $aniosTrabajados = $fechaIngreso->diffInYears($hoy);
 

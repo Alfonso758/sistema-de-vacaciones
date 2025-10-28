@@ -129,16 +129,19 @@ class UsuarioController extends Controller
         $fechaFinPeriodo = (clone $fechaInicioPeriodo)->modify('+1 year');
 
         // Crear el registro en vacaciones_user
-        VacacionesUser::create([
-            'id_usuario'           => $usuario->id,
-            'fecha_inicio_periodo' => $fechaInicioPeriodo->format('Y-m-d'),
-            'fecha_fin_periodo'    => $fechaFinPeriodo->format('Y-m-d'),
-            'id_dias'              => $vacacionesAnuales->id,
-            'dias_otorgados'       => $vacacionesAnuales->dias,
-            'dias_acumulados'      => 0,
-            'dias_tomados'         => 0,
-            'pendiente'            => 0,
-        ]);
+        // Solo crear registro en vacaciones_user si NO es Administrador
+        if ($usuario->rol_id !== 3) {
+            VacacionesUser::create([
+                'id_usuario'           => $usuario->id,
+                'fecha_inicio_periodo' => $fechaInicioPeriodo->format('Y-m-d'),
+                'fecha_fin_periodo'    => $fechaFinPeriodo->format('Y-m-d'),
+                'id_dias'              => $vacacionesAnuales->id,
+                'dias_otorgados'       => $vacacionesAnuales->dias,
+                'dias_acumulados'      => 0,
+                'dias_tomados'         => 0,
+                'pendiente'            => 0,
+            ]);
+        }
 
         return response()->json([
             'message' => 'Usuario registrado correctamente',
