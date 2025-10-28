@@ -17,10 +17,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-export default function AdminDashboard({ userID, pestañaActiva }) {
-  // Form / UI
-  const [menuColapsado, setMenuColapsado] = useState(false);
-
+export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }) {
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
     "Solicitudes": {
@@ -166,9 +163,6 @@ export default function AdminDashboard({ userID, pestañaActiva }) {
       <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
         <div className="encabezado-barra">
           <h3>{!menuColapsado && 'Panel'}</h3>
-          <button className="boton-colapsar" onClick={() => setMenuColapsado(!menuColapsado)} aria-label="Colapsar menú">
-            <FaBars />
-          </button>
         </div>
         <nav>
           <ul>

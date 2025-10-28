@@ -1,4 +1,4 @@
-import { FaUser, FaCog, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaBars, FaUser, FaCog, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import { useState, useEffect, useRef } from 'react';
 import LoginForm from './components/LoginForm';
@@ -29,6 +29,7 @@ function App() {
   const [valorEditable, setValorEditable] = useState('');
   const [jefe, setJefe] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [menuColapsado, setMenuColapsado] = useState(false);
   const apiBaseUrl = import.meta.env.VITE_API_URL;
   const imagesBaseUrl = import.meta.env.VITE_IMAGE_URL;
 
@@ -251,6 +252,15 @@ function App() {
       <header className="encabezado-app">
         <div className="contenedor-logo">
           <img src={`${imagesBaseUrl}/soko.png`} alt="Logo" className="logo" />
+
+          <button
+            className="boton-colapsar"
+            onClick={() => setMenuColapsado(!menuColapsado)}
+            aria-label="Colapsar menú"
+          >
+            <FaBars />
+          </button>
+
         </div>
 
         <div className="info-usuario" ref={menuRef}>
@@ -577,6 +587,7 @@ function App() {
                 userID={usuario.usuarioID}
                 userName={usuario.nombre}
                 userSurname={usuario.apellidos}
+                menuColapsado={menuColapsado}
               />
             )}
             {usuario.rol_id === 2 && usuario.activo === true && (
@@ -584,6 +595,7 @@ function App() {
                 userID={usuario.usuarioID}
                 userName={usuario.nombre}
                 userSurname={usuario.apellidos}
+                menuColapsado={menuColapsado}
               />
             )}
             {usuario.rol_id === 3 && usuario.activo === true && (
@@ -591,6 +603,7 @@ function App() {
                 userID={usuario.usuarioID}
                 userName={usuario.nombre}
                 userSurname={usuario.apellidos}
+                menuColapsado={menuColapsado}
               />
             )}
           </>

@@ -16,13 +16,12 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-export default function SupervisorDashboard({ userID, pestañaActiva }) {
+export default function SupervisorDashboard({ userID, pestañaActiva, menuColapsado }) {
   // Estados de formulario
   const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
   const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');
   const [mensajeError, setMensajeError] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
-  const [menuColapsado, setMenuColapsado] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // Datos del usuario
@@ -275,9 +274,6 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
         <div className="encabezado-barra">
           <h3>{!menuColapsado && 'Panel'}</h3>
-          <button className="boton-colapsar" onClick={() => setMenuColapsado(!menuColapsado)} aria-label="Colapsar menú">
-            <FaBars />
-          </button>
         </div>
         <nav>
           <ul>
