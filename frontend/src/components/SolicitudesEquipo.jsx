@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import '../styles/SolicitudesEquipo.css';
-import { FaCalendarAlt, FaClock, FaUser, FaComment, FaSync} from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUser, FaComment, FaSync } from 'react-icons/fa';
 
 export default function SolicitudesEquipo({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingBoton, setLoadingBoton] = useState({});
     const [comentarios, setComentarios] = useState({});
     const [filtro, setFiltro] = useState('1');
     const apiBaseUrl = import.meta.env.VITE_API_URL;
@@ -55,6 +56,8 @@ export default function SolicitudesEquipo({ userID }) {
 
     // ----------------- APROBAR O RECHAZAR -----------------
     const manejarDecision = async (id, decision) => {
+        const accion = decision === 2 ? 'aprobar' : 'rechazar';
+        setLoadingBoton(prev => ({ ...prev, [id]: accion }));
         try {
             const res = await fetch(`${apiBaseUrl}/api/solicitudes/${id}/decision`, {
                 method: 'PUT',
@@ -72,13 +75,14 @@ export default function SolicitudesEquipo({ userID }) {
             if (!res.ok) throw new Error('Error al actualizar la solicitud');
 
             const data = await res.json();
-            console.log('Solicitud actualizada', data);
 
             setSolicitudes(solicitudes.map(s =>
                 s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "", revisor: data.revisor } : s
             ));
         } catch (error) {
             console.error(error);
+        } finally {
+            setLoadingBoton(prev => ({ ...prev, [id]: null }));
         }
     };
 
@@ -226,6 +230,7 @@ export default function SolicitudesEquipo({ userID }) {
                                         <textarea
                                             id="comentario"
                                             placeholder="Agrega un comentario (opcional)"
+                                            disabled={loadingBoton[solicitud.id]}
                                         />
                                     </div>
 
@@ -233,14 +238,72 @@ export default function SolicitudesEquipo({ userID }) {
                                     <button
                                         className="btn aprobar"
                                         onClick={() => manejarDecision(solicitud.id, 2)}
+                                        disabled={loadingBoton[solicitud.id]}
                                     >
-                                        Aprobar
+                                        {loadingBoton[solicitud.id] === 'aprobar' ? (
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                style={{ margin: 'auto', display: 'block', background: 'none' }}
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 100 100"
+                                                preserveAspectRatio="xMidYMid"
+                                            >
+                                                <circle
+                                                    cx="50"
+                                                    cy="50"
+                                                    fill="none"
+                                                    stroke="#fff"
+                                                    strokeWidth="10"
+                                                    r="35"
+                                                    strokeDasharray="164.93361431346415 56.97787143782138"
+                                                >
+                                                    <animateTransform
+                                                        attributeName="transform"
+                                                        type="rotate"
+                                                        repeatCount="indefinite"
+                                                        dur="1s"
+                                                        values="0 50 50;360 50 50"
+                                                        keyTimes="0;1"
+                                                    />
+                                                </circle>
+                                            </svg>
+                                        ) : 'Aprobar'}
                                     </button>
                                     <button
                                         className="btn rechazar"
                                         onClick={() => manejarDecision(solicitud.id, 3)}
+                                        disabled={loadingBoton[solicitud.id]}
                                     >
-                                        Rechazar
+                                        {loadingBoton[solicitud.id] === 'rechazar' ? (
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                style={{ margin: 'auto', display: 'block', background: 'none' }}
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 100 100"
+                                                preserveAspectRatio="xMidYMid"
+                                            >
+                                                <circle
+                                                    cx="50"
+                                                    cy="50"
+                                                    fill="none"
+                                                    stroke="#fff"
+                                                    strokeWidth="10"
+                                                    r="35"
+                                                    strokeDasharray="164.93361431346415 56.97787143782138"
+                                                >
+                                                    <animateTransform
+                                                        attributeName="transform"
+                                                        type="rotate"
+                                                        repeatCount="indefinite"
+                                                        dur="1s"
+                                                        values="0 50 50;360 50 50"
+                                                        keyTimes="0;1"
+                                                    />
+                                                </circle>
+                                            </svg>
+                                        ) : 'Rechazar'}
                                     </button>
                                 </div>
                             )}

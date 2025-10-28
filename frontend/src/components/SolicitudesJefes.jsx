@@ -5,6 +5,7 @@ import { FaCalendarAlt, FaClock, FaUser, FaComment, FaSync } from 'react-icons/f
 export default function SolicitudesJefes({ userID }) {
     const [solicitudes, setSolicitudes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [loadingBoton, setLoadingBoton] = useState({});
     const [filtro, setFiltro] = useState('2'); // por defecto aprobadas
     const [comentarios, setComentarios] = useState({});
     const apiBaseUrl = import.meta.env.VITE_API_URL;
@@ -92,6 +93,8 @@ export default function SolicitudesJefes({ userID }) {
 
     // ----------------- RECHAZAR SOLICITUD -----------------
     const rechazarSolicitud = async (id) => {
+        const accion = 'rechazar';
+        setLoadingBoton(prev => ({ ...prev, [id]: accion }));
         try {
             const res = await fetch(`${apiBaseUrl}/api/solicitudes/${id}/decision`, {
                 method: 'PUT',
@@ -117,6 +120,8 @@ export default function SolicitudesJefes({ userID }) {
         } catch (error) {
             console.error(error);
             alert("Error al rechazar la solicitud.");
+        } finally {
+            setLoadingBoton(prev => ({ ...prev, [id]: null }));
         }
     };
 
@@ -208,13 +213,43 @@ export default function SolicitudesJefes({ userID }) {
                                                 setComentarios({ ...comentarios, [solicitud.id]: e.target.value })
                                             }
                                             style={{ flex: 1, marginRight: '8px', minHeight: '40px', borderRadius: '16px', padding: '5px' }}
+                                            disabled={loadingBoton[solicitud.id]}
                                         />
                                     </div>
                                     <button
                                         className="btn rechazar"
                                         onClick={() => rechazarSolicitud(solicitud.id)}
+                                        disabled={loadingBoton[solicitud.id]}
                                     >
-                                        Rechazar
+                                        {loadingBoton[solicitud.id] === 'rechazar' ? (
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                style={{ margin: 'auto', display: 'block', background: 'none' }}
+                                                width="24"
+                                                height="24"
+                                                viewBox="0 0 100 100"
+                                                preserveAspectRatio="xMidYMid"
+                                            >
+                                                <circle
+                                                    cx="50"
+                                                    cy="50"
+                                                    fill="none"
+                                                    stroke="#fff"
+                                                    strokeWidth="10"
+                                                    r="35"
+                                                    strokeDasharray="164.93361431346415 56.97787143782138"
+                                                >
+                                                    <animateTransform
+                                                        attributeName="transform"
+                                                        type="rotate"
+                                                        repeatCount="indefinite"
+                                                        dur="1s"
+                                                        values="0 50 50;360 50 50"
+                                                        keyTimes="0;1"
+                                                    />
+                                                </circle>
+                                            </svg>
+                                        ) : 'Rechazar'}
                                     </button>
                                 </div>
                             )}
