@@ -5,7 +5,7 @@ import Calendario from '../components/Calendario';
 import Notificaciones from '../components/Notificaciones';
 import NuevaSolicitud from '../components/NuevaSolicitud';
 import { FaPlusCircle, FaListAlt, FaCalendarAlt, FaBell, FaBars } from 'react-icons/fa';
-import axios from 'axios';
+import api from '../services/api';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
@@ -25,7 +25,6 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
   const [fechaFinAnio, setFechaFinAnio] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [diasAnuales, setDiasAnuales] = useState(0);
-  const apiBaseUrl = import.meta.env.VITE_API_URL;
 
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
@@ -114,7 +113,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
   const fetchDatosVacaciones = useCallback(async () => {
     if (!userID) return;
     try {
-      const res = await axios.get(`${apiBaseUrl}/api/datos-vacaciones/${userID}`);
+      const res = await api.get(`/datos-vacaciones/${userID}`);
       setAnosTrabajados(res.data.anosTrabajados ?? 0);
       setDiasTomados(res.data.diasTomados ?? 0);
       setDiasDisponibles(res.data.diasDisponibles ?? 0);
@@ -164,9 +163,8 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
 
     try {
       // 🟢 1. OBTENER DÍAS INHÁBILES DESDE LA API
-      const resp = await fetch(`${apiBaseUrl}/api/dias-inhabiles`);
-      if (!resp.ok) throw new Error('Error al obtener los días inhábiles');
-      const diasInhabiles = await resp.json();
+      const resp = await api.get('/dias-inhabiles');
+      const diasInhabiles = resp.data;
 
       // Convertimos las fechas a dayjs para comparar fácilmente
       const diasInhabilesDayjs = diasInhabiles.map(d => ({
@@ -214,25 +212,17 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
       }
 
       // 🟢 4. ENVIAR LA SOLICITUD
-      const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          usuario_id: userID,
-          fecha_inicio: fechaInicioVacaciones,
-          fecha_fin: fechaFinVacaciones,
-          total_dias: diasSolicitados
-        }),
+      const respuesta = await api.post('/solicitudes', {
+        usuario_id: userID,
+        fecha_inicio: fechaInicioVacaciones,
+        fecha_fin: fechaFinVacaciones,
+        total_dias: diasSolicitados
       });
 
-      if (!respuesta.ok) {
-        const text = await respuesta.text();
-        throw new Error(text || 'Error al registrar la solicitud');
-      }
+      // La respuesta ya viene en JSON en respuesta.data
+      console.log(respuesta.data);
 
+      // Mensaje de éxito
       setMensajeExito('Solicitud enviada. Dispones de 72 horas para editar o cancelar tu solicitud.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
