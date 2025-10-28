@@ -1,26 +1,25 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  server: {
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
-      'Cross-Origin-Embedder-Policy': 'unsafe-none',
-    }
-  }
+  build: {
+    chunkSizeWarningLimit: 1000, // ⚠️ Aumenta el límite de aviso
+    rollupOptions: {
+      output: {
+        // 🔹 Divide dependencias grandes en chunks separados
+        manualChunks: {
+          react: ['react', 'react-dom'],
+          vendor: [
+            'axios',
+            'html2canvas',
+            'jspdf',
+            'react-router-dom',
+            'recharts',
+          ],
+        },
+      },
+    },
+  },
 })
-
-
-
-
-/*
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react()],
-})
-*/
