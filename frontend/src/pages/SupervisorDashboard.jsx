@@ -11,6 +11,7 @@ import Reportes from '../components/Reportes';
 import Estadisticas from '../components/Estadisticas';
 import { FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog, FaUsers } from 'react-icons/fa';
 import axios from 'axios';
+import api from '../services/api';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
@@ -22,6 +23,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
   const [mensajeError, setMensajeError] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
   const [menuColapsado, setMenuColapsado] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Datos del usuario
   const [anosTrabajados, setAnosTrabajados] = useState(0);
@@ -165,6 +167,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
     setMensajeError('');
     setMensajeExito('');
 
+    // 1️⃣ Validaciones antes de activar spinner
     if (!fechaInicioVacaciones || !fechaFinVacaciones) {
       setMensajeError('Por favor completa todos los campos.');
       return;
@@ -184,76 +187,55 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       return;
     }
 
-    try {
-      // 🟢 1. OBTENER DÍAS INHÁBILES DESDE LA API
-      const resp = await fetch(`${apiBaseUrl}/api/dias-inhabiles`);
-      if (!resp.ok) throw new Error('Error al obtener los días inhábiles');
-      const diasInhabiles = await resp.json();
+    // ✅ Activar loading solo si ya pasó las validaciones
+    setLoading(true);
 
-      // Convertimos las fechas a dayjs para comparar fácilmente
+    try {
+      // Obtener días inhábiles
+      const resp = await api.get('/dias-inhabiles');
+      const diasInhabiles = resp.data;
+
       const diasInhabilesDayjs = diasInhabiles.map(d => ({
         siempre: d.siempre === 1,
         fecha: dayjs(d.fecha)
       }));
 
-      // 🟢 2. CALCULAR DÍAS HÁBILES EXCLUYENDO FINES DE SEMANA E INHÁBILES
+      // Calcular días hábiles
       let diasSolicitados = 0;
       let diaActual = inicio.clone();
       const finInclusive = fin.clone().add(1, 'day');
 
       while (diaActual.isBefore(finInclusive, 'day')) {
-        const diaSemana = diaActual.day(); // 0=domingo, 6=sábado
-
-        // Omitir sábados y domingos
+        const diaSemana = diaActual.day();
         if (diaSemana === 0 || diaSemana === 6) {
           diaActual = diaActual.add(1, 'day');
           continue;
         }
 
-        // Verificar si el día actual es inhábil
         const esInhabil = diasInhabilesDayjs.some(dia => {
           if (dia.siempre) {
-            // compara solo día y mes
-            return (
-              dia.fecha.date() === diaActual.date() &&
-              dia.fecha.month() === diaActual.month()
-            );
+            return dia.fecha.date() === diaActual.date() && dia.fecha.month() === diaActual.month();
           } else {
-            // compara año, mes y día completos
             return dia.fecha.isSame(diaActual, 'day');
           }
         });
 
         if (!esInhabil) diasSolicitados++;
-
         diaActual = diaActual.add(1, 'day');
       }
 
-      // 🟢 3. VALIDAR CONTRA LOS DÍAS DISPONIBLES
       if (diasSolicitados > diasDisponibles) {
         setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
         return;
       }
 
-      // 🟢 4. ENVIAR LA SOLICITUD
-      const respuesta = await fetch(`${apiBaseUrl}/api/solicitudes`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        },
-        body: JSON.stringify({
-          usuario_id: userID,
-          fecha_inicio: fechaInicioVacaciones,
-          fecha_fin: fechaFinVacaciones,
-          total_dias: diasSolicitados
-        }),
+      // Enviar solicitud
+      const respuesta = await api.post('/solicitudes', {
+        usuario_id: userID,
+        fecha_inicio: fechaInicioVacaciones,
+        fecha_fin: fechaFinVacaciones,
+        total_dias: diasSolicitados
       });
-
-      if (!respuesta.ok) {
-        const text = await respuesta.text();
-        throw new Error(text || 'Error al registrar la solicitud');
-      }
 
       setMensajeExito('Solicitud enviada. Dispones de 72 horas para editar o cancelar tu solicitud.');
       setFechaInicioVacaciones('');
@@ -263,6 +245,8 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
     } catch (err) {
       console.error(err);
       setMensajeError(err.message || 'Error al enviar solicitud.');
+    } finally {
+      setLoading(false); // 🔹 detener spinner siempre
     }
   };
 
@@ -272,7 +256,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva }) {
       case 'Nueva solicitud': return <NuevaSolicitud {...{
         anosTrabajados, diasTomados, diasAnuales, diasDisponibles, fechaIngreso,
         fechaFinAnio, fechaInicioVacaciones, setFechaInicioVacaciones,
-        fechaFinVacaciones, setFechaFinVacaciones, mensajeError, mensajeExito, enviarSolicitud
+        fechaFinVacaciones, setFechaFinVacaciones, mensajeError, mensajeExito, enviarSolicitud, loading
       }} />;
       case 'Mis solicitudes': return <Solicitudes userID={userID} />;
       case 'S. Empleados': return <SolicitudesEquipo userID={userID} />;

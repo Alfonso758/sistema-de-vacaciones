@@ -17,6 +17,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
   const [mensajeError, setMensajeError] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
   const [menuColapsado, setMenuColapsado] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Datos de vacaciones
   const [anosTrabajados, setAnosTrabajados] = useState(0);
@@ -142,6 +143,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
     setMensajeError('');
     setMensajeExito('');
 
+    // 1️⃣ Validaciones antes de activar spinner
     if (!fechaInicioVacaciones || !fechaFinVacaciones) {
       setMensajeError('Por favor completa todos los campos.');
       return;
@@ -161,57 +163,49 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
       return;
     }
 
+    // ✅ Activar loading solo si ya pasó las validaciones
+    setLoading(true);
+
     try {
-      // 🟢 1. OBTENER DÍAS INHÁBILES DESDE LA API
+      // Obtener días inhábiles
       const resp = await api.get('/dias-inhabiles');
       const diasInhabiles = resp.data;
 
-      // Convertimos las fechas a dayjs para comparar fácilmente
       const diasInhabilesDayjs = diasInhabiles.map(d => ({
         siempre: d.siempre === 1,
         fecha: dayjs(d.fecha)
       }));
 
-      // 🟢 2. CALCULAR DÍAS HÁBILES EXCLUYENDO FINES DE SEMANA E INHÁBILES
+      // Calcular días hábiles
       let diasSolicitados = 0;
       let diaActual = inicio.clone();
       const finInclusive = fin.clone().add(1, 'day');
 
       while (diaActual.isBefore(finInclusive, 'day')) {
-        const diaSemana = diaActual.day(); // 0=domingo, 6=sábado
-
-        // Omitir sábados y domingos
+        const diaSemana = diaActual.day();
         if (diaSemana === 0 || diaSemana === 6) {
           diaActual = diaActual.add(1, 'day');
           continue;
         }
 
-        // Verificar si el día actual es inhábil
         const esInhabil = diasInhabilesDayjs.some(dia => {
           if (dia.siempre) {
-            // compara solo día y mes
-            return (
-              dia.fecha.date() === diaActual.date() &&
-              dia.fecha.month() === diaActual.month()
-            );
+            return dia.fecha.date() === diaActual.date() && dia.fecha.month() === diaActual.month();
           } else {
-            // compara año, mes y día completos
             return dia.fecha.isSame(diaActual, 'day');
           }
         });
 
         if (!esInhabil) diasSolicitados++;
-
         diaActual = diaActual.add(1, 'day');
       }
 
-      // 🟢 3. VALIDAR CONTRA LOS DÍAS DISPONIBLES
       if (diasSolicitados > diasDisponibles) {
         setMensajeError(`No puedes solicitar ${diasSolicitados} días. Solo tienes ${diasDisponibles} disponibles.`);
         return;
       }
 
-      // 🟢 4. ENVIAR LA SOLICITUD
+      // Enviar solicitud
       const respuesta = await api.post('/solicitudes', {
         usuario_id: userID,
         fecha_inicio: fechaInicioVacaciones,
@@ -219,10 +213,6 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
         total_dias: diasSolicitados
       });
 
-      // La respuesta ya viene en JSON en respuesta.data
-      console.log(respuesta.data);
-
-      // Mensaje de éxito
       setMensajeExito('Solicitud enviada. Dispones de 72 horas para editar o cancelar tu solicitud.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
@@ -231,6 +221,8 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
     } catch (err) {
       console.error(err);
       setMensajeError(err.message || 'Error al enviar solicitud.');
+    } finally {
+      setLoading(false); // 🔹 detener spinner siempre
     }
   };
 
@@ -253,6 +245,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
             mensajeError={mensajeError}
             mensajeExito={mensajeExito}
             enviarSolicitud={enviarSolicitud}
+            loading={loading}
           />
         );
 
