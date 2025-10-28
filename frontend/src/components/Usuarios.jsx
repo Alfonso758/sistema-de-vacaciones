@@ -156,6 +156,9 @@ export default function Usuarios({ userID }) {
 
     // Buscador
     const usuariosFiltrados = usuariosFiltradosPorRol.filter((u) => {
+        const esNuevo = u.nuevo === 1 || u.nuevo === "1" || u.nuevo === true;
+        if (esNuevo) return false; // Excluir usuarios nuevos
+
         const texto = busqueda.toLowerCase();
         const rolTexto =
             u.rol_id === 1

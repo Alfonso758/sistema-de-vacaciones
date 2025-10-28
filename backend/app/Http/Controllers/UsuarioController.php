@@ -328,7 +328,7 @@ class UsuarioController extends Controller
     {
         try {
             $usuarios = Usuario::with('jefe')
-                ->select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso', 'jefe_directo', 'activo')
+                ->select('id', 'name', 'surnames', 'rol_id', 'email', 'fecha_ingreso', 'jefe_directo', 'activo', 'nuevo')
                 ->where('id', '<>', auth()->id()) // excluye al usuario logueado
                 ->orderBy('name', 'asc')
                 ->get();
