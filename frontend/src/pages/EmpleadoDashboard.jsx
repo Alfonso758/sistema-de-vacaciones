@@ -213,7 +213,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva }) {
         total_dias: diasSolicitados
       });
 
-      setMensajeExito('Solicitud enviada. Dispones de 72 horas para editar o cancelar tu solicitud.');
+      setMensajeExito('Solicitud enviada. Puedes editar o cancelar mientras se encuentre pendiente.');
       setFechaInicioVacaciones('');
       setFechaFinVacaciones('');
       await fetchDatosVacaciones();
