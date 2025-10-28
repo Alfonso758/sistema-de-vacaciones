@@ -5,12 +5,13 @@ export default function DiasAcumulables() {
   const [diasAcumulables, setDiasAcumulables] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [loadingBoton, setLoadingBoton] = useState({});
   const apiBaseUrl = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
-    console.log("🟢 Obteniendo días acumulables y usuarios...");
+    console.log("Obteniendo días acumulables y usuarios...");
 
     // Fetch de los días acumulables
     const fetchDias = fetch(`${apiBaseUrl}/api/acumulables`, {
@@ -38,7 +39,7 @@ export default function DiasAcumulables() {
         setDiasAcumulables(registrosConNombre);
         setUsuarios(usuariosData);
       })
-      .catch(err => console.error("❌ Error al obtener datos:", err))
+      .catch(err => console.error("Error al obtener datos:", err))
       .finally(() => setLoading(false));
   }, []);
 
@@ -48,43 +49,62 @@ export default function DiasAcumulables() {
     return new Date(fecha).toLocaleDateString('es-MX', opciones);
   };
 
-  const acumularDias = (id) => {
-    if (!window.confirm("¿Deseas acumular los días pendientes de este usuario?")) return;
+  const acumularDias = async (id) => {
+    if (!window.confirm("¿Deseas acumular los días vencidos de este usuario?")) return;
+
+    const accion = "acumular";
+    setLoadingBoton(prev => ({ ...prev, [id]: accion }));
 
     const token = localStorage.getItem("token");
-    fetch(`${apiBaseUrl}/api/acumular-dias/${id}`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => {
-        alert("✅ " + data.message);
-        setDiasAcumulables(prev => prev.filter(r => r.id !== id));
-      })
-      .catch(err => {
-        console.error("❌ Error al acumular:", err);
-        alert("❌ Error al acumular los días");
+
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/acumular-dias/${id}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
       });
+
+      if (!res.ok) throw new Error("Error al acumular los días");
+
+      const data = await res.json();
+
+      alert(data.message);
+      setDiasAcumulables(prev => prev.filter(r => r.id !== id));
+    } catch (err) {
+      console.error("Error al acumular:", err);
+      alert("Error al acumular los días. Intenta nuevamente.");
+    } finally {
+      setLoadingBoton(prev => ({ ...prev, [id]: null }));
+    }
   };
 
-  const dejarPerderDias = (id) => {
-    if (!window.confirm("⚠️ ¿Seguro que deseas dejar perder los días pendientes de este usuario? Esta acción no se puede deshacer.")) return;
+  const dejarPerderDias = async (id) => {
+    if (!window.confirm("¿Seguro que deseas dejar perder los días vencidos de este usuario? Esta acción no se puede deshacer.")) return;
+
+    const accion = "perder";
+    setLoadingBoton(prev => ({ ...prev, [id]: accion }));
 
     const token = localStorage.getItem("token");
-    fetch(`${apiBaseUrl}/api/dejar-perder-dias/${id}`, {
-      method: "POST",
-      headers: { "Authorization": `Bearer ${token}` },
-    })
-      .then(res => res.json())
-      .then(data => {
-        alert("✅ " + data.message);
-        setDiasAcumulables(prev => prev.filter(r => r.id !== id));
-      })
-      .catch(err => {
-        console.error("❌ Error al dejar perder:", err);
-        alert("❌ Error al dejar perder los días");
+
+    try {
+      const res = await fetch(`${apiBaseUrl}/api/dejar-perder-dias/${id}`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` },
       });
+
+      if (!res.ok) throw new Error("Error al dejar perder los días");
+
+      const data = await res.json();
+
+      alert(data.message);
+      setDiasAcumulables(prev => prev.filter(r => r.id !== id));
+    } catch (err) {
+      console.error("Error al dejar perder:", err);
+      alert("Error al dejar perder los días. Intenta nuevamente.");
+    } finally {
+      setLoadingBoton(prev => ({ ...prev, [id]: null }));
+    }
   };
+
 
   return (
     <div className="dias-acumulables-container">
@@ -105,8 +125,69 @@ export default function DiasAcumulables() {
                 <b>{formatFecha(registro.fecha_fin_periodo)}</b>.
               </p>
               <div className="botones-acciones">
-                <button onClick={() => acumularDias(registro.id)}>Acumular</button>
-                <button onClick={() => dejarPerderDias(registro.id)}>Dejar perder</button>
+                <button onClick={() => acumularDias(registro.id)} disabled={loadingBoton[registro.id]}>
+                  {loadingBoton[registro.id] === 'acumular' ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ margin: 'auto', display: 'block', background: 'none' }}
+                      width="24"
+                      height="24"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="xMidYMid"
+                    >
+                      <circle
+                        cx="50"
+                        cy="50"
+                        fill="none"
+                        stroke="#fff"
+                        strokeWidth="10"
+                        r="35"
+                        strokeDasharray="164.93361431346415 56.97787143782138"
+                      >
+                        <animateTransform
+                          attributeName="transform"
+                          type="rotate"
+                          repeatCount="indefinite"
+                          dur="1s"
+                          values="0 50 50;360 50 50"
+                          keyTimes="0;1"
+                        />
+                      </circle>
+                    </svg>
+                  ) : 'Acumular'}
+                </button>
+
+                <button onClick={() => dejarPerderDias(registro.id)} disabled={loadingBoton[registro.id]}>
+                  {loadingBoton[registro.id] === 'perder' ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      style={{ margin: 'auto', display: 'block', background: 'none' }}
+                      width="24"
+                      height="24"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="xMidYMid"
+                    >
+                      <circle
+                        cx="50"
+                        cy="50"
+                        fill="none"
+                        stroke="#fff"
+                        strokeWidth="10"
+                        r="35"
+                        strokeDasharray="164.93361431346415 56.97787143782138"
+                      >
+                        <animateTransform
+                          attributeName="transform"
+                          type="rotate"
+                          repeatCount="indefinite"
+                          dur="1s"
+                          values="0 50 50;360 50 50"
+                          keyTimes="0;1"
+                        />
+                      </circle>
+                    </svg>
+                  ) : 'Dejar perder'}
+                </button>
               </div>
             </div>
           ))}

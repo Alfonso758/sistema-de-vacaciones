@@ -56,8 +56,19 @@ export default function SolicitudesEquipo({ userID }) {
 
     // ----------------- APROBAR O RECHAZAR -----------------
     const manejarDecision = async (id, decision) => {
+        // Mensaje dinámico según el tipo de acción
+        const mensaje =
+            decision === 2
+                ? "¿Deseas aprobar esta solicitud? Una vez aprobada, no podrás revertir la acción."
+                : "¿Deseas rechazar esta solicitud? Esta acción no se puede deshacer.";
+
+        // Mostrar confirmación antes de proceder
+        const confirmar = window.confirm(mensaje);
+        if (!confirmar) return;
+
         const accion = decision === 2 ? 'aprobar' : 'rechazar';
         setLoadingBoton(prev => ({ ...prev, [id]: accion }));
+
         try {
             const res = await fetch(`${apiBaseUrl}/api/solicitudes/${id}/decision`, {
                 method: 'PUT',
@@ -77,10 +88,16 @@ export default function SolicitudesEquipo({ userID }) {
             const data = await res.json();
 
             setSolicitudes(solicitudes.map(s =>
-                s.id === id ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "", revisor: data.revisor } : s
+                s.id === id
+                    ? { ...s, estado_solicitud: decision, comentario: comentarios[id] || "", revisor: data.revisor }
+                    : s
             ));
+
+            // Mensaje de éxito
+            alert(decision === 2 ? "Solicitud aprobada." : "Solicitud rechazada.");
         } catch (error) {
             console.error(error);
+            alert("Ocurrió un error al procesar la solicitud. Intenta nuevamente.");
         } finally {
             setLoadingBoton(prev => ({ ...prev, [id]: null }));
         }
@@ -146,7 +163,7 @@ export default function SolicitudesEquipo({ userID }) {
                             });
                     }}
                 >
-                    <FaSync className={loading ? "girando" : ""} /> 
+                    <FaSync className={loading ? "girando" : ""} />
                 </button>
             </div>
 

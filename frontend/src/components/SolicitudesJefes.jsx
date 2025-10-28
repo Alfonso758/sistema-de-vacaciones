@@ -93,6 +93,8 @@ export default function SolicitudesJefes({ userID }) {
 
     // ----------------- RECHAZAR SOLICITUD -----------------
     const rechazarSolicitud = async (id) => {
+        if (!window.confirm("¿Deseas rechazar esta solicitud? Esta acción no se puede deshacer.")) return;
+
         const accion = 'rechazar';
         setLoadingBoton(prev => ({ ...prev, [id]: accion }));
         try {
@@ -112,7 +114,7 @@ export default function SolicitudesJefes({ userID }) {
             if (!res.ok) throw new Error('Error al rechazar la solicitud');
 
             const data = await res.json();
-            console.log('Solicitud rechazada', data);
+            alert("Solicitud rechazada.");
 
             setSolicitudes(solicitudes.map(s =>
                 s.id === id ? { ...s, estado_solicitud: 3, comentario: comentarios[id] || "", revisor: data.revisor } : s

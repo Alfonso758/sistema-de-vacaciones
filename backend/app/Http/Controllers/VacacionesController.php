@@ -164,7 +164,7 @@ class VacacionesController extends Controller
         }
 
         return response()->json([
-            'message' => 'Días acumulados correctamente',
+            'message' => 'Los días vencidos fueron acumulados',
             'registro' => $registro
         ]);
     }
@@ -181,7 +181,7 @@ class VacacionesController extends Controller
         $registro->pendiente = 0;
         $registro->save();
 
-        // ✅ Buscar correctamente al usuario dueño del registro
+        // Buscar correctamente al usuario dueño del registro
         $usuario = Usuario::find($registro->id_usuario);
 
         if ($usuario) {
@@ -189,7 +189,7 @@ class VacacionesController extends Controller
         }
 
         return response()->json([
-            'message' => 'Días perdidos correctamente',
+            'message' => 'Los días vencidos fueron eliminados',
             'registro' => $registro
         ]);
     }
