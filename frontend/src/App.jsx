@@ -28,6 +28,7 @@ function App() {
   const [campoEditable, setCampoEditable] = useState('');
   const [valorEditable, setValorEditable] = useState('');
   const [jefe, setJefe] = useState(null);
+  const [loading, setLoading] = useState(false);
   const apiBaseUrl = import.meta.env.VITE_API_URL;
   const imagesBaseUrl = import.meta.env.VITE_IMAGE_URL;
 
@@ -47,8 +48,6 @@ function App() {
 
     setLoadingPassword(true);
     try {
-      // Asumo que cambiarPassword es async y hace la petición al backend.
-      // Si tu cambiarPassword muestra alert en vez de devolver Promise, puedes adaptar aquí.
       await cambiarPassword(passwordActual, passwordNueva);
 
       // Si la petición fue correcta, limpia campos y cierra modal
@@ -209,7 +208,7 @@ function App() {
 
   const editarCampo = async (campo, valor) => {
     if (!valor) valor = campo === 'nombre' ? usuario.nombre : usuario.apellidos;
-
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
 
@@ -241,6 +240,8 @@ function App() {
     } catch (error) {
       console.error(error);
       alert('Error de conexión con el servidor');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -344,8 +345,39 @@ function App() {
                             type="text"
                             value={valorEditable}
                             onChange={(e) => setValorEditable(e.target.value)}
+                            disabled={loading}
                           />
-                          <button className="guardar" onClick={() => editarCampo('nombre', valorEditable)}>Guardar</button>
+                          <button className="guardar" onClick={() => editarCampo('nombre', valorEditable)} disabled={loading}>
+                            {loading ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ margin: 'auto', display: 'block', background: 'none' }}
+                                width="24"
+                                height="24"
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="xMidYMid"
+                              >
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  fill="none"
+                                  stroke="#fff"
+                                  strokeWidth="10"
+                                  r="35"
+                                  strokeDasharray="164.93361431346415 56.97787143782138"
+                                >
+                                  <animateTransform
+                                    attributeName="transform"
+                                    type="rotate"
+                                    repeatCount="indefinite"
+                                    dur="1s"
+                                    values="0 50 50;360 50 50"
+                                    keyTimes="0;1"
+                                  />
+                                </circle>
+                              </svg>
+                            ) : 'Guardar'}
+                          </button>
                           <button className="cancelar" onClick={() => setCampoEditable('')}>Cancelar</button>
                         </div>
                       ) : (
@@ -367,8 +399,39 @@ function App() {
                             type="text"
                             value={valorEditable}
                             onChange={(e) => setValorEditable(e.target.value)}
+                            disabled={loading}
                           />
-                          <button className="guardar" onClick={() => editarCampo('apellidos', valorEditable)}>Guardar</button>
+                          <button className="guardar" onClick={() => editarCampo('apellidos', valorEditable)} disabled={loading}>
+                            {loading ? (
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ margin: 'auto', display: 'block', background: 'none' }}
+                                width="24"
+                                height="24"
+                                viewBox="0 0 100 100"
+                                preserveAspectRatio="xMidYMid"
+                              >
+                                <circle
+                                  cx="50"
+                                  cy="50"
+                                  fill="none"
+                                  stroke="#fff"
+                                  strokeWidth="10"
+                                  r="35"
+                                  strokeDasharray="164.93361431346415 56.97787143782138"
+                                >
+                                  <animateTransform
+                                    attributeName="transform"
+                                    type="rotate"
+                                    repeatCount="indefinite"
+                                    dur="1s"
+                                    values="0 50 50;360 50 50"
+                                    keyTimes="0;1"
+                                  />
+                                </circle>
+                              </svg>
+                            ) : 'Guardar'}
+                          </button>
                           <button className="cancelar" onClick={() => setCampoEditable('')}>Cancelar</button>
                         </div>
                       ) : (
