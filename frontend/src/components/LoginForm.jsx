@@ -62,16 +62,16 @@ function LoginForm({ onLoginSuccess }) {
       if (err.response) {
         const detalle = err.response.data.detalle || 'Intenta más tarde';
         switch (err.response.status) {
-          case 400: alert(`⚠️ ${detalle}`); break;
-          case 401: alert(`⚠️ ${detalle}`); break;
-          case 403: alert(`⚠️ ${detalle}`); break;
-          case 500: alert(`⚠️ Error del servidor: ${detalle}`); break;
-          default: alert(`⚠️ Error inesperado: ${detalle}`);
+          case 400: alert(`${detalle}`); break;
+          case 401: alert(`${detalle}`); break;
+          case 403: alert(`${detalle}`); break;
+          case 500: alert(`Error del servidor: ${detalle}`); break;
+          default: alert(`Error inesperado: ${detalle}`);
         }
       } else if (err.request) {
-        alert('⚠️ No se pudo conectar con el servidor. Intenta más tarde.');
+        alert('No se pudo conectar con el servidor. Intenta más tarde.');
       } else {
-        alert(`⚠️ Error inesperado: ${err.message}`);
+        alert(`Error inesperado: ${err.message}`);
       }
     } finally {
       setLoading(false);

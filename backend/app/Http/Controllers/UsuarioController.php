@@ -408,7 +408,7 @@ class UsuarioController extends Controller
             $usuario->notify(new BienvenidaUsuario());
 
             return response()->json([
-                'message' => 'Usuario aprobado correctamente',
+                'message' => 'El usuario ha sido activado. Si lo deseas, puedes editar sus datos desde la Lista de usuarios.',
                 'data' => $usuario
             ], 200);
         } catch (\Exception $e) {
