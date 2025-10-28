@@ -2,7 +2,6 @@ import { useState } from 'react';
 import '../styles/LoginForm.css';
 import api from '../services/api';
 import { GoogleLogin } from '@react-oauth/google';
-import jwtDecode from "jwt-decode";
 
 function LoginForm({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -10,17 +9,23 @@ function LoginForm({ onLoginSuccess }) {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const apiBaseUrl = import.meta.env.VITE_API_URL;
+
   const imagesBaseUrl = import.meta.env.VITE_IMAGE_URL;
 
   const toggleShowPassword = () => setShowPassword(prev => !prev);
 
   const normalizeUser = (user) => ({
     ...user,
-    id: user.id || user.usuarioID,         // siempre habrá id
-    nombre: user.nombre || user.name,      // normaliza nombre
-    apellidos: user.apellidos || user.surnames // normaliza apellidos
+    id: user.id || user.usuarioID,
+    nombre: user.nombre || user.name,
+    apellidos: user.apellidos || user.surnames
   });
+
+  const saveUserAndToken = (user, token) => {
+    localStorage.setItem('usuario', JSON.stringify(user));
+    localStorage.setItem('token', token);
+    onLoginSuccess(user);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -28,77 +33,50 @@ function LoginForm({ onLoginSuccess }) {
     setLoading(true);
 
     try {
-      const response = await api.post('/login', { email, password });
-      const { user, token } = response.data;
-
-      const normalizedUser = normalizeUser(user);
-
-      localStorage.setItem('usuario', JSON.stringify(normalizedUser));
-      localStorage.setItem('token', token);
-      onLoginSuccess(normalizedUser);
+      const { data } = await api.post('/login', { email, password });
+      const normalizedUser = normalizeUser(data.user);
+      saveUserAndToken(normalizedUser, data.token);
     } catch (err) {
-      if (err.response && err.response.status === 401) {
-        setError("Correo o contraseña incorrectos");
-      } else {
-        setError("Ocurrió un error, intenta nuevamente");
-      }
+      setError(
+        err.response?.status === 401
+          ? "Correo o contraseña incorrectos"
+          : "Ocurrió un error, intenta nuevamente"
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    setLoading(true); // 🔹 mostrar spinner
+    setLoading(true);
     setError('');
 
     try {
       const token = credentialResponse?.credential;
-      if (!token) {
-        alert('⚠️ Error: Token de Google no recibido');
-        return;
-      }
+      if (!token) return alert('⚠️ Error: Token de Google no recibido');
 
-      const response = await api.post('/google-login', { token });
-      const { user, token: appToken } = response.data;
-
-      const normalizedUser = normalizeUser(user);
-
-      localStorage.setItem('usuario', JSON.stringify(normalizedUser));
-      localStorage.setItem('token', appToken);
-
-      onLoginSuccess(normalizedUser);
-
+      const { data } = await api.post('/google-login', { token });
+      const normalizedUser = normalizeUser(data.user);
+      saveUserAndToken(normalizedUser, data.token);
     } catch (err) {
-
       if (err.response) {
+        const detalle = err.response.data.detalle || 'Intenta más tarde';
         switch (err.response.status) {
-          case 400:
-            alert(`⚠️ ${err.response.data.detalle || 'Token no proporcionado'}`);
-            break;
-          case 401:
-            alert(`⚠️ ${err.response.data.detalle || 'Token inválido'}`);
-            break;
-          case 403:
-            alert(`⚠️ ${err.response.data.detalle || 'Correo no registrado o cuenta inactiva'}`);
-            break;
-          case 500:
-            alert(`⚠️ Error del servidor: ${err.response.data.detalle || 'Intenta más tarde'}`);
-            break;
-          default:
-            alert(`⚠️ Error inesperado: ${err.response.data.detalle || 'Intenta más tarde'}`);
+          case 400: alert(`⚠️ ${detalle}`); break;
+          case 401: alert(`⚠️ ${detalle}`); break;
+          case 403: alert(`⚠️ ${detalle}`); break;
+          case 500: alert(`⚠️ Error del servidor: ${detalle}`); break;
+          default: alert(`⚠️ Error inesperado: ${detalle}`);
         }
       } else if (err.request) {
         alert('⚠️ No se pudo conectar con el servidor. Intenta más tarde.');
       } else {
         alert(`⚠️ Error inesperado: ${err.message}`);
       }
-
-      //setError("Error al iniciar sesión con Google");
     } finally {
-      setLoading(false); // 🔹 ocultar spinner
+      setLoading(false);
     }
   };
-
 
   return (
     <div className="login-wrapper">
@@ -107,8 +85,6 @@ function LoginForm({ onLoginSuccess }) {
           <h1>Sistema de Solicitud de Vacaciones</h1>
           <img
             src={`${imagesBaseUrl}/soko.png`}
-            //src="http://localhost:8000/images/soko.png"
-            //src="https://vacaciones.sokodev.com/images/soko.png"
             alt="SokoLabs"
             className="login-header-image"
           />
@@ -123,7 +99,7 @@ function LoginForm({ onLoginSuccess }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            disabled={loading}  // deshabilita campo mientras carga
+            disabled={loading}
           />
 
           <div className="password-wrapper">
@@ -133,7 +109,7 @@ function LoginForm({ onLoginSuccess }) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading}  // deshabilita campo mientras carga
+              disabled={loading}
             />
             <span
               className="password-toggle"
@@ -144,34 +120,14 @@ function LoginForm({ onLoginSuccess }) {
               onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') toggleShowPassword(); }}
             >
               {showPassword ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24"
-                  width="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#656565ff"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="none" stroke="#656565ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-5 0-9.27-3-11-7a10.94 10.94 0 0 1 1.66-2.89" />
                   <line x1="1" y1="1" x2="23" y2="23" />
                   <path d="M10.58 10.58A3 3 0 0 0 13.42 13.42" />
                   <path d="M14.12 14.12a6 6 0 0 1-8.48-8.48" />
                 </svg>
               ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  height="24"
-                  width="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="#656565ff"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
+                <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 24 24" fill="none" stroke="#656565ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
@@ -181,47 +137,21 @@ function LoginForm({ onLoginSuccess }) {
 
           <button type="submit" disabled={loading}>
             {loading ? (
-              // Aquí un spinner simple SVG inline o texto "Cargando..."
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                style={{ margin: 'auto', background: 'none', display: 'block' }}
-                width="24"
-                height="24"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="xMidYMid"
-              >
-                <circle
-                  cx="50"
-                  cy="50"
-                  fill="none"
-                  stroke="#fff"
-                  strokeWidth="10"
-                  r="35"
-                  strokeDasharray="164.93361431346415 56.97787143782138"
-                >
-                  <animateTransform
-                    attributeName="transform"
-                    type="rotate"
-                    repeatCount="indefinite"
-                    dur="1s"
-                    values="0 50 50;360 50 50"
-                    keyTimes="0;1"
-                  />
+              <svg xmlns="http://www.w3.org/2000/svg" style={{ margin: 'auto', background: 'none', display: 'block' }} width="24" height="24" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
+                <circle cx="50" cy="50" fill="none" stroke="#fff" strokeWidth="10" r="35" strokeDasharray="164.93361431346415 56.97787143782138">
+                  <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1" />
                 </circle>
               </svg>
-            ) : (
-              'Iniciar sesión'
-            )}
+            ) : 'Iniciar sesión'}
           </button>
 
           {error && <p className="error">{error}</p>}
         </form>
-        <br></br>
-        {/* 🔹 Botón de Google */}
+
+        <br />
+
         <div className="google-login">
-          <GoogleLogin
-            onSuccess={handleGoogleSuccess}
-          />
+          <GoogleLogin onSuccess={handleGoogleSuccess} />
         </div>
       </div>
     </div>
