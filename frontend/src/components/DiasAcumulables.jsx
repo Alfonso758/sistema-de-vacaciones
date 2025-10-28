@@ -109,6 +109,7 @@ export default function DiasAcumulables() {
   return (
     <div className="dias-acumulables-container">
       <h2>Días Acumulables</h2>
+      <p>Nota: Los días vencidos se eliminarán automáticamente si no se acumulan en 72 horas.</p>
 
       {loading ? (
         <p className="cargando">Cargando días acumulables...</p>
