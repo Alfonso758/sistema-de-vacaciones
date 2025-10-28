@@ -30,12 +30,14 @@
 }
 
 .boton-colapsar {
-  background: none;
-  border: none;
-  color: #717171;
-  font-size: 1.2rem;
   cursor: pointer;
   margin-left: 20px;
+  font-size: 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #000000;
+  outline: none;
 }
 
 .barra-lateral h3 {
@@ -98,8 +100,8 @@
 .sub-menu li {
   display: flex;
   gap: 8px;
-  margin-left: 40px; 
-  justify-content: flex-start; 
+  margin-left: 40px;
+  justify-content: flex-start;
 }
 
 

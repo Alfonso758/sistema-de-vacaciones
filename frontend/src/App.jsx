@@ -1,4 +1,4 @@
-import { FaBars, FaUser, FaCog, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import {FaUser, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import { useState, useEffect, useRef } from 'react';
 import LoginForm from './components/LoginForm';
@@ -251,14 +251,16 @@ function App() {
     <>
       <header className="encabezado-app">
         <div className="contenedor-logo">
-          <img src={`${imagesBaseUrl}/soko.png`} alt="Logo" className="logo" />
+          <div className="logo-header">
+            <img src={`${imagesBaseUrl}/soko.png`} alt="Logo" className="logo" />
+          </div>
 
           <button
             className="boton-colapsar"
             onClick={() => setMenuColapsado(!menuColapsado)}
             aria-label="Colapsar menú"
           >
-            <FaBars />
+            &#9776;
           </button>
 
         </div>
