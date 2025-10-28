@@ -7,6 +7,7 @@ export default function Usuarios({ userID }) {
     const [usuarios, setUsuarios] = useState([]);
     const [jefes, setJefes] = useState([]); // ✅ lista de jefes disponibles
     const [loading, setLoading] = useState(true);
+    const [loadingEditar, setLoadingEditar] = useState(false);
     const [usuarioActual, setUsuarioActual] = useState(null);
     const [error, setError] = useState(null);
     const [busqueda, setBusqueda] = useState("");
@@ -107,6 +108,7 @@ export default function Usuarios({ userID }) {
                 : null,
         };
 
+        setLoadingEditar(true);
         try {
             const res = await axios.put(
                 `${apiBaseUrl}/api/usuarios/${usuarioEditando.id}`,
@@ -131,10 +133,11 @@ export default function Usuarios({ userID }) {
             );
 
             setUsuarioEditando(null);
-            alert("Usuario actualizado correctamente");
         } catch (error) {
             alert("Error al actualizar usuario. Verifica que los datos sean correctos.");
             console.error("Detalles del error:", error.response?.data || error.message);
+        } finally {
+            setLoadingEditar(false);
         }
     };
 
@@ -284,6 +287,8 @@ export default function Usuarios({ userID }) {
                                 name="name"
                                 value={usuarioEditando.name}
                                 onChange={handleChangeUsuarioEditando}
+                                disabled={loadingEditar}
+                                required
                             />
 
                             <label>Apellidos:</label>
@@ -292,6 +297,8 @@ export default function Usuarios({ userID }) {
                                 name="surnames"
                                 value={usuarioEditando.surnames || ""}
                                 onChange={handleChangeUsuarioEditando}
+                                disabled={loadingEditar}
+                                required
                             />
 
                             <label>Email:</label>
@@ -308,6 +315,7 @@ export default function Usuarios({ userID }) {
                                 name="rol_id"
                                 value={usuarioEditando.rol_id}
                                 onChange={handleChangeUsuarioEditando}
+                                disabled={loadingEditar}
                             >
                                 <option value={1}>Empleado</option>
                                 <option value={2}>Jefe de área</option>
@@ -320,6 +328,7 @@ export default function Usuarios({ userID }) {
                                 name="jefe_directo"
                                 value={usuarioEditando.jefe_directo || ""}
                                 onChange={handleChangeUsuarioEditando}
+                                disabled={loadingEditar}
                             >
                                 <option value="">Sin jefe directo</option>
                                 {jefes.map((j) => (
@@ -339,6 +348,8 @@ export default function Usuarios({ userID }) {
                                     )[0] || ""
                                 }
                                 onChange={handleChangeUsuarioEditando}
+                                disabled={loadingEditar}
+                                required
                             />
 
                             <label>Estado:</label>
@@ -346,13 +357,46 @@ export default function Usuarios({ userID }) {
                                 name="activo"
                                 value={usuarioEditando.activo}
                                 onChange={handleChangeUsuarioEditando}
+                                disabled={loadingEditar}
                             >
                                 <option value={1}>Activo</option>
                                 <option value={0}>Inactivo</option>
                             </select>
 
                             <div className="modal-botones">
-                                <button type="submit">Guardar</button>
+                                <button type="submit" disabled={loadingEditar}>
+                                    {loadingEditar ? (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            style={{ margin: 'auto', background: 'none', display: 'block' }}
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 100 100"
+                                            preserveAspectRatio="xMidYMid"
+                                        >
+                                            <circle
+                                                cx="50"
+                                                cy="50"
+                                                fill="none"
+                                                stroke="#fff"
+                                                strokeWidth="10"
+                                                r="35"
+                                                strokeDasharray="164.93361431346415 56.97787143782138"
+                                            >
+                                                <animateTransform
+                                                    attributeName="transform"
+                                                    type="rotate"
+                                                    repeatCount="indefinite"
+                                                    dur="1s"
+                                                    values="0 50 50;360 50 50"
+                                                    keyTimes="0;1"
+                                                />
+                                            </circle>
+                                        </svg>
+                                    ) : (
+                                        'Guardar'
+                                    )}
+                                </button>
                                 <button
                                     type="button"
                                     className="cancelar"
