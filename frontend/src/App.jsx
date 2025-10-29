@@ -295,9 +295,6 @@ function App() {
                 <li onClick={() => setModalActivo('password')}>
                   <FaLock style={{ marginRight: '8px' }} /> Contraseña
                 </li>
-                <li onClick={() => setModalActivo('ayuda')}>
-                  <FaQuestionCircle style={{ marginRight: '8px' }} /> Ayuda
-                </li>
                 <li onClick={manejarLogout}>
                   <FaSignOutAlt style={{ marginRight: '8px' }} /> Cerrar sesión
                 </li>
@@ -564,15 +561,6 @@ function App() {
                 </button>
 
                 {passwordError && <p className="error">{passwordError}</p>}
-              </div>
-            )}
-
-
-            {modalActivo === 'ayuda' && (
-              <div>
-                <h2>Ayuda</h2>
-                <p>Si tienes problemas, contacta soporte@company.com</p>
-                <p>Puedes consultar la documentación en línea para más información.</p>
               </div>
             )}
           </div>
