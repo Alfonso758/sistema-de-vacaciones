@@ -129,6 +129,12 @@
   cursor: pointer;
   color: #000000;
   outline: none;
+  padding: 0 10px 0 10px;
+}
+
+.boton-menu:hover {
+  background: #e8e8e8;
+  border-radius: 15px;
 }
 
 .boton-menu:focus {

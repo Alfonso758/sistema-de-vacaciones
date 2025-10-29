@@ -85,8 +85,9 @@ function RegisterForm() {
                             name="fecha_ingreso"
                             value={form.fecha_ingreso}
                             onChange={handleChange}
+                            placeholder="dd/mm/aaaa"
                             required
-                            disabled={loading} // 🔹 Deshabilita mientras carga
+                            disabled={loading}
                         />
                         {errors.fecha_ingreso && <p className="error">{errors.fecha_ingreso[0]}</p>}
                     </div>

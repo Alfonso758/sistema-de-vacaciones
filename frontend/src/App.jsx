@@ -285,7 +285,7 @@ function App() {
               onClick={() => setMenuAbierto((prev) => !prev)}
               style={{ outline: 'none' }}
             >
-              &#9776;
+              &#8942;
             </button>
             {menuAbierto && (
               <ul className="menu-desplegable">

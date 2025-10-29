@@ -59,6 +59,7 @@ export default function NuevaSolicitud({
                 value={fechaInicioVacaciones}
                 onChange={(e) => setFechaInicioVacaciones(e.target.value)}
                 title="Selecciona una fecha con al menos 2 meses de anticipación."
+                placeholder="dd/mm/aaaa"
                 disabled={loading}
               />
             </div>
@@ -70,6 +71,7 @@ export default function NuevaSolicitud({
                 value={fechaFinVacaciones}
                 onChange={(e) => setFechaFinVacaciones(e.target.value)}
                 title="Selecciona una fecha posterior a la fecha de inicio."
+                placeholder="dd/mm/aaaa"
                 disabled={loading}
               />
             </div>
