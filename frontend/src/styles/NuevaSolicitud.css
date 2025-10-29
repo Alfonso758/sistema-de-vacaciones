@@ -20,10 +20,8 @@
 .tarjeta {
   background: #fff;
   border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-  padding: 20px 10px;
+  padding: 40px 10px;
   text-align: center;
-  height: 120px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -72,7 +70,6 @@ form {
 .grupo-input {
   display: flex;
   flex-direction: column;
-  gap: 6px;
   margin-bottom: 16px;
 }
 
@@ -80,6 +77,7 @@ form {
   font-weight: 500;
   color: #333;
   font-size: 1rem;
+  margin-bottom: 5px;
 }
 
 .grupo-input input {
@@ -88,6 +86,7 @@ form {
   border: 1px solid #ccc;
   font-size: 1rem;
   background-color: #e0efff;
+  color: #000000;
 }
 
 .grupo-input input:focus {
@@ -124,4 +123,65 @@ form button:hover {
 .mensaje-exito {
   color: #388e3c;
   font-weight: 600;
+}
+
+@media (max-width: 600px) {
+  .content {
+    padding: 0px;
+  }
+
+  .tarjeta_content {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 5px;
+  }
+
+  .tarjeta {
+    padding: 10px 5px;
+  }
+
+  .tarjeta .valor {
+    font-size: 0.8rem;
+  }
+
+  .tarjeta p {
+    font-size: 0.65rem;
+  }
+
+  .tarjeta p small {
+    font-size: 0.65rem;
+  }
+
+  .titulo1 {
+    font-size: 1rem;
+  }
+
+  .tarjeta-formulario {
+    padding: 10px;
+  }
+
+  .grupo-input label {
+    font-size: 0.8rem;
+  }
+
+  .grupo-input input {
+    padding: 5px;
+    font-size: 0.8rem;
+    width: 90%;
+    margin-left: 10px;
+  }
+
+  form button {
+    padding: 7px 10px;
+    font-size: 0.8rem;
+  }
+
+  form {
+    grid-template-columns: 1fr;
+  }
+
+  form button {
+    grid-column: 1;
+    justify-self: center;
+    width: 80%;
+  }
 }

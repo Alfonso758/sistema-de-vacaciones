@@ -614,7 +614,7 @@ function App() {
 
 
       <footer className="pie-app">
-        <p>© {new Date().getFullYear()} Soko Labs. Todos los derechos reservados</p>
+        <p>{new Date().getFullYear()} © Soko Labs</p>
       </footer>
     </>
   );
