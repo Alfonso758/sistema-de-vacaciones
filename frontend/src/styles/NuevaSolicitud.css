@@ -131,7 +131,6 @@ form button:hover {
   }
 
   .tarjeta_content {
-    grid-template-columns: repeat(1, 1fr);
     gap: 5px;
   }
 
@@ -170,11 +169,6 @@ form button:hover {
     margin-left: 10px;
   }
 
-  form button {
-    padding: 7px 10px;
-    font-size: 0.8rem;
-  }
-
   form {
     grid-template-columns: 1fr;
   }
@@ -182,6 +176,14 @@ form button:hover {
   form button {
     grid-column: 1;
     justify-self: center;
-    width: 80%;
+    padding: 7px 10px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 350px) {
+  .tarjeta_content {
+    grid-template-columns: repeat(1, 1fr);
+    gap: 5px;
   }
 }
