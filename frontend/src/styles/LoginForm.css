@@ -1,9 +1,11 @@
 /* Contenedor centrado */
 .login-wrapper {
   display: flex;
-  justify-content: center; /* Centra horizontalmente */
-  align-items: center; /* Centra verticalmente */
-  height: auto; 
+  justify-content: center;
+  /* Centra horizontalmente */
+  align-items: center;
+  /* Centra verticalmente */
+  height: auto;
   padding: 1rem;
 }
 
@@ -32,16 +34,16 @@
   display: block;
   padding: 0.75rem;
   margin-bottom: 0.1rem;
-  border: 1px solid #ccc; /* Color por defecto */
+  border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 1rem;
   background-color: #e0efff;
-  outline: none; /* Quita el borde de enfoque nativo */
+  outline: none;
 }
 
 .login-form input:focus {
-  border-color: #1976d2; /* Azul */
-  box-shadow: 0 0 5px rgba(25, 118, 210, 0.6); /* Brillo azul */
+  border-color: #1976d2;
+  box-shadow: 0 0 5px rgba(25, 118, 210, 0.6);
 }
 
 .login-form button {
@@ -53,12 +55,21 @@
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  width: 100%;
 }
 
 .login-form button:hover {
   background: linear-gradient(90deg, #0d47a1, #1976d2);
   box-shadow: 0px 4px 10px rgba(25, 118, 210, 0.4);
 }
+
+.google-login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
 
 .error {
   color: #e63946;
@@ -74,7 +85,7 @@
 }
 
 .login-header h1 {
-  font-size: 24px;
+  font-size: 1.5rem;
   color: #333;
 }
 
@@ -112,4 +123,19 @@
   align-items: center;
   user-select: none;
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.7));
+}
+
+@media (max-width: 600px) {
+  .login-header h1 {
+    font-size: 1.2rem;
+  }
+
+  .login-form h2 {
+    margin-bottom: 1.2rem;
+  }
+
+  .login-header-image {
+  width: 230px;  
+  object-fit: contain;
+}
 }
