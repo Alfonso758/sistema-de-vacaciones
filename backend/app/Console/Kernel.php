@@ -15,6 +15,13 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        // Comando 1: sumar días tomados después de 72h
+        $schedule->command('vacaciones:actualizar-dias')->hourly();
+
+        // Comando 2: limpiar pendientes después de 72h
+        $schedule->command('vacaciones:limpiar-pendientes')->hourly();
+
+        // (Tu comando existente)
         $schedule->command('vacaciones:renovar')->dailyAt('00:05');
     }
 
