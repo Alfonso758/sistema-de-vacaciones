@@ -132,13 +132,10 @@
   padding: 0 10px 0 10px;
 }
 
-.boton-menu:hover {
-  background: #e8e8e8;
-  border-radius: 15px;
-}
-
 .boton-menu:focus {
   outline: none;
+  background: #e8e8e8;
+  border-radius: 15px;
 }
 
 .menu-desplegable {
@@ -493,30 +490,12 @@
 }
 
 /* RESPONSIVE */
-/*@media (max-width: 600px) {
-  .encabezado-app {
-    padding: 15px 10px !important;
-  }
-
-  .barra-navegacion {
-    gap: 10px !important;
-    flex-wrap: wrap;
-  }
-
-  .boton-navegacion {
-    font-size: 14px !important;
-    padding: 6px 10px !important;
-  }
-
-  .info-usuario {
-    width: 100% !important;
-    justify-content: center !important;
-    margin-top: 10px !important;
-  }
-}*/
-
 @media (max-width: 600px) {
   .logo-header {
     display: none;
   }
+
+  .boton-menu:focus {
+  background: none;
+}
 }
