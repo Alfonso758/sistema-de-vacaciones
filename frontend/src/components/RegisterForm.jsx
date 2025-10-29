@@ -73,8 +73,8 @@ function RegisterForm() {
     return (
         <div className="register-wrapper">
             <div className="register-container">
-                <p><strong>Nota:</strong> Si eres jefe de área o administrador, deja en blanco la casilla "Selecciona tu jefe".</p>
                 <h2>Crear cuenta</h2>
+                <p><strong>Nota:</strong> Si eres jefe de área o administrador, deja en blanco la casilla "Selecciona tu jefe".</p>
 
                 <form onSubmit={handleSubmit} className="register-form">
 
@@ -130,22 +130,22 @@ function RegisterForm() {
                     />
                     {errors.surnames && <p className="error">{errors.surnames[0]}</p>}
 
-                    <div className="grupo-input">
-                        <select
-                            name="jefe_directo"
-                            value={form.jefe_directo}
-                            onChange={handleChange}
-                            disabled={loading}
-                        >
-                            <option value="">Selecciona tu jefe (si aplica)</option>
-                            {jefes.map(j => (
-                                <option key={j.id} value={j.id}>
-                                    {j.name} {j.surnames}
-                                </option>
-                            ))}
-                        </select>
-                        {errors.jefe_directo && <p className="error">{errors.jefe_directo[0]}</p>}
-                    </div>
+
+                    <select
+                        name="jefe_directo"
+                        value={form.jefe_directo}
+                        onChange={handleChange}
+                        disabled={loading}
+                    >
+                        <option value="">Selecciona tu jefe (si aplica)</option>
+                        {jefes.map(j => (
+                            <option key={j.id} value={j.id}>
+                                {j.name} {j.surnames}
+                            </option>
+                        ))}
+                    </select>
+                    {errors.jefe_directo && <p className="error">{errors.jefe_directo[0]}</p>}
+
 
                     <input
                         type="email"
