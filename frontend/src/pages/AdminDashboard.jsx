@@ -117,6 +117,12 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
     if (pestañaActiva) setPestañaSeleccionada(pestañaActiva);
   }, [pestañaActiva]);
 
+  useEffect(() => {
+    const handleClickOutside = () => setDesgloceAbierto(null);
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, []);
+
   // Contenido según pestaña
   const mostrarContenido = () => {
     switch (pestañaSeleccionada) {
@@ -170,15 +176,25 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
               const opciones = menu[titulo].opciones;
               const isOpen = desgloceAbierto === titulo;
               const grupoActivo = isOpen || opciones.some(op => op.nombre === pestañaSeleccionada);
-
               const itemHeight = 40;
               const maxHeight = `${opciones.length * itemHeight}px`;
 
               return (
-                <li key={titulo}>
+                <li
+                  key={titulo}
+                  className="grupo-menu"
+                >
                   <div
                     className={`menu-titulo ${grupoActivo ? 'activo' : ''}`}
-                    onClick={() => toggleDesgloce(titulo)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (menuColapsado) {
+                        // 🔹 En modo colapsado, mantener abierto hasta nuevo click o click fuera
+                        setDesgloceAbierto(desgloceAbierto === titulo ? null : titulo);
+                      } else {
+                        toggleDesgloce(titulo);
+                      }
+                    }}
                     role="button"
                     tabIndex={0}
                   >
@@ -186,30 +202,49 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
                     {!menuColapsado && titulo}
                   </div>
 
-                  <ul
-                    className={`sub-menu ${isOpen ? 'abierto' : ''}`}
-                    style={{
-                      maxHeight: isOpen ? maxHeight : '0px',
-                      opacity: isOpen ? 1 : 0,
-                      transform: isOpen ? 'translateY(0)' : 'translateY(-6px)',
-                      transition: `max-height ${ANIMATION_MS}ms ease, opacity ${ANIMATION_MS / 1.6}ms ease, transform ${ANIMATION_MS}ms ease`
-                    }}
-                  >
-                    {opciones.map(({ nombre, icono }) => (
-                      <li
-                        key={nombre}
-                        className={pestañaSeleccionada === nombre ? 'activo' : ''}
-                        onClick={() => setPestañaSeleccionada(nombre)}
-                      >
-                        <span className="icono">{icono}</span>
-                        {!menuColapsado && <span className="texto">{nombre}</span>}
-                      </li>
-                    ))}
-                  </ul>
+                  {/* Submenú normal (no colapsado) */}
+                  {!menuColapsado && (
+                    <ul
+                      className={`sub-menu ${isOpen ? 'abierto' : ''}`}
+                      style={{
+                        maxHeight: isOpen ? maxHeight : '0px',
+                        opacity: isOpen ? 1 : 0,
+                        transform: isOpen ? 'translateY(0)' : 'translateY(-6px)',
+                        transition: `max-height ${ANIMATION_MS}ms ease, opacity ${ANIMATION_MS / 1.6}ms ease, transform ${ANIMATION_MS}ms ease`
+                      }}
+                    >
+                      {opciones.map(({ nombre }) => (
+                        <li
+                          key={nombre}
+                          className={pestañaSeleccionada === nombre ? 'activo' : ''}
+                          onClick={() => setPestañaSeleccionada(nombre)}
+                        >
+                          {!menuColapsado && <span className="texto">{nombre}</span>}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {/* Submenú flotante (solo colapsado) */}
+                  {menuColapsado && desgloceAbierto === titulo && (
+                    <ul className="submenu-flotante" onClick={(e) => e.stopPropagation()}>
+                      {opciones.map(({ nombre }) => (
+                        <li
+                          key={nombre}
+                          className={pestañaSeleccionada === nombre ? 'activo' : ''}
+                          onClick={() => {
+                            setPestañaSeleccionada(nombre);
+                            setDesgloceAbierto(null);
+                          }}
+                        >
+                          {nombre}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </li>
               );
             })}
-
           </ul>
         </nav>
       </aside>
