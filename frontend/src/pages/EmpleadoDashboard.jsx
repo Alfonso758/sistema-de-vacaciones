@@ -285,19 +285,15 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
               const maxHeight = `${opciones.length * itemHeight}px`;
 
               return (
-                <li
-                  key={titulo}
-                  className="grupo-menu"
-                >
+                <li key={titulo} className="grupo-menu">
                   <div
                     className={`menu-titulo ${grupoActivo ? 'activo' : ''}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       if (menuColapsado) {
-                        // 🔹 En modo colapsado, mantener abierto hasta nuevo click o click fuera
                         setDesgloceAbierto(desgloceAbierto === titulo ? null : titulo);
                       } else {
-                        toggleDesgloce(titulo);
+                        setDesgloceAbierto(desgloceAbierto === titulo ? null : titulo);
                       }
                     }}
                     role="button"
@@ -322,7 +318,10 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
                         <li
                           key={nombre}
                           className={pestañaSeleccionada === nombre ? 'activo' : ''}
-                          onClick={() => setPestañaSeleccionada(nombre)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPestañaSeleccionada(nombre);
+                          }}
                         >
                           {!menuColapsado && <span className="texto">{nombre}</span>}
                         </li>
@@ -333,6 +332,11 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
                   {/* Submenú flotante (solo colapsado) */}
                   {menuColapsado && desgloceAbierto === titulo && (
                     <ul className="submenu-flotante" onClick={(e) => e.stopPropagation()}>
+                      {/* 🔹 Aquí agregamos el título del grupo */}
+                      <li className="submenu-titulo">
+                        <strong>{titulo}</strong>
+                      </li>
+
                       {opciones.map(({ nombre }) => (
                         <li
                           key={nombre}
