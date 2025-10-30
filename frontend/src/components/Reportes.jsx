@@ -264,7 +264,7 @@ export default function Reportes({ userID }) {
                             ))}
                         </select>
 
-                        {/* 🔹 Nuevos inputs para rango de fechas */}
+                        {/* 🔹 Filtros de fechas */}
                         <div className="filtros-fecha" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
                             <label>
                                 Desde:
@@ -288,7 +288,7 @@ export default function Reportes({ userID }) {
                     </label>
 
                     <div className="botones-pdf">
-                        <button onClick={descargarPDF}>Descargar pdf</button>
+                        <button onClick={descargarPDF}>Descargar PDF</button>
                     </div>
 
                     {/* Reporte por empleado */}
@@ -301,7 +301,7 @@ export default function Reportes({ userID }) {
                             {/* Pendientes */}
                             <h3>Solicitudes pendientes</h3>
                             {pendientesFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -322,13 +322,13 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
+                                </div>
                             ) : <p>No hay solicitudes pendientes.</p>}
 
                             {/* Aprobadas */}
                             <h3>Solicitudes aprobadas</h3>
                             {aprobadasFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -351,13 +351,13 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
+                                </div>
                             ) : <p>No hay solicitudes aprobadas.</p>}
 
                             {/* Rechazadas */}
                             <h3>Solicitudes rechazadas</h3>
                             {rechazadasFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -380,7 +380,7 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
+                                </div>
                             ) : <p>No hay solicitudes rechazadas.</p>}
                         </section>
                     )}
@@ -389,9 +389,11 @@ export default function Reportes({ userID }) {
                     {!loading && selectedEmpleado === "general" && (
                         <section className="reporte-general">
                             <h2>Reporte general de solicitudes</h2>
+
+                            {/* Pendientes */}
                             <h3>Solicitudes pendientes</h3>
                             {pendientesFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -412,12 +414,13 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
+                                </div>
                             ) : <p>No hay solicitudes pendientes.</p>}
 
+                            {/* Aprobadas */}
                             <h3>Solicitudes aprobadas</h3>
                             {aprobadasFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -442,12 +445,13 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
+                                </div>
                             ) : <p>No hay solicitudes aprobadas.</p>}
 
+                            {/* Rechazadas */}
                             <h3>Solicitudes rechazadas</h3>
                             {rechazadasFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -472,7 +476,7 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
+                                </div>
                             ) : <p>No hay solicitudes rechazadas.</p>}
                         </section>
                     )}

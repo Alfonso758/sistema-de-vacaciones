@@ -267,226 +267,252 @@ export default function Reportes({ userID }) {
             {/* Mensaje de carga */}
             {loading && <p className="cargando">Cargando reportes...</p>}
 
-            {/* Selector de empleado y botón PDF solo si ya cargaron empleados */}
+            {/* Selector de empleado y botón PDF */}
             {!loading && usuarios.length > 0 && (
                 <>
-
-                    {/* Pestañas */}
-                    < div className="filtros-solicitudes">
+                    {/* 🔹 Pestañas */}
+                    <div className="filtros-solicitudes">
                         <button
-                            onClick={() => { setActiveTab("todos"); setUsuarioSeleccionado("todos"); }}
+                            onClick={() => {
+                                setActiveTab("todos");
+                                setUsuarioSeleccionado("todos");
+                            }}
                             className={activeTab === "todos" ? "activo" : ""}
                         >
                             Todos
                         </button>
                         <button
-                            onClick={() => { setActiveTab("empleados"); setUsuarioSeleccionado("todos"); }}
+                            onClick={() => {
+                                setActiveTab("empleados");
+                                setUsuarioSeleccionado("todos");
+                            }}
                             className={activeTab === "empleados" ? "activo" : ""}
                         >
                             Empleados
                         </button>
                         <button
-                            onClick={() => { setActiveTab("jefes"); setUsuarioSeleccionado("todos"); }}
+                            onClick={() => {
+                                setActiveTab("jefes");
+                                setUsuarioSeleccionado("todos");
+                            }}
                             className={activeTab === "jefes" ? "activo" : ""}
                         >
                             Jefes de área
                         </button>
                     </div>
 
-                    {/* Select dinámico según pestaña */}
-                    {!loading && usuarios.length > 0 && (
-                        <div className="filtro-usuario">
-                            <label className="selector-empleado" style={{ display: "flex", gap: "10px" }}>Seleccionar reporte:
-                                <select value={usuarioSeleccionado} onChange={(e) => setUsuarioSeleccionado(e.target.value)}>
-                                    <option value="todos">
-                                        {activeTab === "todos"
-                                            ? "Reporte general"
-                                            : activeTab === "empleados"
-                                                ? "Reporte general de empleados"
-                                                : "Reporte general de jefes de área"}
-                                    </option>
+                    {/* 🔹 Selector de usuario */}
+                    <div className="filtro-usuario">
+                        <label className="selector-empleado">
+                            <span>Seleccionar reporte:</span>
+                            <select
+                                value={usuarioSeleccionado}
+                                onChange={(e) => setUsuarioSeleccionado(e.target.value)}
+                            >
+                                <option value="todos">
+                                    {activeTab === "todos"
+                                        ? "Reporte general"
+                                        : activeTab === "empleados"
+                                            ? "Reporte general de empleados"
+                                            : "Reporte general de jefes de área"}
+                                </option>
 
-                                    {usuariosFiltrados()
-                                        // Si está en la pestaña "todos", filtra los que no son administradores
-                                        .filter(u => !(activeTab === "todos" && u.rol_id === 3))
-                                        .map(u => (
-                                            <option key={u.id} value={u.id}>
-                                                Reporte de {`${u.name} ${u.surnames}`}
-                                            </option>
-                                        ))}
-                                </select>
+                                {usuariosFiltrados()
+                                    .filter((u) => !(activeTab === "todos" && u.rol_id === 3))
+                                    .map((u) => (
+                                        <option key={u.id} value={u.id}>
+                                            Reporte de {`${u.name} ${u.surnames}`}
+                                        </option>
+                                    ))}
+                            </select>
 
+                            {/* 🔹 Filtros de fecha */}
+                            <div className="filtros-fecha">
+                                <label>
+                                    Desde:
+                                    <input
+                                        type="date"
+                                        value={fechaInicio || ""}
+                                        onChange={(e) => setFechaInicio(e.target.value)}
+                                    />
+                                </label>
+                                <label>
+                                    Hasta:
+                                    <input
+                                        type="date"
+                                        value={fechaFin || ""}
+                                        onChange={(e) => setFechaFin(e.target.value)}
+                                    />
+                                </label>
+                            </div>
+                        </label>
+                    </div>
 
-                                {/* 🔹 Nuevos inputs para rango de fechas */}
-                                <div className="filtros-fecha" style={{ display: "flex", alignItems: "center", gap: "5px" }}>
-                                    <label>
-                                        Desde:
-                                        <input
-                                            type="date"
-                                            value={fechaInicio || ""}
-                                            onChange={(e) => setFechaInicio(e.target.value)}
-                                            style={{ marginLeft: "5px" }}
-                                        />
-                                    </label>
-                                    <label>
-                                        Hasta:
-                                        <input
-                                            type="date"
-                                            value={fechaFin || ""}
-                                            onChange={(e) => setFechaFin(e.target.value)}
-                                            style={{ marginLeft: "5px" }}
-                                        />
-                                    </label>
-                                </div>
-                            </label>
-                        </div>
-                    )
-                    }
-
+                    {/* 🔹 Botón PDF */}
                     <div className="botones-pdf">
                         <button onClick={descargarPDF}>Descargar PDF</button>
                     </div>
 
                     {/* 🔹 Reporte general */}
-                    {
-                        usuarioSeleccionado === "todos" && (
-                            (pendientes.length > 0 || aprobadas.length > 0 || rechazadas.length > 0) && (
-                                <section className="reporte-general">
-                                    <h2>Reporte de solicitudes ({activeTab})</h2>
+                    {usuarioSeleccionado === "todos" &&
+                        (pendientes.length > 0 ||
+                            aprobadas.length > 0 ||
+                            rechazadas.length > 0) && (
+                            <section className="reporte-general">
+                                <h2>Reporte de solicitudes ({activeTab})</h2>
 
-                                    {/* Solo mostrar pendientes si NO es pestaña jefes */}
-                                    <h3>Solicitudes pendientes</h3>
-                                    {activeTab !== "jefes" && pendientes.length > 0 ? (
-                                        <>
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Nombre</th>
-                                                        <th>Rol</th>
-                                                        <th>Fecha solicitud</th>
-                                                        <th>Inicio</th>
-                                                        <th>Fin</th>
-                                                        <th>Jefe directo</th>
+                                {/* Pendientes */}
+                                <h3>Solicitudes pendientes</h3>
+                                {activeTab !== "jefes" && pendientes.length > 0 ? (
+                                    <div className="tabla-responsive">
+                                        <table className="tabla-reportes">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Rol</th>
+                                                    <th>Fecha solicitud</th>
+                                                    <th>Inicio</th>
+                                                    <th>Fin</th>
+                                                    <th>Jefe directo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {pendientes.map((s) => (
+                                                    <tr key={s.id}>
+                                                        <td>{nombreCompleto(s.usuario)}</td>
+                                                        <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
+                                                        <td>{formatearFechaHora(s.fecha_solicitud)}</td>
+                                                        <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                        <td>{formatearFecha(s.fecha_fin)}</td>
+                                                        <td>
+                                                            {s.usuario?.jefe
+                                                                ? nombreCompleto(s.usuario.jefe)
+                                                                : "-"}
+                                                        </td>
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {pendientes.map(s => (
-                                                        <tr key={s.id}>
-                                                            <td>{nombreCompleto(s.usuario)}</td>
-                                                            <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
-                                                            <td>{formatearFechaHora(s.fecha_solicitud)}</td>
-                                                            <td>{formatearFecha(s.fecha_inicio)}</td>
-                                                            <td>{formatearFecha(s.fecha_fin)}</td>
-                                                            <td>{s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </>
-                                    ) : <p>No hay solicitudes pendientes.</p>}
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <p>No hay solicitudes pendientes.</p>
+                                )}
 
-                                    {/* Aprobadas */}
-                                    <h3>Solicitudes aprobadas</h3>
-                                    {aprobadas.length > 0 ? (
-                                        <>
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Nombre</th>
-                                                        <th>Rol</th>
-                                                        <th>Fecha solicitud</th>
-                                                        <th>Inicio</th>
-                                                        <th>Fin</th>
-                                                        <th>Revisado por</th>
-                                                        <th>Fecha revisión</th>
-                                                        {activeTab !== "jefes" && <th>Jefe directo</th>}
+                                {/* Aprobadas */}
+                                <h3>Solicitudes aprobadas</h3>
+                                {aprobadas.length > 0 ? (
+                                    <div className="tabla-responsive">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Rol</th>
+                                                    <th>Fecha solicitud</th>
+                                                    <th>Inicio</th>
+                                                    <th>Fin</th>
+                                                    <th>Revisado por</th>
+                                                    <th>Fecha revisión</th>
+                                                    {activeTab !== "jefes" && <th>Jefe directo</th>}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {aprobadas.map((s) => (
+                                                    <tr key={s.id}>
+                                                        <td>{nombreCompleto(s.usuario)}</td>
+                                                        <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
+                                                        <td>{formatearFechaHora(s.fecha_solicitud)}</td>
+                                                        <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                        <td>{formatearFecha(s.fecha_fin)}</td>
+                                                        <td>{nombreCompleto(s.revisor)}</td>
+                                                        <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
+                                                        {activeTab !== "jefes" && (
+                                                            <td>
+                                                                {s.usuario?.jefe
+                                                                    ? nombreCompleto(s.usuario.jefe)
+                                                                    : "-"}
+                                                            </td>
+                                                        )}
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {aprobadas.map(s => (
-                                                        <tr key={s.id}>
-                                                            <td>{nombreCompleto(s.usuario)}</td>
-                                                            <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
-                                                            <td>{formatearFechaHora(s.fecha_solicitud)}</td>
-                                                            <td>{formatearFecha(s.fecha_inicio)}</td>
-                                                            <td>{formatearFecha(s.fecha_fin)}</td>
-                                                            <td>{nombreCompleto(s.revisor)}</td>
-                                                            <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
-                                                            {activeTab !== "jefes" && <td>{s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"}</td>}
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </>
-                                    ) : <p>No hay solicitudes aprobadas.</p>}
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <p>No hay solicitudes aprobadas.</p>
+                                )}
 
-                                    {/* Rechazadas */}
-                                    <h3>Solicitudes rechazadas</h3>
-                                    {rechazadas.length > 0 ? (
-                                        <>
-                                            <table>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Nombre</th>
-                                                        <th>Rol</th>
-                                                        <th>Fecha solicitud</th>
-                                                        <th>Inicio</th>
-                                                        <th>Fin</th>
-                                                        <th>Revisado por</th>
-                                                        <th>Fecha revisión</th>
-                                                        {activeTab !== "jefes" && <th>Jefe directo</th>}
+                                {/* Rechazadas */}
+                                <h3>Solicitudes rechazadas</h3>
+                                {rechazadas.length > 0 ? (
+                                    <div className="tabla-responsive">
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Nombre</th>
+                                                    <th>Rol</th>
+                                                    <th>Fecha solicitud</th>
+                                                    <th>Inicio</th>
+                                                    <th>Fin</th>
+                                                    <th>Revisado por</th>
+                                                    <th>Fecha revisión</th>
+                                                    {activeTab !== "jefes" && <th>Jefe directo</th>}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {rechazadas.map((s) => (
+                                                    <tr key={s.id}>
+                                                        <td>{nombreCompleto(s.usuario)}</td>
+                                                        <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
+                                                        <td>{formatearFechaHora(s.fecha_solicitud)}</td>
+                                                        <td>{formatearFecha(s.fecha_inicio)}</td>
+                                                        <td>{formatearFecha(s.fecha_fin)}</td>
+                                                        <td>{nombreCompleto(s.revisor)}</td>
+                                                        <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
+                                                        {activeTab !== "jefes" && (
+                                                            <td>
+                                                                {s.usuario?.jefe
+                                                                    ? nombreCompleto(s.usuario.jefe)
+                                                                    : "-"}
+                                                            </td>
+                                                        )}
                                                     </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {rechazadas.map(s => (
-                                                        <tr key={s.id}>
-                                                            <td>{nombreCompleto(s.usuario)}</td>
-                                                            <td>{esJefe(s.usuario) ? "Jefe" : "Empleado"}</td>
-                                                            <td>{formatearFechaHora(s.fecha_solicitud)}</td>
-                                                            <td>{formatearFecha(s.fecha_inicio)}</td>
-                                                            <td>{formatearFecha(s.fecha_fin)}</td>
-                                                            <td>{nombreCompleto(s.revisor)}</td>
-                                                            <td>{formatearFechaHora(s.fecha_respuesta) || "-"}</td>
-                                                            {activeTab !== "jefes" && <td>{s.usuario?.jefe ? nombreCompleto(s.usuario.jefe) : "-"}</td>}
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
-                                        </>
-                                    ) : <p>No hay solicitudes rechazadas.</p>}
-                                </section>
-                            )
-                        )
-                    }
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <p>No hay solicitudes rechazadas.</p>
+                                )}
+                            </section>
+                        )}
 
-                    {/* 🔹 Reporte por empleado */}
+                    {/* 🔹 Reporte individual */}
                     {usuarioSeleccionado !== "todos" && empleadoSeleccionado && (
                         <section className="reporte-empleado">
-                            <h2>Reporte por empleado de solicitudes</h2>
-                            <p><strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}</p>
-                            <p><strong>Correo:</strong> {empleadoSeleccionado?.email || "-"}</p>
-
-                            {/* Mostrar jefe si rol_id === 1 */}
-                            {empleadoSeleccionado.rol_id === 1 && (
+                            <h2>Reporte por empleado</h2>
+                            <div className="info-empleado">
                                 <p>
-                                    <strong>Jefe:</strong>{" "}
-                                    {empleadoSeleccionado.jefe
-                                        ? nombreCompleto(empleadoSeleccionado.jefe)
-                                        : pendientesFiltradas[0]?.usuario?.jefe
-                                            ? nombreCompleto(pendientesFiltradas[0].usuario.jefe)
-                                            : aprobadasFiltradas[0]?.usuario?.jefe
-                                                ? nombreCompleto(aprobadasFiltradas[0].usuario.jefe)
-                                                : rechazadasFiltradas[0]?.usuario?.jefe
-                                                    ? nombreCompleto(rechazadasFiltradas[0].usuario.jefe)
-                                                    : "-"}
+                                    <strong>Nombre:</strong> {nombreCompleto(empleadoSeleccionado)}
                                 </p>
-                            )}
+                                <p>
+                                    <strong>Correo:</strong>{" "}
+                                    {empleadoSeleccionado?.email || "-"}
+                                </p>
+                                {empleadoSeleccionado.rol_id === 1 && (
+                                    <p>
+                                        <strong>Jefe:</strong>{" "}
+                                        {empleadoSeleccionado.jefe
+                                            ? nombreCompleto(empleadoSeleccionado.jefe)
+                                            : "-"}
+                                    </p>
+                                )}
+                            </div>
 
+                            {/* Secciones de solicitudes */}
 
-                            {/* Pendientes */}
                             <h3>Solicitudes pendientes</h3>
                             {pendientesFiltradas.length > 0 ? (
-                                <>
+                                <div className="tabla-responsive">
                                     <table>
                                         <thead>
                                             <tr>
@@ -497,7 +523,7 @@ export default function Reportes({ userID }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {pendientesFiltradas.map(s => (
+                                            {pendientesFiltradas.map((s) => (
                                                 <tr key={s.id}>
                                                     <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
@@ -507,14 +533,15 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
-                            ) : <p>No hay solicitudes pendientes.</p>}
+                                </div>
+                            ) : (
+                                <p>No hay solicitudes pendientes.</p>
+                            )}
 
-                            {/* Aprobadas */}
                             <h3>Solicitudes aprobadas</h3>
                             {aprobadasFiltradas.length > 0 ? (
-                                <>
-                                    <table>
+                                <div className="tabla-responsive">
+                                    <table className="tabla-responsive">
                                         <thead>
                                             <tr>
                                                 <th>Fecha solicitud</th>
@@ -525,7 +552,7 @@ export default function Reportes({ userID }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {aprobadasFiltradas.map(s => (
+                                            {aprobadasFiltradas.map((s) => (
                                                 <tr key={s.id}>
                                                     <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
@@ -536,14 +563,15 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
-                            ) : <p>No hay solicitudes aprobadas.</p>}
+                                </div>
+                            ) : (
+                                <p>No hay solicitudes aprobadas.</p>
+                            )}
 
-                            {/* Rechazadas */}
                             <h3>Solicitudes rechazadas</h3>
                             {rechazadasFiltradas.length > 0 ? (
-                                <>
-                                    <table>
+                                <div className="tabla-responsive">
+                                    <table className="tabla-responsive">
                                         <thead>
                                             <tr>
                                                 <th>Fecha solicitud</th>
@@ -554,7 +582,7 @@ export default function Reportes({ userID }) {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {rechazadasFiltradas.map(s => (
+                                            {rechazadasFiltradas.map((s) => (
                                                 <tr key={s.id}>
                                                     <td>{formatearFechaHora(s.fecha_solicitud)}</td>
                                                     <td>{formatearFecha(s.fecha_inicio)}</td>
@@ -565,20 +593,19 @@ export default function Reportes({ userID }) {
                                             ))}
                                         </tbody>
                                     </table>
-                                </>
-                            ) : <p>No hay solicitudes rechazadas.</p>}
+                                </div>
+                            ) : (
+                                <p>No hay solicitudes rechazadas.</p>
+                            )}
                         </section>
-                    )
-                    }
+                    )}
                 </>
             )}
 
-            {/* Mensaje si no hay usuarios */}
-            {
-                !loading && usuarios.length === 0 && (
-                    <p>No hay usuarios disponibles para mostrar reportes.</p>
-                )
-            }
+            {/* Si no hay usuarios */}
+            {!loading && usuarios.length === 0 && (
+                <p>No hay usuarios disponibles para mostrar reportes.</p>
+            )}
         </div>
     );
 }

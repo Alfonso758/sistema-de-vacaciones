@@ -56,7 +56,6 @@ select:focus {
 .reporte-general h2 {
   margin-bottom: 15px;
   color: #0d47a1;
-  /* azul del segundo CSS */
   border-bottom: 2px solid #1976d2;
   padding-bottom: 5px;
 }
@@ -76,7 +75,6 @@ table {
 
 thead {
   background-color: #1976d2;
-  /* azul más vivo */
   color: #fff;
 }
 
@@ -102,7 +100,7 @@ tbody td {
 
 /* Hover en filas */
 tbody tr:hover {
-  background-color: #d6eaf8;
+  background-color: #f1f5f9;
 }
 
 /* Estados de solicitud */
@@ -135,9 +133,9 @@ tbody tr:hover {
   color: #0d47a1;
 }
 
-/* Hover y tarjetas */
-tbody tr:hover {
-  background-color: #f1f5f9;
+/* Botón PDF */
+.botones-pdf {
+  margin-bottom: 20px;
 }
 
 .botones-pdf button {
@@ -215,19 +213,8 @@ tbody tr:hover {
   box-shadow: 0 0 5px rgba(25, 118, 210, 0.4);
 }
 
-/* 🔸 Responsivo: que los filtros se acomoden bien en pantallas pequeñas */
-@media (max-width: 600px) {
-  .reportes-wrap {
-    padding: 0px;
-  }
-
-  .selector-empleado {
-    flex-direction: column;
-    align-items: flex-start;
-    margin-left: 0;
-    gap: 10px;
-  }
-
+/* Responsivo */
+@media (max-width: 1050px) {
   .filtros-fecha {
     margin-left: 0;
     flex-direction: column;
@@ -244,22 +231,23 @@ tbody tr:hover {
   .filtros-fecha input[type="date"] {
     width: 100%;
   }
-
-  select {
-    font-size: 0.9rem;
-  }
-
-  .reporte-empleado h2,
-  .reporte-general h2 {
-    font-size: 1.25rem;
-  }
 }
 
-/* 🔹 Mejora visual en pantallas pequeñas */
 @media (max-width: 800px) {
+  .selector-empleado {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 0;
+    gap: 10px;
+  }
+
+  .tabla-responsive {
+    overflow-x: auto;
+  }
+
   table {
     font-size: 0.85rem;
-    min-width: 600px; /* Evita que se comprima demasiado */
+    min-width: 600px;
   }
 
   thead th,
@@ -268,8 +256,21 @@ tbody tr:hover {
   }
 }
 
-/* 🔹 En pantallas muy pequeñas, muestra un aviso visual */
-@media (max-width: 500px) {
+@media (max-width: 600px) {
+  .reportes-wrap {
+    padding: 0;
+  }
+
+  select {
+    font-size: 0.9rem;
+    width: 100%;
+  }
+
+  .reporte-empleado h2,
+  .reporte-general h2 {
+    font-size: 1.25rem;
+  }
+
   .tabla-responsive::before {
     content: "↔ Desliza para ver toda la tabla";
     display: block;
