@@ -127,35 +127,42 @@
 }
 
 .calendario-leyenda {
-  display: flex;
-  gap: 15px;
-  margin: 10px 0 20px 0;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 15px;
+    margin: 10px 0 20px 0;
+    flex-wrap: wrap;
 }
 
 .leyenda-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  color: #333;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: #333;
 }
 
 .color-bolita {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
 }
 
 .bolitas-vacaciones {
-  display: flex;
-  gap: 2px;
-  flex-wrap: wrap;
+    display: flex;
+    gap: 2px;
+    flex-wrap: wrap;
 }
 
 .bolita {
-  width: 15px;
-  height: 15px;
-  border-radius: 50%;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .calendario-wrap {
+        padding: 0px;
+    }
 }
