@@ -9,7 +9,7 @@ h2 {
 .lista-solicitudes {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 16px !important;
 }
 
 .lista-solicitudes label {
@@ -305,4 +305,41 @@ p {
 
 .modal-contenido .mensaje-error p {
     color: red !important;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .fechas-solicitud {
+        display: flex;
+        flex-direction: column;
+        row-gap: 4px !important;
+    }
+
+    .revision-respuesta {
+        flex-direction: column;
+        gap: 6px;
+        font-size: 0.8rem;
+        justify-content: flex-start;
+        align-items: flex-start;
+        text-align: left;
+    }
+
+    .revision-respuesta>* {
+        width: auto !important;
+        align-self: flex-start;
+        text-align: left;
+    }
+
+    .comentario-contenedor {
+        max-width: 100%;
+    }
+
+    .lista-solicitudes {
+        gap: 0px !important;
+    }
+
+    .fecha-respuesta {
+    font-weight: 400;
+    font-size: 0.7rem;
+}
 }
