@@ -69,7 +69,7 @@ export default function Estadisticas({ userID }) {
 
             {/* Contenido de las gráficas */}
             {loading ? (
-                <p style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>Cargando estadísticas...</p>
+                <p style={{ color: '#666', padding: '0px 0' }}>Cargando estadísticas...</p>
             ) : (
                 <>
                     {/* Gráfica de estados de solicitudes */}

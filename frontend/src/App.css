@@ -1,11 +1,8 @@
 .auth-wrapper {
   display: flex;
   flex-direction: column;
-  /* Formulario + texto */
   justify-content: center;
   align-items: center;
-
-  /* altura completa */
   padding: 20px;
 }
 
@@ -325,8 +322,6 @@
   background: linear-gradient(90deg, #911614, #e53935);
 }
 
-
-
 .boton-editar {
   margin-left: 10px;
   padding: 4px 6px;
@@ -347,7 +342,6 @@
   background-color: #f0f4ff;
   transform: scale(1.7);
 }
-
 
 .foto-contenedor {
   position: relative;
@@ -425,26 +419,19 @@
   display: flex;
   align-items: center;
   width: 100%;
-
-  /* centra verticalmente el contenido del wrapper */
 }
 
 .password-change input {
   width: 100%;
   padding-right: 40px;
-  /* deja espacio suficiente para el ícono */
   box-sizing: border-box;
-  /* para que el padding no aumente el ancho total */
 }
 
 .password-togg {
   position: absolute;
   right: 10px;
-  /* distancia desde el borde derecho */
   top: 50%;
-  /* posiciona en la mitad vertical */
   transform: translateY(-80%);
-  /* ajusta para centrar el ícono exactamente */
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -491,6 +478,6 @@
   }
 
   .boton-menu:focus {
-  background: none;
-}
+    background: none;
+  }
 }

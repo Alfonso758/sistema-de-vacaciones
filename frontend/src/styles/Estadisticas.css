@@ -7,12 +7,12 @@
     margin-bottom: 20px;
 }
 
-.grafica-pastel, .grafica-linea {
+.grafica-pastel,
+.grafica-linea {
     margin-bottom: 40px;
     background-color: #f9f9f9;
-    padding: 16px;
+    padding: 10px;
     border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .grafica-pastel h3,
@@ -28,7 +28,7 @@
     justify-content: center;
     gap: 12px;
     margin-bottom: 20px;
-    outline: none; /* quitamos outline predeterminado para el foco */
+    outline: none;
 }
 
 .selector-anio button {
@@ -73,4 +73,10 @@
 .filtros-solicitudes button.activo {
     font-weight: bold;
     color: #000;
+}
+
+@media (max-width: 600px) {
+    .estadisticas {
+        padding: 0px;
+    }
 }
