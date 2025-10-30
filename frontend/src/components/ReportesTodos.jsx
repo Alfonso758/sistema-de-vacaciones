@@ -296,7 +296,7 @@ export default function Reportes({ userID }) {
                     {/* Select dinámico según pestaña */}
                     {!loading && usuarios.length > 0 && (
                         <div className="filtro-usuario">
-                            <label>Seleccionar reporte:
+                            <label className="selector-empleado" style={{ display: "flex", gap: "10px" }}>Seleccionar reporte:
                                 <select value={usuarioSeleccionado} onChange={(e) => setUsuarioSeleccionado(e.target.value)}>
                                     <option value="todos">
                                         {activeTab === "todos"

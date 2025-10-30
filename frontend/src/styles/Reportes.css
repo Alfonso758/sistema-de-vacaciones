@@ -3,7 +3,6 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   padding: 20px;
   color: #000000;
-  /* letra negra como en el segundo CSS */
   min-height: 100vh;
 }
 
@@ -12,7 +11,6 @@
   font-size: 2rem;
   margin-bottom: 20px;
   color: #0d47a1;
-  /* azul oscuro */
   text-align: center;
   font-weight: 700;
 }
@@ -218,10 +216,15 @@ tbody tr:hover {
 }
 
 /* 🔸 Responsivo: que los filtros se acomoden bien en pantallas pequeñas */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+  .reportes-wrap {
+    padding: 0px;
+  }
+
   .selector-empleado {
     flex-direction: column;
     align-items: flex-start;
+    margin-left: 0;
     gap: 10px;
   }
 
@@ -241,26 +244,40 @@ tbody tr:hover {
   .filtros-fecha input[type="date"] {
     width: 100%;
   }
-}
-
-
-/* Responsivo */
-@media (max-width: 768px) {
-  .reportes-wrap {
-    padding: 15px;
-  }
 
   select {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+  }
+
+  .reporte-empleado h2,
+  .reporte-general h2 {
+    font-size: 1.25rem;
+  }
+}
+
+/* 🔹 Mejora visual en pantallas pequeñas */
+@media (max-width: 800px) {
+  table {
+    font-size: 0.85rem;
+    min-width: 600px; /* Evita que se comprima demasiado */
   }
 
   thead th,
   tbody td {
     padding: 8px;
   }
+}
 
-  .reporte-empleado h2,
-  .reporte-general h2 {
-    font-size: 1.25rem;
+/* 🔹 En pantallas muy pequeñas, muestra un aviso visual */
+@media (max-width: 500px) {
+  .tabla-responsive::before {
+    content: "↔ Desliza para ver toda la tabla";
+    display: block;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #555;
+    background-color: #f8f9fa;
+    padding: 6px 0;
+    border-radius: 6px 6px 0 0;
   }
 }

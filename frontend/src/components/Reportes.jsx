@@ -250,7 +250,7 @@ export default function Reportes({ userID }) {
             {/* Selector de empleado y botón PDF solo si ya cargaron empleados */}
             {!loading && empleados.length > 0 && (
                 <>
-                    <label className="selector-empleado" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <label className="selector-empleado" style={{ display: "flex", gap: "10px" }}>
                         <span>Seleccionar reporte:</span>
                         <select
                             value={selectedEmpleado}
