@@ -25,8 +25,10 @@
 /* Botones a la derecha */
 .botones-acciones {
     display: flex;
-    justify-content: flex-end; /* Empuja los botones a la derecha */
-    gap: 10px; /* Espacio entre botones */
+    justify-content: flex-end;
+    /* Empuja los botones a la derecha */
+    gap: 10px;
+    /* Espacio entre botones */
     margin-top: 8px;
 }
 
@@ -59,6 +61,14 @@
 }
 
 /* Opcional: mejorar la visual de carga y sin datos */
-.cargando, .sin-datos {
+.cargando,
+.sin-datos {
     margin-top: 10px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .dias-acumulables-container {
+        padding: 0px;
+    }
 }
