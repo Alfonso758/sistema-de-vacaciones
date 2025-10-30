@@ -5,6 +5,8 @@
   gap: 12px;
   padding: 10px;
   box-sizing: border-box;
+  margin-bottom: 50px;
+
 }
 
 .tarjeta-notificacion {
@@ -67,8 +69,10 @@
 .fecha-notificacion {
   font-size: 0.8rem;
   color: #666;
-  margin-left: auto; /* empuja la fecha a la derecha */
-  margin-right: 50px; /* espacio para la "X" */
+  margin-left: auto;
+  /* empuja la fecha a la derecha */
+  margin-right: 50px;
+  /* espacio para la "X" */
 }
 
 
@@ -105,4 +109,21 @@
 .cargando-texto {
   font-size: 1rem;
   color: #333;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+  .seccion-notificaciones {
+    gap: 12px;
+    padding: 0px;
+  }
+
+  .cabecera-notificacion h3 {
+    font-size: 0.9rem;
+  }
+
+  .fecha-notificacion {
+    font-size: 0.7rem;
+    margin-right: 30px;
+  }
 }
