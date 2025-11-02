@@ -159,11 +159,9 @@ function App() {
       }
     } catch (error) {
       console.error(error);
-      alert('Error de conexión con el servidor');
+      alert('Error de conexion con el servidor');
     }
   };
-
-
 
   const cambiarPassword = async (actual, nueva) => {
     if (!actual || !nueva) {
@@ -189,7 +187,7 @@ function App() {
       const data = await response.json();
 
       if (response.ok) {
-        alert('Contraseña actualizada correctamente');
+        alert('Contraseña actualizada ');
         setPasswordActual('');
         setPasswordNueva('');
       } else {
@@ -197,7 +195,7 @@ function App() {
       }
     } catch (error) {
       console.error(error);
-      alert('Error de conexión con el servidor');
+      alert('Error, revisa tu contraseña actual');
     }
   };
 
@@ -560,7 +558,7 @@ function App() {
                   )}
                 </button>
 
-                {passwordError && <p className="error">{passwordError}</p>}
+                {passwordError && <p className="errores">{passwordError}</p>}
               </div>
             )}
           </div>

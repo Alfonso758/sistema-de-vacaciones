@@ -53,7 +53,7 @@ function LoginForm({ onLoginSuccess }) {
 
     try {
       const token = credentialResponse?.credential;
-      if (!token) return alert('⚠️ Error: Token de Google no recibido');
+      if (!token) return alert(' Error: Token de Google no recibido');
 
       const { data } = await api.post('/google-login', { token });
       const normalizedUser = normalizeUser(data.user);

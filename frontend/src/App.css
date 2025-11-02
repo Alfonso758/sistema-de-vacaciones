@@ -465,8 +465,8 @@
 }
 
 /* Mensaje de error */
-.error {
-  color: #e63946;
+.errores {
+  color: #e63946 !important;
   font-weight: bold;
   margin-top: 10px;
 }
