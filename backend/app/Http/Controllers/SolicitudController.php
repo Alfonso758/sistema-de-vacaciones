@@ -61,6 +61,17 @@ class SolicitudController extends Controller
         // Buscar el usuario que crea la solicitud
         $usuario = Usuario::findOrFail($request->usuario_id);
 
+        // 🔹 Verificar si el usuario ya tiene una solicitud pendiente
+        $solicitudPendiente = Solicitud::where('usuario_id', $usuario->id)
+            ->where('estado_solicitud', 1) // 1 = pendiente
+            ->exists();
+
+        if ($solicitudPendiente) {
+            return response()->json([
+                'message' => 'No es posible enviar la solicitud, tienes una solicitud pendiente.'
+            ], 400);
+        }
+
         // Si el rol_id del usuario es 2 -> se aprueba automáticamente
         $estado = ($usuario->rol_id == 2) ? 2 : 1;
 
@@ -74,27 +85,10 @@ class SolicitudController extends Controller
             'estado_solicitud' => $estado
         ]);
 
-        // Si el usuario es rol_id 2, actualizar vacaciones_user
-        /*if ($usuario->rol_id == 2) {
-            $vacacionesUser = VacacionesUser::where('id_usuario', $usuario->id)
-                ->orderBy('fecha_inicio_periodo', 'desc')
-                ->first();
-
-            if ($vacacionesUser) {
-                $vacacionesUser->dias_tomados += $solicitud->total_dias;
-                $vacacionesUser->save();
-            } else {
-                Log::warning('No se encontró registro de vacaciones_user', [
-                    'usuario_id' => $usuario->id
-                ]);
-            }
-        }*/
-
         // 🔹 Enviar notificación según el rol del usuario
         if ($usuario->rol_id == 1) {
-            // Si el usuario es rol 1 (empleado) → se notifica al jefe y a todos los administradores
             $revisor = Usuario::find($usuario->jefe_directo);
-            $administradores = Usuario::where('rol_id', 3)->get(); // suponiendo que 3 = admin
+            $administradores = Usuario::where('rol_id', 3)->get(); // 3 = admin
 
             if ($revisor) {
                 $revisor->notify(new NuevaSolicitud($usuario, $solicitud->id));
@@ -104,7 +98,6 @@ class SolicitudController extends Controller
                 $admin->notify(new NuevaSolicitud($usuario, $solicitud->id));
             }
         } elseif ($usuario->rol_id == 2) {
-            // Si el usuario es rol 2 (jefe) → solo se notifica a los administradores
             $administradores = Usuario::where('rol_id', 3)->get();
 
             foreach ($administradores as $admin) {
