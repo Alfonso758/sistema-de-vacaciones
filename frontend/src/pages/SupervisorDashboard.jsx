@@ -249,9 +249,15 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
 
     } catch (err) {
       console.error(err);
-      setMensajeError(err.message || 'Error al enviar solicitud.');
+
+      // Verificar si Laravel devolvió un mensaje personalizado
+      if (err.response && err.response.data && err.response.data.message) {
+        setMensajeError(err.response.data.message);
+      } else {
+        setMensajeError('Error al enviar solicitud.');
+      }
     } finally {
-      setLoading(false); // 🔹 detener spinner siempre
+      setLoading(false);
     }
   };
 

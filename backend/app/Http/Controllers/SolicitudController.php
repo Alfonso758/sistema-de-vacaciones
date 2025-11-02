@@ -72,6 +72,23 @@ class SolicitudController extends Controller
             ], 400);
         }
 
+        // 🔹 Validación adicional para rol_id = 2 (jefes)
+        if ($usuario->rol_id == 2) {
+            $ultimaSolicitud = Solicitud::where('usuario_id', $usuario->id)
+                ->orderBy('fecha_solicitud', 'desc')
+                ->first();
+
+            if ($ultimaSolicitud) {
+                $fechaUltima = Carbon::parse($ultimaSolicitud->fecha_solicitud);
+
+                if ($fechaUltima->greaterThanOrEqualTo(now()->subHours(72))) {
+                    return response()->json([
+                        'message' => 'No es posible enviar la solicitud. Debes esperar 72 horas desde tu última solicitud.'
+                    ], 400);
+                }
+            }
+        }
+
         // Si el rol_id del usuario es 2 -> se aprueba automáticamente
         $estado = ($usuario->rol_id == 2) ? 2 : 1;
 
