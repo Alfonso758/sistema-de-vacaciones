@@ -75,6 +75,7 @@ class SolicitudController extends Controller
         // 🔹 Validación adicional para rol_id = 2 (jefes)
         if ($usuario->rol_id == 2) {
             $ultimaSolicitud = Solicitud::where('usuario_id', $usuario->id)
+                ->where('estado_solicitud', 2) // Solo considerar solicitudes aprobadas
                 ->orderBy('fecha_solicitud', 'desc')
                 ->first();
 
@@ -82,8 +83,9 @@ class SolicitudController extends Controller
                 $fechaUltima = Carbon::parse($ultimaSolicitud->fecha_solicitud);
 
                 if ($fechaUltima->greaterThanOrEqualTo(now()->subHours(72))) {
+                    $horasRestantes = 72 - $fechaUltima->diffInHours(now());
                     return response()->json([
-                        'message' => 'No es posible enviar la solicitud. Debes esperar 72 horas desde tu última solicitud.'
+                        'message' => "No es posible enviar la solicitud. Debes esperar {$horasRestantes} horas desde tu última solicitud aprobada."
                     ], 400);
                 }
             }
