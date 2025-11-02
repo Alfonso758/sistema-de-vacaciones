@@ -56,7 +56,7 @@
   margin-top: 10px;
 }
 
-.usuario-actions button {
+.aprobar {
   background: linear-gradient(90deg, #1976d2, #0d47a1);
   color: #ffffff;
   border: none;
@@ -68,8 +68,24 @@
   transition: all 0.2s ease;
 }
 
-.usuario-actions button:hover {
+.aprobar:hover {
     background: linear-gradient(90deg, #0d47a1, #1976d2);
+}
+
+.eliminar {
+  background: linear-gradient(90deg, #e53935, #911614);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 120px;
+  transition: all 0.2s ease;
+}
+
+.eliminar:hover {
+    background: linear-gradient(90deg, #911614, #e53935);
 }
 
 .usuario-actions select {

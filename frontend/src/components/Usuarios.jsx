@@ -12,6 +12,7 @@ export default function Usuarios({ userID }) {
     const [error, setError] = useState(null);
     const [busqueda, setBusqueda] = useState("");
     const [usuarioEditando, setUsuarioEditando] = useState(null);
+    const [loadingEliminar, setLoadingEliminar] = useState({});
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const token = localStorage.getItem("token");
@@ -79,6 +80,35 @@ export default function Usuarios({ userID }) {
             ...usuarioSeleccionado,
             activo: Number(usuarioSeleccionado.activo),
         });
+    };
+
+    const eliminarUsuario = async (id) => {
+        const confirmado = window.confirm(
+            "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer."
+        );
+        if (!confirmado) return; // Si el usuario cancela, no se hace nada
+
+        setLoadingEliminar(prev => ({ ...prev, [id]: true }));
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error("Error al eliminar usuario");
+
+            const data = await response.json();
+            alert(data.message); // Mensaje de éxito
+            fetchUsuarios();     // Actualizar la lista
+        } catch (err) {
+            console.error("Error eliminando usuario:", err);
+            alert("No se pudo eliminar el usuario.");
+        } finally {
+            setLoadingEliminar(prev => ({ ...prev, [id]: false }));
+        }
     };
 
     // Cambios en formulario
@@ -264,7 +294,45 @@ export default function Usuarios({ userID }) {
                                 {usuarioActual.rol_id === 3 && (
                                     <div className="usuario-actions">
                                         <button
+                                            onClick={() => eliminarUsuario(u.id)}
+                                            disabled={loadingEliminar[u.id]}
+                                            className="eliminar"
+                                        >
+                                            {loadingEliminar[u.id] ? (
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    style={{ margin: 'auto', background: 'none', display: 'block' }}
+                                                    width="24"
+                                                    height="24"
+                                                    viewBox="0 0 100 100"
+                                                    preserveAspectRatio="xMidYMid"
+                                                >
+                                                    <circle
+                                                        cx="50"
+                                                        cy="50"
+                                                        fill="none"
+                                                        stroke="#fff"
+                                                        strokeWidth="10"
+                                                        r="35"
+                                                        strokeDasharray="164.93361431346415 56.97787143782138"
+                                                    >
+                                                        <animateTransform
+                                                            attributeName="transform"
+                                                            type="rotate"
+                                                            repeatCount="indefinite"
+                                                            dur="1s"
+                                                            values="0 50 50;360 50 50"
+                                                            keyTimes="0;1"
+                                                        />
+                                                    </circle>
+                                                </svg>
+                                            ) : (
+                                                'Eliminar'
+                                            )}
+                                        </button>
+                                        <button
                                             onClick={() => editarUsuario(u.id)}
+                                            className="aprobar"
                                         >
                                             <FaEdit
                                                 style={{ marginRight: 6 }}

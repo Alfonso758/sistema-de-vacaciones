@@ -227,7 +227,7 @@ class UsuarioController extends Controller
         }
 
         $usuario->delete();
-        return response()->json(['message' => 'Usuario eliminado correctamente']);
+        return response()->json(['message' => 'Usuario eliminado']);
     }
 
     public function getJefes()

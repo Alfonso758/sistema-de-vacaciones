@@ -26,6 +26,7 @@ Route::get('/usuarios', [UsuarioController::class, 'usuarios']);
 Route::get('/usuarios/pendientes', [UsuarioController::class, 'usuariosPend']);
 Route::get('/usuarios/{id}', [UsuarioController::class, 'show']);
 Route::put('/usuarios/{id}/activar', [UsuarioController::class, 'activarUsuario']);
+Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy']);
 
 // 🔹 Solicitudes
 Route::prefix('solicitudes')->group(function () {

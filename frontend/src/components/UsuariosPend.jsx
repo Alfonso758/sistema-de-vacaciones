@@ -7,6 +7,7 @@ export default function UsuariosPend({ userID }) {
     const [loading, setLoading] = useState(true);
     const [usuarioActual, setUsuarioActual] = useState(null);
     const [loadingBoton, setLoadingBoton] = useState({});
+    const [loadingEliminar, setLoadingEliminar] = useState({});
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const rolesMap = {
@@ -75,6 +76,35 @@ export default function UsuariosPend({ userID }) {
         }
     };
 
+    const eliminarUsuario = async (id) => {
+        const confirmado = window.confirm(
+            "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer."
+        );
+        if (!confirmado) return; // Si el usuario cancela, no se hace nada
+
+        setLoadingEliminar(prev => ({ ...prev, [id]: true }));
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${apiBaseUrl}/api/usuarios/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error("Error al eliminar usuario");
+
+            const data = await response.json();
+            alert(data.message); // Mensaje de éxito
+            fetchUsuarios();     // Actualizar la lista
+        } catch (err) {
+            console.error("Error eliminando usuario:", err);
+            alert("No se pudo eliminar el usuario.");
+        } finally {
+            setLoadingEliminar(prev => ({ ...prev, [id]: false }));
+        }
+    };
+
     // Filtramos usuarios con seguridad: convertir activo y nuevo a booleanos
     const usuariosFiltrados = usuarios.filter(u => {
         if (!usuarioActual) return false;
@@ -125,7 +155,45 @@ export default function UsuariosPend({ userID }) {
                             </div>
 
                             <div className="usuario-actions">
-                                <button onClick={() => aprobarUsuario(u.id)} disabled={loadingBoton[u.id]}>
+                                <button
+                                    onClick={() => eliminarUsuario(u.id)}
+                                    disabled={loadingEliminar[u.id]}
+                                    className="eliminar"
+                                >
+                                    {loadingEliminar[u.id] ? (
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            style={{ margin: 'auto', background: 'none', display: 'block' }}
+                                            width="24"
+                                            height="24"
+                                            viewBox="0 0 100 100"
+                                            preserveAspectRatio="xMidYMid"
+                                        >
+                                            <circle
+                                                cx="50"
+                                                cy="50"
+                                                fill="none"
+                                                stroke="#fff"
+                                                strokeWidth="10"
+                                                r="35"
+                                                strokeDasharray="164.93361431346415 56.97787143782138"
+                                            >
+                                                <animateTransform
+                                                    attributeName="transform"
+                                                    type="rotate"
+                                                    repeatCount="indefinite"
+                                                    dur="1s"
+                                                    values="0 50 50;360 50 50"
+                                                    keyTimes="0;1"
+                                                />
+                                            </circle>
+                                        </svg>
+                                    ) : (
+                                        'Eliminar'
+                                    )}
+                                </button>
+
+                                <button onClick={() => aprobarUsuario(u.id)} disabled={loadingBoton[u.id]} className="aprobar">
                                     {loadingBoton[u.id] ? (
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
