@@ -73,6 +73,7 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
   const switchingTimeoutRef = useRef(null);
   const endSwitchTimeoutRef = useRef(null);
   const [isSwitching, setIsSwitching] = useState(false);
+  const barraRef = useRef(null);
 
   // Manejo del toggle con cierre primero si hay otro abierto
   const toggleDesgloce = (titulo) => {
@@ -118,10 +119,17 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
   }, [pestañaActiva]);
 
   useEffect(() => {
-    const handleClickOutside = () => setDesgloceAbierto(null);
+    if (!menuColapsado) return; // 👉 Solo escuchar clics si la barra está colapsada
+
+    const handleClickOutside = (e) => {
+      if (barraRef.current && !barraRef.current.contains(e.target)) {
+        setDesgloceAbierto(null);
+      }
+    };
+
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [menuColapsado]);
 
   // Contenido según pestaña
   const mostrarContenido = () => {
@@ -166,7 +174,7 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
 
   return (
     <div className={`contenedor-dashboard pantalla-completa ${menuColapsado ? 'menu-colapsado' : ''}`}>
-      <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
+      <aside ref={barraRef} className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
         <div className="encabezado-barra">
           <h3>{!menuColapsado && 'Panel'}</h3>
         </div>

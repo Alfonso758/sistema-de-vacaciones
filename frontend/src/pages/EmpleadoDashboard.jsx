@@ -25,6 +25,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
   const [fechaFinAnio, setFechaFinAnio] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [diasAnuales, setDiasAnuales] = useState(0);
+  const barraRef = useRef(null);
 
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
@@ -137,10 +138,17 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
   }, [pestañaSeleccionada, fetchDatosVacaciones, reloadKey]);
 
   useEffect(() => {
-    const handleClickOutside = () => setDesgloceAbierto(null);
+    if (!menuColapsado) return; // 👉 Solo escuchar clics si la barra está colapsada
+
+    const handleClickOutside = (e) => {
+      if (barraRef.current && !barraRef.current.contains(e.target)) {
+        setDesgloceAbierto(null);
+      }
+    };
+
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [menuColapsado]);
 
 
   // Enviar solicitud
@@ -277,7 +285,7 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
 
   return (
     <div className={`contenedor-dashboard pantalla-completa ${menuColapsado ? 'menu-colapsado' : ''}`}>
-      <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
+      <aside ref={barraRef} className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
         <div className="encabezado-barra">
           <h3>{!menuColapsado && 'Panel'}</h3>
         </div>

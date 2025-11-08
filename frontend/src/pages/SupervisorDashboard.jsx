@@ -31,6 +31,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
   const [fechaFinAnio, setFechaFinAnio] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [diasAnuales, setDiasAnuales] = useState(0);
+  const barraRef = useRef(null);
   const apiBaseUrl = import.meta.env.VITE_API_URL;
 
   // Menú
@@ -161,10 +162,17 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
   }, [pestañaSeleccionada, fetchDatosVacaciones, reloadKey]);
 
   useEffect(() => {
-    const handleClickOutside = () => setDesgloceAbierto(null);
+    if (!menuColapsado) return; // 👉 Solo escuchar clics si la barra está colapsada
+
+    const handleClickOutside = (e) => {
+      if (barraRef.current && !barraRef.current.contains(e.target)) {
+        setDesgloceAbierto(null);
+      }
+    };
+
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
-  }, []);
+  }, [menuColapsado]);
 
   // --- Enviar solicitud ---
   const enviarSolicitud = async (e) => {
@@ -283,7 +291,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
 
   return (
     <div className={`contenedor-dashboard pantalla-completa ${menuColapsado ? 'menu-colapsado' : ''}`}>
-      <aside className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
+      <aside ref={barraRef} className={`barra-lateral ${menuColapsado ? 'colapsada' : ''}`}>
         <div className="encabezado-barra">
           <h3>{!menuColapsado && 'Panel'}</h3>
         </div>
