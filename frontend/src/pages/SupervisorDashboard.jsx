@@ -345,6 +345,10 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
                           onClick={(e) => {
                             e.stopPropagation();
                             setPestañaSeleccionada(nombre);
+
+                            if (window.innerWidth <= 600) {
+                              setMenuColapsado(true);
+                            }
                           }}
                         >
                           {!menuColapsado && <span className="texto">{nombre}</span>}
@@ -368,6 +372,10 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
                           onClick={() => {
                             setPestañaSeleccionada(nombre);
                             setDesgloceAbierto(null);
+
+                            if (window.innerWidth <= 600) {
+                              setMenuColapsado(true);
+                            }
                           }}
                         >
                           {nombre}

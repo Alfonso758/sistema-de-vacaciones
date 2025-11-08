@@ -338,6 +338,11 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
                           onClick={(e) => {
                             e.stopPropagation();
                             setPestañaSeleccionada(nombre);
+
+                            // 👇 Ocultar la barra lateral si es pantalla pequeña
+                            if (window.innerWidth <= 600) {
+                              setMenuColapsado(true);
+                            }
                           }}
                         >
                           {!menuColapsado && <span className="texto">{nombre}</span>}
@@ -349,7 +354,6 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
                   {/* Submenú flotante (solo colapsado) */}
                   {menuColapsado && desgloceAbierto === titulo && (
                     <ul className="submenu-flotante" onClick={(e) => e.stopPropagation()}>
-                      {/* 🔹 Aquí agregamos el título del grupo */}
                       <li className="submenu-titulo">
                         <strong>{titulo}</strong>
                       </li>
@@ -361,6 +365,11 @@ export default function EmpleadoDashboard({ userID, pestañaActiva, menuColapsad
                           onClick={() => {
                             setPestañaSeleccionada(nombre);
                             setDesgloceAbierto(null);
+
+                            // 👇 Ocultar barra lateral si es pantalla pequeña
+                            if (window.innerWidth <= 600) {
+                              setMenuColapsado(true);
+                            }
                           }}
                         >
                           {nombre}
