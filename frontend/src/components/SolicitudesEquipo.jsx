@@ -8,6 +8,8 @@ export default function SolicitudesEquipo({ userID }) {
     const [loadingBoton, setLoadingBoton] = useState({});
     const [comentarios, setComentarios] = useState({});
     const [filtro, setFiltro] = useState('1');
+    const [rolID, setRolID] = useState(null);
+    const [jefe, setJefe] = useState(null);
     const apiBaseUrl = import.meta.env.VITE_API_URL;
 
     const estados = {
@@ -126,6 +128,24 @@ export default function SolicitudesEquipo({ userID }) {
             });
     }, [userID]);
 
+    useEffect(() => {
+        if (!userID) return;
+
+        fetch(`${apiBaseUrl}/api/usuarios/${userID}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data) {
+                    setRolID(data.rol_id);
+                    setJefe(data.jefe || null); // 🔹 asume que el backend devuelve un objeto jefe
+                }
+            })
+            .catch(err => console.error("Error cargando usuario:", err));
+    }, [userID]);
+
     // ----------------- FILTRADO -----------------
     const solicitudesFiltradas = filtro ? solicitudes.filter(s => String(s.estado_solicitud) === filtro) : solicitudes;
 
@@ -193,10 +213,24 @@ export default function SolicitudesEquipo({ userID }) {
                                 </div>
                             </div>
 
-                            {/* Info del empleado */}
-                            {solicitud.usuario && (
-                                <p><FaUser style={{ marginRight: '5px' }} /> <strong>{solicitud.usuario.name} {solicitud.usuario.surnames}</strong></p>
-                            )}
+                            {/* Contenedor de info de empleado y jefe */}
+                            <div className="info-empleado">
+                                {/* Info del empleado */}
+                                {solicitud.usuario && (
+                                    <p className="nombre-empleado">
+                                        <FaUser style={{ marginRight: '5px' }} />
+                                        <strong>{solicitud.usuario.name} {solicitud.usuario.surnames}</strong>
+                                    </p>
+                                )}
+
+                                {/* Mostrar el jefe del empleado de la solicitud si el usuario actual tiene rol 3 */}
+                                {rolID === 3 && solicitud.usuario?.jefe && (
+                                    <p className="info-jefe">
+                                        <FaUser style={{ marginRight: '5px' }} />
+                                         <strong className="label-jefe">Jefe:</strong> {solicitud.usuario.jefe.name} {solicitud.usuario.jefe.surnames}
+                                    </p>
+                                )}
+                            </div>
 
                             {/* Fechas de inicio y fin */}
                             <div className="fechas-solicitud">

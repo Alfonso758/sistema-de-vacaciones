@@ -12,6 +12,20 @@ h2 {
   to { transform: rotate(360deg); }
 }
 
+.info-empleado {
+    display: flex;
+    flex-direction: column; 
+    gap: 0; 
+}
+
+.info-empleado p {
+    margin: 0;
+    display: flex;
+}
+
+.label-jefe {
+    margin-right: 6px; 
+}
 
 p,
 label {

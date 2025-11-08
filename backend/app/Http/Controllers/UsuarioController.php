@@ -160,7 +160,7 @@ class UsuarioController extends Controller
     // 🔹 Obtener un usuario por ID
     public function show($id)
     {
-        $usuario = Usuario::find($id);
+        $usuario = Usuario::with('jefe')->find($id); // 👈 aquí cargamos la relación
         if (!$usuario) {
             return response()->json(['error' => 'Usuario no encontrado'], 404);
         }

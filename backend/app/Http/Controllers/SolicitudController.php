@@ -272,9 +272,9 @@ class SolicitudController extends Controller
             $empleados = Usuario::where('jefe_directo', $jefeId)->pluck('id');
         }
 
-        // 3. Obtener solicitudes de esos empleados
+        // 3. Obtener solicitudes de esos empleados con el jefe del empleado incluido
         $solicitudes = solicitudesVacaciones::whereIn('usuario_id', $empleados)
-            ->with(['usuario', 'revisor']) // trae info de empleado y revisor
+            ->with(['usuario.jefe', 'revisor'])
             ->get();
 
         return response()->json($solicitudes);
