@@ -122,9 +122,9 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado, 
     const handleClickOutside = (e) => {
       const esPantallaPequeña = window.innerWidth <= 600;
       if (barraRef.current && barraRef.current.contains(e.target)) return;
-      if (e.target.closest(".boton-colapsar")) return;
 
       if (esPantallaPequeña) {
+        if (e.target.closest(".boton-colapsar")) return;
         setMenuColapsado(true);
       } else if (menuColapsado) {
         setDesgloceAbierto(null);
