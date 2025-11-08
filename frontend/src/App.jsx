@@ -1,4 +1,4 @@
-import {FaUser, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaUser, FaQuestionCircle, FaSignOutAlt, FaEdit, FaCamera, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 import { useState, useEffect, useRef } from 'react';
 import LoginForm from './components/LoginForm';
@@ -576,6 +576,7 @@ function App() {
                 userName={usuario.nombre}
                 userSurname={usuario.apellidos}
                 menuColapsado={menuColapsado}
+                setMenuColapsado={setMenuColapsado}
               />
             )}
             {usuario.rol_id === 2 && usuario.activo === true && (
@@ -584,6 +585,7 @@ function App() {
                 userName={usuario.nombre}
                 userSurname={usuario.apellidos}
                 menuColapsado={menuColapsado}
+                setMenuColapsado={setMenuColapsado}
               />
             )}
             {usuario.rol_id === 3 && usuario.activo === true && (
@@ -592,6 +594,7 @@ function App() {
                 userName={usuario.nombre}
                 userSurname={usuario.apellidos}
                 menuColapsado={menuColapsado}
+                setMenuColapsado={setMenuColapsado}
               />
             )}
           </>

@@ -16,7 +16,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-export default function SupervisorDashboard({ userID, pestañaActiva, menuColapsado }) {
+export default function SupervisorDashboard({ userID, pestañaActiva, menuColapsado, setMenuColapsado }) {
   // Estados de formulario
   const [fechaInicioVacaciones, setFechaInicioVacaciones] = useState('');
   const [fechaFinVacaciones, setFechaFinVacaciones] = useState('');
@@ -162,16 +162,20 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
   }, [pestañaSeleccionada, fetchDatosVacaciones, reloadKey]);
 
   useEffect(() => {
-    if (!menuColapsado) return; // 👉 Solo escuchar clics si la barra está colapsada
-
     const handleClickOutside = (e) => {
-      if (barraRef.current && !barraRef.current.contains(e.target)) {
+      const esPantallaPequeña = window.innerWidth <= 600;
+      if (barraRef.current && barraRef.current.contains(e.target)) return;
+      if (e.target.closest(".boton-colapsar")) return;
+
+      if (esPantallaPequeña) {
+        setMenuColapsado(true);
+      } else if (menuColapsado) {
         setDesgloceAbierto(null);
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [menuColapsado]);
 
   // --- Enviar solicitud ---

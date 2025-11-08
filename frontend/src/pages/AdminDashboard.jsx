@@ -17,7 +17,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
-export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }) {
+export default function AdminDashboard({ userID, pestañaActiva, menuColapsado, setMenuColapsado }) {
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
     "Solicitudes": {
@@ -119,16 +119,20 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado }
   }, [pestañaActiva]);
 
   useEffect(() => {
-    if (!menuColapsado) return; // 👉 Solo escuchar clics si la barra está colapsada
-
     const handleClickOutside = (e) => {
-      if (barraRef.current && !barraRef.current.contains(e.target)) {
+      const esPantallaPequeña = window.innerWidth <= 600;
+      if (barraRef.current && barraRef.current.contains(e.target)) return;
+      if (e.target.closest(".boton-colapsar")) return;
+
+      if (esPantallaPequeña) {
+        setMenuColapsado(true);
+      } else if (menuColapsado) {
         setDesgloceAbierto(null);
       }
     };
 
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
   }, [menuColapsado]);
 
   // Contenido según pestaña
