@@ -11,6 +11,7 @@ import DiasInhabiles from '../components/DiasInhabiles';
 import ReportesTodos from '../components/ReportesTodos';
 import EstadisticasTodas from '../components/EstadisticasTodas';
 import Notificaciones from '../components/Notificaciones';
+import api from '../services/api';
 import { FaUsers, FaListAlt, FaCalendarAlt, FaBell, FaBars, FaChartPie, FaCog } from 'react-icons/fa';
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -18,6 +19,8 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
 
 export default function AdminDashboard({ userID, pestañaActiva, menuColapsado, setMenuColapsado }) {
+  const [nuevasNotificaciones, setNuevasNotificaciones] = useState(0);
+
   // Menú tipo acordeón con iconos en títulos y opciones
   const menu = {
     "Solicitudes": {
@@ -51,11 +54,16 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado, 
       ]
     },
     "Notificaciones": {
-      icono: <FaBell />,
+      icono: (
+        <div className="icono-notificacion">
+          <FaBell />
+          {nuevasNotificaciones > 0 && <span className="indicador-rojo" />}
+        </div>
+      ),
       opciones: [
         { nombre: "Ver notificaciones" }
       ]
-    },
+    }
     /*"Configuración": {
       icono: <FaCog />,
       opciones: [
@@ -101,6 +109,26 @@ export default function AdminDashboard({ userID, pestañaActiva, menuColapsado, 
       }, ANIMATION_MS);
     }, ANIMATION_MS);
   };
+
+  useEffect(() => {
+    const fetchNotificacionesNuevas = async () => {
+      try {
+        const res = await api.get(`/notificaciones?userID=${userID}`);
+        const nuevas = res.data.filter(
+          n => n.id_usuario === userID && (!n.leido || n.leido === 0)
+        ).length;
+        setNuevasNotificaciones(nuevas);
+      } catch (err) {
+        console.error("Error al cargar notificaciones nuevas:", err);
+      }
+    };
+
+    fetchNotificacionesNuevas();
+
+    // 🔁 recarga cada segundo
+    const intervalo = setInterval(fetchNotificacionesNuevas, 1000);
+    return () => clearInterval(intervalo);
+  }, [userID]);
 
   // limpiar timeouts al desmontar
   useEffect(() => {

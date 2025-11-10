@@ -14,15 +14,23 @@ class ActualizarDiasTomados extends Command
     public function handle()
     {
         $ahora = Carbon::now();
-        $limite = $ahora->subHours(72);
+        $limite = $ahora->copy()->subHours(71); // solicitudes con 71h o más
 
-        // Buscar solicitudes aprobadas (estado_solicitud = 2) de jefes de área (rol_id = 2)
+        // Buscar solicitudes aprobadas, no procesadas y con más de 71h
         $solicitudes = DB::table('solicitudes_vacaciones')
-            ->join('users', 'solicitudes_vacaciones.id_usuario', '=', 'users.id')
+            ->join('users', 'solicitudes_vacaciones.usuario_id', '=', 'users.id')
             ->where('solicitudes_vacaciones.estado_solicitud', 2)
             ->where('users.rol_id', 2)
+            ->where(function ($q) {
+                $q->where('solicitudes_vacaciones.procesada', 0)
+                    ->orWhereNull('solicitudes_vacaciones.procesada');
+            })
             ->where('solicitudes_vacaciones.fecha_solicitud', '<=', $limite)
-            ->select('solicitudes_vacaciones.id_usuario', 'solicitudes_vacaciones.total_dias')
+            ->select(
+                'solicitudes_vacaciones.id',
+                'solicitudes_vacaciones.usuario_id',
+                'solicitudes_vacaciones.total_dias'
+            )
             ->get();
 
         $contador = 0;
@@ -30,7 +38,7 @@ class ActualizarDiasTomados extends Command
         foreach ($solicitudes as $solicitud) {
             // Buscar el último registro del usuario en vacaciones_user
             $vacacion = DB::table('vacaciones_user')
-                ->where('id_usuario', $solicitud->id_usuario)
+                ->where('id_usuario', $solicitud->usuario_id)
                 ->orderByDesc('id')
                 ->first();
 
@@ -41,10 +49,15 @@ class ActualizarDiasTomados extends Command
                     ->where('id', $vacacion->id)
                     ->update(['dias_tomados' => $nuevoValor]);
 
+                // Marcar la solicitud como procesada
+                DB::table('solicitudes_vacaciones')
+                    ->where('id', $solicitud->id)
+                    ->update(['procesada' => 1]);
+
                 $contador++;
             }
         }
 
-        $this->info("✅ Se actualizaron {$contador} registros correctamente.");
+        $this->info("✅ Se actualizaron {$contador} solicitudes correctamente.");
     }
 }

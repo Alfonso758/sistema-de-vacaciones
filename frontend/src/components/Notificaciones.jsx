@@ -12,7 +12,6 @@ export default function Notificaciones({ userID }) {
                 const response = await fetch(`${apiBaseUrl}/api/notificaciones?userID=${userID}`);
                 const data = await response.json();
 
-                // Filtrar solo las notificaciones del usuario actual
                 const notis = data
                     .filter(n => n.id_usuario === userID)
                     .map(n => ({
@@ -22,7 +21,6 @@ export default function Notificaciones({ userID }) {
                         fecha: n.fecha_envio,
                         visto: n.leido === 1
                     }))
-                    // Ordenar de la más nueva a la más antigua
                     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
 
                 setNotificaciones(notis);
@@ -60,7 +58,6 @@ export default function Notificaciones({ userID }) {
             await fetch(`${apiBaseUrl}/api/notificaciones/${id}`, {
                 method: "DELETE",
             });
-
             setNotificaciones(prev => prev.filter(n => n.id !== id));
         } catch (error) {
             console.error("Error al eliminar notificación:", error);
@@ -81,9 +78,14 @@ export default function Notificaciones({ userID }) {
     return (
         <div className="seccion-notificaciones">
             <h2>Notificaciones</h2>
+
             {cargando ? (
                 <div className="cargando-container">
                     <p className="cargando-texto">Cargando notificaciones...</p>
+                </div>
+            ) : notificaciones.length === 0 ? (
+                <div className="sin-notificaciones">
+                    <p>No hay notificaciones</p>
                 </div>
             ) : (
                 <>

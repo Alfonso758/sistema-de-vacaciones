@@ -31,6 +31,7 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
   const [fechaFinAnio, setFechaFinAnio] = useState('');
   const [fechaIngreso, setFechaIngreso] = useState('');
   const [diasAnuales, setDiasAnuales] = useState(0);
+  const [nuevasNotificaciones, setNuevasNotificaciones] = useState(0);
   const barraRef = useRef(null);
   const apiBaseUrl = import.meta.env.VITE_API_URL;
 
@@ -65,11 +66,16 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
       ]
     },
     "Notificaciones": {
-      icono: <FaBell />,
+      icono: (
+        <div className="icono-notificacion">
+          <FaBell />
+          {nuevasNotificaciones > 0 && <span className="indicador-rojo" />}
+        </div>
+      ),
       opciones: [
         { nombre: "Ver notificaciones" }
       ]
-    },
+    }
     /*
     "Configuración": {
       icono: <FaCog />,
@@ -177,6 +183,26 @@ export default function SupervisorDashboard({ userID, pestañaActiva, menuColaps
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, [menuColapsado]);
+
+  useEffect(() => {
+    const fetchNotificacionesNuevas = async () => {
+      try {
+        const res = await api.get(`/notificaciones?userID=${userID}`);
+        const nuevas = res.data.filter(
+          n => n.id_usuario === userID && (!n.leido || n.leido === 0)
+        ).length;
+        setNuevasNotificaciones(nuevas);
+      } catch (err) {
+        console.error("Error al cargar notificaciones nuevas:", err);
+      }
+    };
+
+    fetchNotificacionesNuevas();
+
+    // 🔁 recarga cada segundo
+    const intervalo = setInterval(fetchNotificacionesNuevas, 1000);
+    return () => clearInterval(intervalo);
+  }, [userID]);
 
   // --- Enviar solicitud ---
   const enviarSolicitud = async (e) => {
